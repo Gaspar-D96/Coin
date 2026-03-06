@@ -1,1 +1,748 @@
-# Coin
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiveScribe – Meeting Transcriber</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3048;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --purple: #a78bfa;
+    --text: #e8eaf2;
+    --text-muted: #6b7594;
+    --text-dim: #3d4566;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px; opacity: 0.2; pointer-events: none; z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 28px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+
+  /* ── Nav tabs ── */
+  .nav-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; width: fit-content; }
+  .nav-tab { padding: 8px 20px; border-radius: 9px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s; }
+  .nav-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  .page { display: none; flex-direction: column; gap: 18px; }
+  .page.active { display: flex; }
+
+  /* ── Header ── */
+  header { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 24px rgba(79,142,247,0.35); }
+  .logo-text { font-size: 19px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .status-pill { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-muted); transition: all 0.3s; }
+  .status-pill.listening { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.1); color: var(--green); }
+  .status-pill.paused { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.1); color: var(--amber); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .status-pill.listening .status-dot { animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.75);} }
+
+  /* ── Instructions ── */
+  .instructions { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
+  .instructions-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .instructions h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--accent); }
+  .instructions p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+  .instructions strong { color: var(--text); font-weight: 500; }
+
+  /* ── Steps ── */
+  .steps { display: flex; gap: 10px; flex-wrap: wrap; }
+  .step { flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; gap: 11px; align-items: flex-start; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(79,142,247,0.15); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+  .step-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .step-text strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 13px; }
+
+  /* ── Volume ── */
+  .volume-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; }
+  .volume-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); white-space: nowrap; }
+  .volume-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .volume-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 3px; transition: width 0.08s; }
+  .volume-hint { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; white-space: nowrap; min-width: 55px; text-align: right; }
+
+  /* ── Buttons ── */
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn { display: flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 10px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #3a7bd5); color: white; box-shadow: 0 4px 16px rgba(79,142,247,0.3); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,247,0.4); }
+  .btn-danger { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+  .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.22); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--border); }
+  .btn-amber { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+  .btn-amber:hover:not(:disabled) { background: rgba(245,158,11,0.22); }
+  .btn-mute { background: rgba(124,58,237,0.12); color: var(--purple); border: 1px solid rgba(124,58,237,0.3); }
+  .btn-mute:hover:not(:disabled) { background: rgba(124,58,237,0.22); }
+  .btn-mute.muted { background: rgba(124,58,237,0.25); color: #c4b5fd; border-color: rgba(124,58,237,0.6); }
+  .btn-ai { background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,142,247,0.2)); color: var(--purple); border: 1px solid rgba(124,58,237,0.4); }
+  .btn-ai:hover:not(:disabled) { background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,142,247,0.3)); }
+  .controls-right { margin-left: auto; display: flex; gap: 8px; }
+
+  /* ── Stats ── */
+  .stats-bar { display: flex; gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .stat { flex: 1; background: var(--surface); padding: 11px 16px; }
+  .stat-label { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .stat-value { font-size: 19px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .stat-value.accent { color: var(--accent); }
+
+  /* ── Transcript panel ── */
+  .transcript-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 280px; }
+  .transcript-header { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .transcript-title { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
+  .entry-count { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; font-size: 11px; color: var(--text-muted); }
+  .transcript-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 2px; scroll-behavior: smooth; }
+  .transcript-body::-webkit-scrollbar { width: 5px; }
+  .transcript-body::-webkit-scrollbar-track { background: transparent; }
+  .transcript-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-dim); padding: 36px; text-align: center; }
+  .empty-icon { font-size: 38px; opacity: 0.3; }
+  .empty-state p { font-size: 14px; line-height: 1.7; max-width: 300px; }
+
+  .transcript-entry { display: flex; gap: 14px; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; animation: fadeIn 0.25s ease; }
+  .transcript-entry:hover { background: var(--surface2); }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);} }
+  .entry-time { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 3px; min-width: 52px; }
+  .entry-text { font-size: 14px; color: var(--text); line-height: 1.7; flex: 1; }
+  .entry-interim { font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.7; padding: 6px 12px; border-left: 2px solid var(--accent); margin-left: 66px; margin-top: 2px; border-radius: 0 6px 6px 0; background: rgba(79,142,247,0.05); animation: fadeIn 0.2s ease; }
+
+  /* ── Claude prompt banner ── */
+  .claude-banner { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.3); border-radius: 10px; padding: 13px 16px; font-size: 13px; line-height: 1.6; display: none; color: var(--purple); }
+  .claude-banner.show { display: flex; align-items: center; gap: 12px; }
+  .claude-banner strong { color: #c4b5fd; }
+  .claude-banner-text { flex: 1; }
+
+  /* ── Banners ── */
+  .banner { border-radius: 10px; padding: 12px 16px; font-size: 13px; line-height: 1.6; display: none; }
+  .banner.show { display: block; }
+  .banner.error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+  .banner.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); }
+  .banner.success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+
+  /* ── Library ── */
+  .library-header { display: flex; align-items: center; justify-content: space-between; }
+  .library-header h2 { font-size: 16px; font-weight: 600; }
+  .library-count { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+  .library-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 48px; text-align: center; color: var(--text-dim); }
+  .library-empty .empty-icon { font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px; }
+  .library-empty p { font-size: 14px; line-height: 1.7; }
+
+  .library-grid { display: flex; flex-direction: column; gap: 10px; }
+  .library-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 16px; transition: border-color 0.2s, background 0.2s; cursor: pointer; }
+  .library-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .library-card-icon { font-size: 24px; flex-shrink: 0; }
+  .library-card-info { flex: 1; min-width: 0; }
+  .library-card-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .library-card-meta { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; display: flex; gap: 14px; }
+  .library-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .lib-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .lib-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lib-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .lib-btn.ai-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* ── Viewer modal ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 760px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { color: var(--text); }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+  .modal-tab { padding: 10px 20px; font-size: 13px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; background: none; border-top: none; border-left: none; border-right: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
+  .modal-body::-webkit-scrollbar { width: 5px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .modal-transcript-entry { display: flex; gap: 14px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+  .modal-transcript-entry:last-child { border-bottom: none; }
+  .modal-entry-time { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 2px; min-width: 52px; }
+  .modal-entry-text { font-size: 13px; color: var(--text); line-height: 1.65; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; padding-bottom: 16px; position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎙️</div>
+      <div>
+        <div class="logo-text">LiveScribe</div>
+        <div class="logo-sub">Meeting Transcriber</div>
+      </div>
+    </div>
+    <div class="status-pill" id="statusPill">
+      <div class="status-dot"></div>
+      <span id="statusText">Ready</span>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('record')">🎙️ Record</button>
+    <button class="nav-tab" onclick="showPage('library')">📁 Library <span id="libBadge"></span></button>
+  </div>
+
+  <!-- ════ RECORD PAGE ════ -->
+  <div class="page active" id="page-record">
+
+    <div class="instructions">
+      <div class="instructions-icon">💡</div>
+      <div>
+        <h3>How to use</h3>
+        <p>Open your meeting on any platform. Click <strong>Start Transcribing</strong>, pick your screen or meeting tab, and tick <strong>"Share system audio"</strong> or <strong>"Share tab audio"</strong>. Transcript builds live. Click <strong>Save & Store</strong> when done — it saves to your Library automatically.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Open your meeting</strong>Any platform works</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Click Start Transcribing</strong>Chrome asks what to share</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Tick "Share audio"</strong>At the bottom of the popup ✅</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Save & Store when done</strong>Goes to your Library</div></div>
+    </div>
+
+    <div class="banner error" id="errorBanner"></div>
+    <div class="banner warning" id="warnBanner"></div>
+    <div class="banner success" id="successBanner"></div>
+
+    <div class="volume-row">
+      <span class="volume-label">🔊 Audio level</span>
+      <div class="volume-bar-bg"><div class="volume-bar" id="volumeBar"></div></div>
+      <span class="volume-hint" id="volumeHint">—</span>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="btnStart" onclick="startTranscription()">▶ Start Transcribing</button>
+      <button class="btn btn-amber" id="btnPause" onclick="pauseTranscription()" disabled>⏸ Pause</button>
+      <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>⏹ Stop</button>
+      <button class="btn btn-mute" id="btnMute" onclick="toggleMute()" disabled>🔇 Silence Audio</button>
+      <div class="controls-right">
+        <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>📋 Copy</button>
+        <button class="btn btn-primary" id="btnSave" onclick="saveAndStore()" disabled>💾 Save & Store</button>
+        <button class="btn btn-secondary" onclick="clearTranscript()">🗑 Clear</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-label">Duration</div><div class="stat-value accent" id="statDuration">00:00</div></div>
+      <div class="stat"><div class="stat-label">Words</div><div class="stat-value" id="statWords">0</div></div>
+      <div class="stat"><div class="stat-label">Segments</div><div class="stat-value" id="statSegments">0</div></div>
+      <div class="stat"><div class="stat-label">Status</div><div class="stat-value" id="statStatus" style="color:var(--green)">Idle</div></div>
+    </div>
+
+    <div class="transcript-wrapper">
+      <div class="transcript-header">
+        <div class="transcript-title">📄 Live Transcript <span class="entry-count" id="entryCount">0 entries</span></div>
+        <div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;" id="sessionDate"></div>
+      </div>
+      <div class="transcript-body" id="transcriptBody">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🎙️</div>
+          <p>Your transcript will appear here as people speak.<br><strong style="color:var(--text)">Press Start Transcribing to begin.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claude prompt copied banner -->
+    <div class="claude-banner" id="claudeBanner">
+      <span style="font-size:20px;">✅</span>
+      <div class="claude-banner-text">
+        <strong>Prompt copied!</strong> Now open <a href="https://claude.ai" target="_blank" style="color:#c4b5fd;">claude.ai</a> in a new tab and paste it (Ctrl+V). Claude will summarise your transcript instantly.
+      </div>
+      <button class="lib-btn" onclick="document.getElementById('claudeBanner').classList.remove('show')">✕</button>
+    </div>
+
+  </div>
+
+  <!-- ════ LIBRARY PAGE ════ -->
+  <div class="page" id="page-library">
+    <div class="library-header">
+      <h2>📁 Transcript Library</h2>
+      <span class="library-count" id="libraryCount">0 transcripts</span>
+    </div>
+    <div id="libraryContainer"></div>
+  </div>
+
+</div>
+
+<!-- ── Viewer Modal ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Transcript</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs" id="modalTabs">
+      <button class="modal-tab active" onclick="switchModalTab('transcript', this)">📄 Transcript</button>
+
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" onclick="downloadFromModal()">💾 Download .txt</button>
+      <button class="btn btn-ai" style="font-size:12px;padding:8px 14px;" id="modalSummariseBtn" onclick="summarizeViaClaudeFromModal()">✨ Summarize via Claude</button>
+      <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<footer>LiveScribe · Powered by Deepgram · Summarize via Claude AI · Transcripts stored locally in your browser</footer>
+
+<script>
+  // ── Keys ────────────────────────────────────────────────
+  const DEEPGRAM_KEY = 'b8ac00f795740070b283d4508e4b6bfe93d58f9b';
+  const STORAGE_KEY  = 'livescribe_transcripts';
+
+  // ── State ───────────────────────────────────────────────
+  let isListening = false, isPaused = false, isMuted = false;
+  let transcriptEntries = [], wordCount = 0;
+  let startTime = null, durationInterval = null;
+  let screenStream = null, audioContext = null;
+  let volumeInterval = null, socket = null, processor = null, gainNode = null;
+  let currentModalId = null, currentModalData = null;
+
+  document.getElementById('sessionDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+  // ── Page nav ─────────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'library') renderLibrary();
+  }
+
+  // ── Banners ──────────────────────────────────────────────
+  function showBanner(type, msg) {
+    ['errorBanner','warnBanner','successBanner'].forEach(id => document.getElementById(id).classList.remove('show'));
+    const map = { error:'errorBanner', warning:'warnBanner', success:'successBanner' };
+    const el = document.getElementById(map[type]);
+    el.innerHTML = msg; el.classList.add('show');
+    if (type !== 'error') setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  // ── Status ───────────────────────────────────────────────
+  function setStatus(state) {
+    const pill = document.getElementById('statusPill');
+    const stat = document.getElementById('statStatus');
+    pill.className = 'status-pill';
+    if (state === 'listening') { pill.classList.add('listening'); document.getElementById('statusText').textContent = 'Listening...'; stat.textContent = 'Live'; stat.style.color = 'var(--green)'; }
+    else if (state === 'paused') { pill.classList.add('paused'); document.getElementById('statusText').textContent = 'Paused'; stat.textContent = 'Paused'; stat.style.color = 'var(--amber)'; }
+    else { document.getElementById('statusText').textContent = 'Ready'; stat.textContent = 'Idle'; stat.style.color = 'var(--green)'; }
+  }
+
+  // ── Volume meter ─────────────────────────────────────────
+  function startVolumeMeter(stream) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      volumeInterval = setInterval(() => {
+        analyser.getByteFrequencyData(data);
+        const pct = Math.min(100, (data.reduce((a,b)=>a+b,0)/data.length)*3);
+        document.getElementById('volumeBar').style.width = pct + '%';
+        document.getElementById('volumeHint').textContent = pct<2?'Silent':pct<15?'Low':pct<55?'Good ✓':'Loud';
+      }, 80);
+    } catch(e) {}
+  }
+
+  function stopVolumeMeter() {
+    clearInterval(volumeInterval);
+    document.getElementById('volumeBar').style.width = '0%';
+    document.getElementById('volumeHint').textContent = '—';
+  }
+
+  // ── Start ────────────────────────────────────────────────
+  async function startTranscription() {
+    ['errorBanner','warnBanner','successBanner'].forEach(id => document.getElementById(id).classList.remove('show'));
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: { echoCancellation: false, noiseSuppression: false, sampleRate: 16000 } });
+    } catch(e) {
+      showBanner('warning', '⚠️ Screen sharing was cancelled. Please try again and click <strong>Share</strong>.');
+      return;
+    }
+    const audioTracks = screenStream.getAudioTracks();
+    if (audioTracks.length === 0) {
+      showBanner('warning', '⚠️ <strong>No audio captured.</strong> Please Stop and try again — tick <strong>"Share system audio"</strong> or <strong>"Share tab audio"</strong> in the popup.');
+      screenStream.getTracks().forEach(t => t.stop()); screenStream = null; return;
+    }
+    screenStream.getVideoTracks().forEach(t => t.stop());
+    const audioStream = new MediaStream(audioTracks);
+    startVolumeMeter(audioStream);
+    connectDeepgram(audioStream);
+  }
+
+  // ── Deepgram ─────────────────────────────────────────────
+  function connectDeepgram(audioStream) {
+    const url = 'wss://api.deepgram.com/v1/listen?' + new URLSearchParams({ encoding:'linear16', sample_rate:'16000', channels:'1', punctuate:'true', smart_format:'true', interim_results:'true', language:'en-US' });
+    socket = new WebSocket(url, ['token', DEEPGRAM_KEY]);
+
+    socket.onopen = () => {
+      isListening = true; setStatus('listening');
+      document.getElementById('btnStart').disabled = true;
+      document.getElementById('btnPause').disabled = false;
+      document.getElementById('btnStop').disabled = false;
+      document.getElementById('btnMute').disabled = false;
+      const es = document.getElementById('emptyState');
+      if (es) es.style.display = 'none';
+      if (!startTime) { startTime = Date.now(); durationInterval = setInterval(updateDuration, 1000); }
+      showBanner('success', '✅ Connected — transcription is live!');
+      startAudioPipeline(audioStream);
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type !== 'Results') return;
+        const t = data.channel?.alternatives?.[0]?.transcript;
+        if (!t) return;
+        if (data.is_final) { removeInterim(); if (t.trim()) addEntry(t.trim()); }
+        else showInterim(t);
+      } catch(e) {}
+    };
+
+    socket.onerror = () => { showBanner('error', '❌ Could not connect to transcription service. Check your internet and try again.'); stopTranscription(); };
+    socket.onclose = () => { if (isListening) { showBanner('warning', '⚠️ Connection closed. Click Start to reconnect.'); stopTranscription(); } };
+  }
+
+  // ── Audio pipeline ───────────────────────────────────────
+  function startAudioPipeline(stream) {
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      const source = audioContext.createMediaStreamSource(stream);
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = 0; // silent by default
+      const processor = audioContext.createScriptProcessor(4096, 1, 1);
+      processor.onaudioprocess = (e) => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        const f32 = e.inputBuffer.getChannelData(0);
+        const i16 = new Int16Array(f32.length);
+        for (let i = 0; i < f32.length; i++) i16[i] = Math.max(-32768, Math.min(32767, f32[i] * 32768));
+        socket.send(i16.buffer);
+      };
+      source.connect(processor);
+      processor.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+    } catch(e) { showBanner('error', '❌ Audio error: ' + e.message); stopTranscription(); }
+  }
+
+  // ── Pause ────────────────────────────────────────────────
+  function pauseTranscription() {
+    if (!isPaused) {
+      isPaused = true;
+      if (processor) processor.disconnect();
+      setStatus('paused');
+      document.getElementById('btnPause').textContent = '▶ Resume';
+      clearInterval(durationInterval); removeInterim();
+    } else {
+      isPaused = false;
+      if (processor && audioContext) processor.connect(audioContext.destination);
+      setStatus('listening');
+      document.getElementById('btnPause').textContent = '⏸ Pause';
+      durationInterval = setInterval(updateDuration, 1000);
+    }
+  }
+
+  // ── Mute ─────────────────────────────────────────────────
+  function toggleMute() {
+    if (!gainNode) return;
+    isMuted = !isMuted;
+    gainNode.gain.value = isMuted ? 1 : 0;
+    const btn = document.getElementById('btnMute');
+    btn.textContent = isMuted ? '🔊 Audio On' : '🔇 Silence Audio';
+    btn.classList.toggle('muted', isMuted);
+  }
+
+  // ── Stop ─────────────────────────────────────────────────
+  function stopTranscription() {
+    isListening = false; isPaused = false;
+    if (processor) { try { processor.disconnect(); } catch(e){} }
+    if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; }
+    if (socket) { try { socket.close(); } catch(e){} socket = null; }
+    if (screenStream) { screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
+    stopVolumeMeter(); clearInterval(durationInterval); removeInterim();
+    setStatus('idle');
+    isMuted = false; gainNode = null;
+    document.getElementById('btnMute').textContent = '🔇 Silence Audio';
+    document.getElementById('btnMute').classList.remove('muted');
+    document.getElementById('btnStart').disabled = false;
+    document.getElementById('btnPause').disabled = true;
+    document.getElementById('btnPause').textContent = '⏸ Pause';
+    document.getElementById('btnStop').disabled = true;
+    document.getElementById('btnMute').disabled = true;
+    if (transcriptEntries.length > 0) {
+      document.getElementById('btnCopy').disabled = false;
+      document.getElementById('btnSave').disabled = false;
+    }
+  }
+
+  // ── Transcript helpers ───────────────────────────────────
+  function addEntry(text) {
+    const time = new Date().toTimeString().slice(0,8);
+    transcriptEntries.push({ time, text });
+    wordCount += text.split(/\s+/).filter(w=>w).length;
+    document.getElementById('statWords').textContent = wordCount;
+    document.getElementById('statSegments').textContent = transcriptEntries.length;
+    document.getElementById('entryCount').textContent = transcriptEntries.length + ' entries';
+    const body = document.getElementById('transcriptBody');
+    const el = document.createElement('div');
+    el.className = 'transcript-entry';
+    el.innerHTML = `<span class="entry-time">${time}</span><span class="entry-text">${escapeHtml(text)}</span>`;
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+    document.getElementById('btnCopy').disabled = false;
+    document.getElementById('btnSave').disabled = false;
+  }
+
+  function showInterim(text) {
+    removeInterim();
+    const body = document.getElementById('transcriptBody');
+    const el = document.createElement('div');
+    el.className = 'entry-interim'; el.id = 'interimEntry';
+    el.textContent = text + '…';
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function removeInterim() { const el = document.getElementById('interimEntry'); if (el) el.remove(); }
+
+  function updateDuration() {
+    if (!startTime) return;
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('statDuration').textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  }
+
+  function copyTranscript() {
+    navigator.clipboard.writeText(buildText()).then(() => {
+      const btn = document.getElementById('btnCopy');
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => btn.textContent = '📋 Copy', 2000);
+    });
+  }
+
+  // ── Save & Store ─────────────────────────────────────────
+  function saveAndStore() {
+    if (transcriptEntries.length === 0) return;
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0,10);
+    const timeStr = date.toTimeString().slice(0,5).replace(':','-');
+    const filename = `transcript-${dateStr}-${timeStr}`;
+    const duration = document.getElementById('statDuration').textContent;
+    const record = {
+      id: Date.now().toString(),
+      filename,
+      date: date.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' }),
+      time: date.toTimeString().slice(0,5),
+      duration,
+      wordCount,
+      entries: [...transcriptEntries],
+      summary: null,
+      createdAt: date.toISOString()
+    };
+    const lib = loadLibrary();
+    lib.unshift(record);
+    saveLibrary(lib);
+    updateLibBadge();
+
+    // Also download the .txt file
+    const blob = new Blob([buildText()], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename + '.txt';
+    a.click();
+
+    showBanner('success', `✅ Saved as <strong>${filename}</strong> and stored in your Library!`);
+  }
+
+  function clearTranscript() {
+    if (transcriptEntries.length > 0 && !confirm('Clear the transcript? This cannot be undone.')) return;
+    transcriptEntries = []; wordCount = 0; startTime = null;
+    document.getElementById('transcriptBody').innerHTML = `<div class="empty-state" id="emptyState"><div class="empty-icon">🎙️</div><p>Your transcript will appear here.<br><strong style="color:var(--text)">Press Start Transcribing to begin.</strong></p></div>`;
+    ['statWords','statSegments'].forEach(id => document.getElementById(id).textContent = '0');
+    document.getElementById('statDuration').textContent = '00:00';
+    document.getElementById('entryCount').textContent = '0 entries';
+    document.getElementById('btnCopy').disabled = true;
+    document.getElementById('btnSave').disabled = true;
+    closeSummary();
+  }
+
+  function buildText(entries, wc, dur) {
+    const e = entries || transcriptEntries;
+    const w = wc || wordCount;
+    const d = dur || document.getElementById('statDuration').textContent;
+    const date = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    let out = `MEETING TRANSCRIPT\nDate: ${date}\nDuration: ${d}\nWords: ${w}\n${'─'.repeat(50)}\n\n`;
+    e.forEach(en => { out += `[${en.time}]  ${en.text}\n\n`; });
+    return out;
+  }
+
+  // ── Library storage ──────────────────────────────────────
+  function loadLibrary() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+  }
+
+  function saveLibrary(lib) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(lib)); } catch(e) {
+      showBanner('error', '⚠️ Could not save to library — browser storage may be full.');
+    }
+  }
+
+  function updateLibBadge() {
+    const lib = loadLibrary();
+    const badge = document.getElementById('libBadge');
+    badge.textContent = lib.length > 0 ? `(${lib.length})` : '';
+  }
+
+  // ── Render library ───────────────────────────────────────
+  function renderLibrary() {
+    const lib = loadLibrary();
+    const container = document.getElementById('libraryContainer');
+    document.getElementById('libraryCount').textContent = lib.length + ' transcript' + (lib.length !== 1 ? 's' : '');
+
+    if (lib.length === 0) {
+      container.innerHTML = `<div class="library-empty"><span class="empty-icon">📁</span><p>No transcripts saved yet.<br>Record a meeting and click <strong>Save & Store</strong> to build your library.</p></div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="library-grid">${lib.map(r => `
+      <div class="library-card" onclick="openModal('${r.id}')">
+        <div class="library-card-icon">📄</div>
+        <div class="library-card-info">
+          <div class="library-card-name">${escapeHtml(r.filename)}</div>
+          <div class="library-card-meta">
+            <span>📅 ${r.date}</span>
+            <span>🕐 ${r.time}</span>
+            <span>⏱ ${r.duration}</span>
+            <span>📝 ${r.wordCount} words</span>
+          </div>
+        </div>
+        <div class="library-card-actions" onclick="event.stopPropagation()">
+          <button class="lib-btn ai-btn" onclick="summarizeViaClaude('${r.id}')">✨ Summarize via Claude</button>
+          <button class="lib-btn" onclick="downloadRecord('${r.id}')">💾 Download</button>
+          <button class="lib-btn danger" onclick="deleteRecord('${r.id}')">🗑 Delete</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function deleteRecord(id) {
+    if (!confirm('Delete this transcript? This cannot be undone.')) return;
+    const lib = loadLibrary().filter(r => r.id !== id);
+    saveLibrary(lib);
+    updateLibBadge();
+    renderLibrary();
+  }
+
+  function downloadRecord(id) {
+    const rec = loadLibrary().find(r => r.id === id);
+    if (!rec) return;
+    const blob = new Blob([buildText(rec.entries, rec.wordCount, rec.duration)], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = rec.filename + '.txt';
+    a.click();
+  }
+
+  // ── Modal ────────────────────────────────────────────────
+  function openModal(id) {
+    const rec = loadLibrary().find(r => r.id === id);
+    if (!rec) return;
+    currentModalId = id;
+    currentModalData = rec;
+    document.getElementById('modalTitle').textContent = rec.filename;
+    switchModalTab('transcript', document.querySelector('.modal-tab'));
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  function switchModalTab(tab, btn) {
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const body = document.getElementById('modalBody');
+    const rec = currentModalData;
+    if (!rec) return;
+
+    if (tab === 'transcript') {
+      body.innerHTML = rec.entries.map(e =>
+        `<div class="modal-transcript-entry"><span class="modal-entry-time">${e.time}</span><span class="modal-entry-text">${escapeHtml(e.text)}</span></div>`
+      ).join('');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+    currentModalId = null; currentModalData = null;
+  }
+
+  function closeModalOnBg(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+  function downloadFromModal() {
+    if (currentModalData) downloadRecord(currentModalData.id);
+  }
+
+  // ── Summarize via Claude ─────────────────────────────────
+  function summarizeViaClaude(id) {
+    const rec = loadLibrary().find(r => r.id === id);
+    if (!rec) return;
+    const fullText = rec.entries.map(e => `[${e.time}] ${e.text}`).join('\n');
+    const prompt = `Please summarise this meeting transcript. Give me:\n1. A short overview paragraph\n2. Key points as bullet points\n3. Any action items or next steps\n\nFile: ${rec.filename}\nDate: ${rec.date}\nDuration: ${rec.duration}\nWords: ${rec.wordCount}\n\n${fullText}`;
+    navigator.clipboard.writeText(prompt).then(() => {
+      // Switch to record page to show banner
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-record').classList.add('active');
+      document.querySelector('.nav-tab').classList.add('active');
+      const banner = document.getElementById('claudeBanner');
+      banner.classList.add('show');
+      setTimeout(() => banner.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }).catch(() => {
+      // Fallback: open a textarea with the prompt
+      prompt_fallback(prompt);
+    });
+  }
+
+  function summarizeViaClaudeFromModal() {
+    const id = currentModalId;
+    closeModal();
+    if (id) summarizeViaClaude(id);
+  }
+
+  function prompt_fallback(prompt) {
+    const win = window.open('', '_blank');
+    win.document.write('<html><body style="background:#111;color:#eee;font-family:monospace;padding:24px;"><h3>Copy this prompt and paste it into claude.ai:</h3><textarea style="width:100%;height:80vh;background:#222;color:#eee;border:1px solid #444;padding:12px;font-size:13px;">' + prompt.replace(/</g,'&lt;') + '</textarea></body></html>');
+  }
+
+  function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Init
+  updateLibBadge();
+</script>
+</body>
+</html>
