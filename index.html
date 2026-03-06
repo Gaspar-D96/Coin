@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScribe – Meeting Transcriber</title>
+<title>Coin – Meeting Transcriber</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
   :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2333;
-    --border: #2a3048;
-    --accent: #4f8ef7;
-    --accent2: #7c3aed;
-    --green: #22c55e;
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --purple: #a78bfa;
-    --text: #e8eaf2;
-    --text-muted: #6b7594;
-    --text-dim: #3d4566;
+    --bg: #050705;
+    --surface: #0c110c;
+    --surface2: #111a11;
+    --border: #1a2e1a;
+    --accent: #1a7a4a;
+    --accent2: #145c38;
+    --green: #1a7a4a;
+    --red: #ff4444;
+    --amber: #ffb800;
+    --purple: #1a7a4a;
+    --text: #e8f5e8;
+    --text-muted: #5a7a5a;
+    --text-dim: #2a3e2a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Rajdhani', sans-serif;
     background: var(--bg); color: var(--text);
     min-height: 100vh; display: flex; flex-direction: column;
   }
@@ -34,29 +34,29 @@
   body::before {
     content: ''; position: fixed; inset: 0;
     background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px; opacity: 0.2; pointer-events: none; z-index: 0;
+    background-size: 32px 32px; opacity: 0.15; pointer-events: none; z-index: 0;
   }
 
   .container { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 28px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 18px; }
 
   /* ── Nav tabs ── */
   .nav-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; width: fit-content; }
-  .nav-tab { padding: 8px 20px; border-radius: 9px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s; }
-  .nav-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .nav-tab { padding: 8px 20px; border-radius: 9px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s; }
+  .nav-tab.active { background: rgba(26,122,74,0.08); color: var(--accent); border: 1px solid rgba(26,122,74,0.25); font-weight: 600; }
   .nav-tab:hover:not(.active) { color: var(--text); }
 
   .page { display: none; flex-direction: column; gap: 18px; }
   .page.active { display: flex; }
 
   /* ── Header ── */
-  header { display: flex; align-items: center; justify-content: space-between; }
+  header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border); position: relative; } header::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 120px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 24px rgba(79,142,247,0.35); }
-  .logo-text { font-size: 19px; font-weight: 600; letter-spacing: -0.3px; }
-  .logo-sub { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; }
+  .logo-text { font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+  .logo-sub { font-size: 11px; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; }
 
-  .status-pill { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-muted); transition: all 0.3s; }
-  .status-pill.listening { border-color: rgba(34,197,94,0.5); background: rgba(34,197,94,0.1); color: var(--green); }
+  .status-pill { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); transition: all 0.3s; }
+  .status-pill.listening { border-color: rgba(0,210,106,0.6); background: rgba(26,122,74,0.07); color: var(--green); }
   .status-pill.paused { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.1); color: var(--amber); }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   .status-pill.listening .status-dot { animation: pulse 1.4s infinite; }
@@ -65,54 +65,54 @@
   /* ── Instructions ── */
   .instructions { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
   .instructions-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-  .instructions h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--accent); }
+  .instructions h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
   .instructions p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
   .instructions strong { color: var(--text); font-weight: 500; }
 
   /* ── Steps ── */
   .steps { display: flex; gap: 10px; flex-wrap: wrap; }
   .step { flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; gap: 11px; align-items: flex-start; }
-  .step-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(79,142,247,0.15); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'DM Mono', monospace; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(26,122,74,0.1); border: 1px solid rgba(26,122,74,0.3); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Share Tech Mono', monospace; }
   .step-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
   .step-text strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 13px; }
 
   /* ── Volume ── */
   .volume-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; }
-  .volume-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); white-space: nowrap; }
+  .volume-label { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); white-space: nowrap; }
   .volume-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
   .volume-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 3px; transition: width 0.08s; }
-  .volume-hint { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; white-space: nowrap; min-width: 55px; text-align: right; }
+  .volume-hint { font-size: 11px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; white-space: nowrap; min-width: 55px; text-align: right; }
 
   /* ── Buttons ── */
   .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .btn { display: flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 10px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn { display: flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 10px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), #3a7bd5); color: white; box-shadow: 0 4px 16px rgba(79,142,247,0.3); }
-  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,247,0.4); }
+  .btn-primary { background: linear-gradient(135deg, #1a7a4a, #0f4a2e); color: #050705; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 16px rgba(26,122,74,0.25); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,210,106,0.5); }
   .btn-danger { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
   .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.22); }
   .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-secondary:hover:not(:disabled) { background: var(--border); }
   .btn-amber { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
   .btn-amber:hover:not(:disabled) { background: rgba(245,158,11,0.22); }
-  .btn-mute { background: rgba(124,58,237,0.12); color: var(--purple); border: 1px solid rgba(124,58,237,0.3); }
-  .btn-mute:hover:not(:disabled) { background: rgba(124,58,237,0.22); }
-  .btn-mute.muted { background: rgba(124,58,237,0.25); color: #c4b5fd; border-color: rgba(124,58,237,0.6); }
-  .btn-ai { background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,142,247,0.2)); color: var(--purple); border: 1px solid rgba(124,58,237,0.4); }
-  .btn-ai:hover:not(:disabled) { background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,142,247,0.3)); }
+  .btn-mute { background: rgba(26,122,74,0.07); color: var(--accent); border: 1px solid rgba(26,122,74,0.2); }
+  .btn-mute:hover:not(:disabled) { background: rgba(26,122,74,0.15); }
+  .btn-mute.muted { background: rgba(26,122,74,0.15); color: #4db87a; border-color: rgba(0,210,106,0.7); }
+  .btn-ai { background: rgba(26,122,74,0.08); color: var(--accent); border: 1px solid rgba(26,122,74,0.25); }
+  .btn-ai:hover:not(:disabled) { background: rgba(26,122,74,0.15); }
   .controls-right { margin-left: auto; display: flex; gap: 8px; }
 
   /* ── Stats ── */
   .stats-bar { display: flex; gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
   .stat { flex: 1; background: var(--surface); padding: 11px 16px; }
-  .stat-label { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-  .stat-value { font-size: 19px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .stat-value.accent { color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .stat-value { font-size: 19px; font-weight: 600; font-family: 'Share Tech Mono', monospace; }
+  .stat-value.accent { color: var(--accent); text-shadow: 0 0 12px rgba(26,122,74,0.35); }
 
   /* ── Transcript panel ── */
   .transcript-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 280px; }
   .transcript-header { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .transcript-title { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
+  .transcript-title { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
   .entry-count { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; font-size: 11px; color: var(--text-muted); }
   .transcript-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 2px; scroll-behavior: smooth; }
   .transcript-body::-webkit-scrollbar { width: 5px; }
@@ -126,14 +126,14 @@
   .transcript-entry { display: flex; gap: 14px; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; animation: fadeIn 0.25s ease; }
   .transcript-entry:hover { background: var(--surface2); }
   @keyframes fadeIn { from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);} }
-  .entry-time { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 3px; min-width: 52px; }
+  .entry-time { font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 3px; min-width: 52px; }
   .entry-text { font-size: 14px; color: var(--text); line-height: 1.7; flex: 1; }
-  .entry-interim { font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.7; padding: 6px 12px; border-left: 2px solid var(--accent); margin-left: 66px; margin-top: 2px; border-radius: 0 6px 6px 0; background: rgba(79,142,247,0.05); animation: fadeIn 0.2s ease; }
+  .entry-interim { font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.7; padding: 6px 12px; border-left: 2px solid var(--accent); margin-left: 66px; margin-top: 2px; border-radius: 0 6px 6px 0; background: rgba(26,122,74,0.04); animation: fadeIn 0.2s ease; }
 
   /* ── Claude prompt banner ── */
-  .claude-banner { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.3); border-radius: 10px; padding: 13px 16px; font-size: 13px; line-height: 1.6; display: none; color: var(--purple); }
+  .claude-banner { background: rgba(26,122,74,0.06); border: 1px solid rgba(26,122,74,0.25); border-radius: 10px; padding: 13px 16px; font-size: 13px; line-height: 1.6; display: none; color: var(--accent); }
   .claude-banner.show { display: flex; align-items: center; gap: 12px; }
-  .claude-banner strong { color: #c4b5fd; }
+  .claude-banner strong { color: #4db87a; }
   .claude-banner-text { flex: 1; }
 
   /* ── Banners ── */
@@ -146,7 +146,7 @@
   /* ── Library ── */
   .library-header { display: flex; align-items: center; justify-content: space-between; }
   .library-header h2 { font-size: 16px; font-weight: 600; }
-  .library-count { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+  .library-count { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); }
   .library-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 48px; text-align: center; color: var(--text-dim); }
   .library-empty .empty-icon { font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px; }
   .library-empty p { font-size: 14px; line-height: 1.7; }
@@ -157,12 +157,12 @@
   .library-card-icon { font-size: 24px; flex-shrink: 0; }
   .library-card-info { flex: 1; min-width: 0; }
   .library-card-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-  .library-card-meta { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; display: flex; gap: 14px; }
+  .library-card-meta { font-size: 12px; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; display: flex; gap: 14px; }
   .library-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
-  .lib-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
-  .lib-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lib-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Rajdhani', sans-serif; }
+  .lib-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(26,122,74,0.07); }
   .lib-btn.danger:hover { border-color: var(--red); color: var(--red); }
-  .lib-btn.ai-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .lib-btn.ai-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(26,122,74,0.08); }
 
   /* ── Viewer modal ── */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); }
@@ -173,18 +173,18 @@
   .modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
   .modal-close:hover { color: var(--text); }
   .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
-  .modal-tab { padding: 10px 20px; font-size: 13px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; background: none; border-top: none; border-left: none; border-right: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .modal-tab { padding: 10px 20px; font-size: 13px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Rajdhani', sans-serif; transition: all 0.2s; }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
   .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
   .modal-body::-webkit-scrollbar { width: 5px; }
   .modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .modal-transcript-entry { display: flex; gap: 14px; padding: 5px 0; border-bottom: 1px solid var(--border); }
   .modal-transcript-entry:last-child { border-bottom: none; }
-  .modal-entry-time { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 2px; min-width: 52px; }
+  .modal-entry-time { font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--text-dim); white-space: nowrap; padding-top: 2px; min-width: 52px; }
   .modal-entry-text { font-size: 13px; color: var(--text); line-height: 1.65; }
   .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
 
-  footer { text-align: center; font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; padding-bottom: 16px; position: relative; z-index: 1; }
+  footer { text-align: center; font-size: 11px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; padding-bottom: 16px; position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -193,9 +193,9 @@
   <!-- Header -->
   <header>
     <div class="logo">
-      <div class="logo-icon">🎙️</div>
+      <div class="logo-icon" style="font-size:15px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;color:#050705;">CO</div>
       <div>
-        <div class="logo-text">LiveScribe</div>
+        <div class="logo-text">Coin</div>
         <div class="logo-sub">Meeting Transcriber</div>
       </div>
     </div>
@@ -313,7 +313,7 @@
   </div>
 </div>
 
-<footer>LiveScribe · Powered by Deepgram · Summarize via Claude AI · Transcripts stored locally in your browser</footer>
+<footer>Coin · Powered by Deepgram · Summarize via Claude AI · Transcripts stored locally in your browser</footer>
 
 <script>
   // ── Keys ────────────────────────────────────────────────
@@ -708,24 +708,13 @@
   }
 
   // ── Summarize via Claude ─────────────────────────────────
+  let _summarizeRecId = null;
+
   function summarizeViaClaude(id) {
     const rec = loadLibrary().find(r => r.id === id);
     if (!rec) return;
-    const fullText = rec.entries.map(e => `[${e.time}] ${e.text}`).join('\n');
-    const prompt = `Please summarise this meeting transcript. Give me:\n1. A short overview paragraph\n2. Key points as bullet points\n3. Any action items or next steps\n\nFile: ${rec.filename}\nDate: ${rec.date}\nDuration: ${rec.duration}\nWords: ${rec.wordCount}\n\n${fullText}`;
-    navigator.clipboard.writeText(prompt).then(() => {
-      // Switch to record page to show banner
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-record').classList.add('active');
-      document.querySelector('.nav-tab').classList.add('active');
-      const banner = document.getElementById('claudeBanner');
-      banner.classList.add('show');
-      setTimeout(() => banner.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-    }).catch(() => {
-      // Fallback: open a textarea with the prompt
-      prompt_fallback(prompt);
-    });
+    _summarizeRecId = id;
+    showStep1Modal(rec);
   }
 
   function summarizeViaClaudeFromModal() {
@@ -734,9 +723,265 @@
     if (id) summarizeViaClaude(id);
   }
 
-  function prompt_fallback(prompt) {
-    const win = window.open('', '_blank');
-    win.document.write('<html><body style="background:#111;color:#eee;font-family:monospace;padding:24px;"><h3>Copy this prompt and paste it into claude.ai:</h3><textarea style="width:100%;height:80vh;background:#222;color:#eee;border:1px solid #444;padding:12px;font-size:13px;">' + prompt.replace(/</g,'&lt;') + '</textarea></body></html>');
+  // STEP 1 — User types what they want
+  function showStep1Modal(rec) {
+    const existing = document.getElementById('promptModal');
+    if (existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'promptModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+      <div style="background:#0c110c;border:1px solid #1a7a4a;border-radius:16px;width:100%;max-width:620px;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #1a2e1a;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#2da866;letter-spacing:1px;text-transform:uppercase;">✨ Summarize via Claude</div>
+          <button onclick="document.getElementById('promptModal').remove()" style="background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+
+          <p style="font-size:13px;color:#5a7a5a;font-family:'Rajdhani',sans-serif;line-height:1.6;">Choose a preset or write your own instructions for Claude.</p>
+
+          <!-- Preset option -->
+          <div id="presetBtn" onclick="selectPromptType('preset')" style="cursor:pointer;padding:14px 16px;border-radius:10px;border:2px solid #1a2e1a;background:#050705;transition:all 0.2s;display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:18px;height:18px;border-radius:50%;border:2px solid #1a7a4a;margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;" id="presetRadio"></div>
+            <div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#e8f5e8;margin-bottom:3px;">📋 1-Page Summary</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:12px;color:#5a7a5a;line-height:1.5;">Produce a clean one-page summary of the transcript, verify key facts and claims against reliable news sources where possible, and flag anything that couldn't be verified.</div>
+            </div>
+          </div>
+
+          <!-- Custom option -->
+          <div id="customBtn" onclick="selectPromptType('custom')" style="cursor:pointer;padding:14px 16px;border-radius:10px;border:2px solid #1a2e1a;background:#050705;transition:all 0.2s;display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:18px;height:18px;border-radius:50%;border:2px solid #1a7a4a;margin-top:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;" id="customRadio"></div>
+            <div style="flex:1;">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#e8f5e8;margin-bottom:3px;">✏️ Write My Own</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:12px;color:#5a7a5a;line-height:1.5;margin-bottom:8px;">Tell Claude exactly what you want. Be as specific as you like.</div>
+              <textarea id="userPromptInput" placeholder="e.g. Give me an executive summary focused on budget decisions and next steps..." style="width:100%;height:90px;background:#0c110c;color:#e8f5e8;border:1px solid #1a2e1a;border-radius:8px;padding:10px;font-size:12px;font-family:'Rajdhani',sans-serif;resize:none;line-height:1.6;outline:none;display:none;" onclick="event.stopPropagation()"></textarea>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+            <button onclick="document.getElementById('promptModal').remove()" style="padding:10px 18px;border-radius:10px;background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;font-size:13px;font-family:'Rajdhani',sans-serif;cursor:pointer;">Cancel</button>
+            <button onclick="buildAndShowPrompt('${rec.id}')" style="padding:10px 22px;border-radius:10px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8f5e8;font-size:13px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;letter-spacing:0.5px;">Next → Build Prompt</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    // Select preset by default
+    setTimeout(() => selectPromptType('preset'), 50);
+  }
+
+  function selectPromptType(type) {
+    const presetBtn = document.getElementById('presetBtn');
+    const customBtn = document.getElementById('customBtn');
+    const presetRadio = document.getElementById('presetRadio');
+    const customRadio = document.getElementById('customRadio');
+    const textarea = document.getElementById('userPromptInput');
+    if (!presetBtn) return;
+
+    if (type === 'preset') {
+      presetBtn.style.borderColor = '#1a7a4a';
+      presetBtn.style.background = 'rgba(26,122,74,0.08)';
+      presetRadio.innerHTML = '<div style="width:10px;height:10px;border-radius:50%;background:#2da866;"></div>';
+      customBtn.style.borderColor = '#1a2e1a';
+      customBtn.style.background = '#050705';
+      customRadio.innerHTML = '';
+      textarea.style.display = 'none';
+      presetBtn.dataset.selected = 'true';
+      customBtn.dataset.selected = 'false';
+    } else {
+      customBtn.style.borderColor = '#1a7a4a';
+      customBtn.style.background = 'rgba(26,122,74,0.08)';
+      customRadio.innerHTML = '<div style="width:10px;height:10px;border-radius:50%;background:#2da866;"></div>';
+      presetBtn.style.borderColor = '#1a2e1a';
+      presetBtn.style.background = '#050705';
+      presetRadio.innerHTML = '';
+      textarea.style.display = 'block';
+      presetBtn.dataset.selected = 'false';
+      customBtn.dataset.selected = 'true';
+      setTimeout(() => textarea.focus(), 50);
+    }
+  }
+
+  // STEP 2 — Show assembled prompt + copy it
+  function buildAndShowPrompt(id) {
+    const rec = loadLibrary().find(r => r.id === id);
+    if (!rec) return;
+    const isPreset = document.getElementById('presetBtn') && document.getElementById('presetBtn').dataset.selected === 'true';
+    const presetPrompt = 'Produce a clean one-page summary of this meeting transcript. Verify any key facts, figures, names, or claims against reliable and recent news sources where possible. Clearly flag anything you could not verify. Format with clear headings: Overview, Key Points, Fact-Check Notes, and Action Items.';
+    const customText = document.getElementById('userPromptInput') ? document.getElementById('userPromptInput').value.trim() : '';
+    const userRequest = isPreset ? presetPrompt : (customText || 'Give me a concise summary with key points and action items.');
+    const fullText = rec.entries.map(e => `[${e.time}] ${e.text}`).join('\n');
+    const prompt = `${userRequest}\n\nFile: ${rec.filename} | Date: ${rec.date} | Duration: ${rec.duration} | Words: ${rec.wordCount}\n\n${fullText}`;
+
+    const existing = document.getElementById('promptModal');
+    if (existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'promptModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+      <div style="background:#0c110c;border:1px solid #1a7a4a;border-radius:16px;width:100%;max-width:680px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #1a2e1a;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#2da866;letter-spacing:1px;text-transform:uppercase;">📋 Your Prompt is Ready</div>
+          <button onclick="document.getElementById('promptModal').remove()" style="background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div style="padding:14px 20px;border-bottom:1px solid #1a2e1a;background:rgba(26,122,74,0.05);">
+          <p style="font-size:13px;color:#5a7a5a;line-height:1.7;font-family:'Rajdhani',sans-serif;">
+            <strong style="color:#2da866;">1.</strong> Click <strong style="color:#e8f5e8;">Copy Prompt</strong> &nbsp;→&nbsp;
+            <strong style="color:#2da866;">2.</strong> Open <a href="https://claude.ai" target="_blank" style="color:#2da866;">claude.ai</a> and paste it &nbsp;→&nbsp;
+            <strong style="color:#2da866;">3.</strong> Copy Claude's reply &nbsp;→&nbsp;
+            <strong style="color:#2da866;">4.</strong> Come back and click <strong style="color:#e8f5e8;">Paste Claude's Summary</strong>
+          </p>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+          <textarea id="promptText" readonly style="width:100%;height:200px;background:#050705;color:#5a7a5a;border:1px solid #1a2e1a;border-radius:8px;padding:12px;font-size:12px;font-family:'Share Tech Mono',monospace;resize:none;line-height:1.5;">${prompt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #1a2e1a;display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;align-items:center;">
+          <button id="copyPromptBtn" onclick="copyAndOpen()" style="padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8f5e8;font-size:13px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;letter-spacing:0.5px;">🚀 Copy &amp; Open Claude.ai</button>
+          <span style="font-size:11px;color:#2a3e2a;font-family:'Share Tech Mono',monospace;">Then just Ctrl+V in Claude</span>
+          <button onclick="showStep3Modal('${rec.id}', '${rec.filename}', '${rec.date}')" style="padding:10px 20px;border-radius:10px;background:#111a11;border:1px solid #1a7a4a;color:#2da866;font-size:13px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;">Paste Claude's Summary →</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  }
+
+  // STEP 3 — User pastes Claude's response back
+  function showStep3Modal(id, filename, date) {
+    const existing = document.getElementById('promptModal');
+    if (existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'promptModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px);';
+    modal.innerHTML = `
+      <div style="background:#0c110c;border:1px solid #1a7a4a;border-radius:16px;width:100%;max-width:680px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid #1a2e1a;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#2da866;letter-spacing:1px;text-transform:uppercase;">📥 Paste Claude's Summary</div>
+          <button onclick="document.getElementById('promptModal').remove()" style="background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div style="padding:14px 20px;border-bottom:1px solid #1a2e1a;background:rgba(26,122,74,0.05);">
+          <p style="font-size:13px;color:#5a7a5a;font-family:'Rajdhani',sans-serif;line-height:1.6;">Go to claude.ai, copy Claude's full response, then paste it below. We'll show it in the app and download it as a Word document.</p>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+          <textarea id="claudeResponseInput" placeholder="Paste Claude's summary here..." style="width:100%;height:240px;background:#050705;color:#e8f5e8;border:1px solid #1a7a4a;border-radius:8px;padding:12px;font-size:13px;font-family:'Rajdhani',sans-serif;resize:none;line-height:1.6;outline:none;"></textarea>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #1a2e1a;display:flex;gap:10px;justify-content:flex-end;">
+          <button onclick="document.getElementById('promptModal').remove()" style="padding:10px 18px;border-radius:10px;background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;font-size:13px;font-family:'Rajdhani',sans-serif;cursor:pointer;">Cancel</button>
+          <button onclick="processSummary('${id}', '${filename}', '${date}')" style="padding:10px 22px;border-radius:10px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8f5e8;font-size:13px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;">✅ Show & Download Word Doc</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    setTimeout(() => document.getElementById('claudeResponseInput').focus(), 100);
+  }
+
+  // STEP 4 — Show in app + download Word doc
+  function processSummary(id, filename, date) {
+    const summaryText = document.getElementById('claudeResponseInput').value.trim();
+    if (!summaryText) { alert('Please paste Claude\'s summary first.'); return; }
+
+    // Close modal
+    document.getElementById('promptModal').remove();
+
+    // Show summary in app
+    showSummaryInApp(summaryText, filename, date);
+
+    // Download as Word doc
+    downloadAsWord(summaryText, filename, date);
+  }
+
+  function showSummaryInApp(text, filename, date) {
+    // Remove existing summary display
+    const existing = document.getElementById('summaryDisplay');
+    if (existing) existing.remove();
+
+    // Switch to record page
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-record').classList.add('active');
+    document.querySelector('.nav-tab').classList.add('active');
+
+    const div = document.createElement('div');
+    div.id = 'summaryDisplay';
+    div.style.cssText = 'background:#0c110c;border:1px solid #1a7a4a;border-radius:14px;overflow:hidden;';
+    div.innerHTML = `
+      <div style="padding:12px 18px;border-bottom:1px solid #1a2e1a;display:flex;align-items:center;justify-content:space-between;background:rgba(26,122,74,0.06);">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#2da866;text-transform:uppercase;letter-spacing:0.8px;">✨ Summary — ${filename}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="downloadAsWord(document.getElementById('summaryContent').innerText, '${filename}', '${date}')" style="padding:5px 14px;border-radius:7px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8f5e8;font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;">💾 Download Word</button>
+          <button onclick="document.getElementById('summaryDisplay').remove()" style="padding:5px 12px;border-radius:7px;background:#111a11;border:1px solid #1a2e1a;color:#5a7a5a;font-size:12px;font-family:'Rajdhani',sans-serif;cursor:pointer;">✕ Close</button>
+        </div>
+      </div>
+      <div id="summaryContent" style="padding:20px;font-size:14px;line-height:1.8;color:#5a7a5a;font-family:'Rajdhani',sans-serif;white-space:pre-wrap;">${escapeHtml(text)}</div>`;
+
+    // Insert after transcript wrapper
+    const tw = document.querySelector('.transcript-wrapper');
+    tw.parentNode.insertBefore(div, tw.nextSibling);
+    setTimeout(() => div.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  function downloadAsWord(text, filename, date) {
+    // Build a proper Word-compatible HTML document
+    const wordHtml = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 15">
+<!--[if gte mso 9]>
+<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml>
+<![endif]-->
+<style>
+  @page { margin: 2.5cm; }
+  body { font-family: Calibri, sans-serif; font-size: 11pt; color: #1a1a1a; }
+  .coin-header { text-align: center; margin-bottom: 28pt; border-bottom: 3px solid #1a7a4a; padding-bottom: 14pt; }
+  .coin-title { font-size: 28pt; font-weight: bold; color: #1a7a4a; letter-spacing: 4pt; font-family: Calibri, sans-serif; margin: 0; }
+  .coin-sub { font-size: 10pt; color: #5a7a5a; margin-top: 4pt; letter-spacing: 1pt; text-transform: uppercase; }
+  .meta { font-size: 9pt; color: #888; margin-bottom: 20pt; text-align: center; }
+  .summary-body { font-size: 11pt; line-height: 1.7; white-space: pre-wrap; color: #1a1a1a; }
+  .footer { margin-top: 32pt; border-top: 1px solid #ddd; padding-top: 8pt; font-size: 8pt; color: #aaa; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="coin-header">
+    <p class="coin-title">COIN</p>
+    <p class="coin-sub">Meeting Summary</p>
+  </div>
+  <div class="meta">
+    <strong>File:</strong> ${filename} &nbsp;|&nbsp; <strong>Date:</strong> ${date} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
+  </div>
+  <div class="summary-body">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  <div class="footer">Generated by Coin · Meeting Transcription Tool</div>
+</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `summary-${filename}.doc`;
+    a.click();
+  }
+
+  function copyAndOpen() {
+    const ta = document.getElementById('promptText');
+    ta.select();
+    let copied = false;
+    try { document.execCommand('copy'); copied = true; } catch(e) {}
+    if (!copied) {
+      try { navigator.clipboard.writeText(ta.value); copied = true; } catch(e) {}
+    }
+    const btn = document.getElementById('copyPromptBtn');
+    if (copied) {
+      btn.textContent = '✅ Copied! Opening Claude...';
+      btn.style.background = 'rgba(26,122,74,0.4)';
+    } else {
+      btn.textContent = '⚠️ Opening Claude — copy manually';
+    }
+    setTimeout(() => { window.open('https://claude.ai', '_blank'); }, 400);
+    setTimeout(() => {
+      btn.textContent = '🚀 Copy & Open Claude.ai';
+      btn.style.background = 'linear-gradient(135deg,#1a7a4a,#0f4a2e)';
+    }, 3000);
   }
 
   function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
