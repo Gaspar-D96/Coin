@@ -104,6 +104,22 @@
   .banner.error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
   .banner.warning{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);color:var(--amber);}
   .banner.success{background:rgba(45,168,102,0.08);border:1px solid rgba(45,168,102,0.3);color:var(--green);}
+  .env-banner{border-radius:12px;padding:14px 18px;font-size:13px;line-height:1.7;display:none;flex-direction:column;gap:10px;border:1px solid;}
+  .env-banner.show{display:flex;}
+  .env-banner.critical{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.4);color:#e8ede8;}
+  .env-banner.caution{background:rgba(255,184,0,0.06);border-color:rgba(255,184,0,0.35);color:#e8ede8;}
+  .env-banner-title{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;}
+  .env-banner-title.red{color:var(--red);}
+  .env-banner-title.amber{color:var(--amber);}
+  .env-banner p{color:var(--text-muted);margin:0;}
+  .env-banner strong{color:var(--text);}
+  .env-banner code{background:rgba(0,0,0,0.3);padding:2px 7px;border-radius:5px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#2da866;}
+  .env-steps{display:flex;flex-direction:column;gap:6px;margin-top:2px;}
+  .env-step{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-muted);}
+  .env-step-num{width:20px;height:20px;border-radius:50%;background:rgba(255,184,0,0.15);border:1px solid rgba(255,184,0,0.3);color:var(--amber);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Share Tech Mono',monospace;}
+  .env-step-num.red{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:var(--red);}
+  .env-dismiss{align-self:flex-end;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;font-family:'Rajdhani',sans-serif;padding:4px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s;}
+  .env-dismiss:hover{border-color:var(--accent);color:var(--accent);}
   .library-header{display:flex;align-items:center;justify-content:space-between;}
   .library-header h2{font-size:16px;font-weight:600;}
   .library-count{font-size:12px;font-family:'Share Tech Mono',monospace;color:var(--text-muted);}
@@ -149,12 +165,12 @@
   .qs-close{background:#2e2e2e;border:1px solid #383838;color:#808880;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .qs-close:hover{color:#e8ede8;}
   .qs-tabs{display:flex;border-bottom:1px solid #2e2e2e;flex-shrink:0;background:#1e1e1e;}
-  .qs-tab{flex:1;padding:9px 10px;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;color:#808880;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.2s;letter-spacing:0.3px;}
-  .qs-tab.active{color:#2da866;border-bottom-color:#2da866;}
-  .qs-tab:hover:not(.active){color:#e8ede8;}
   .qs-body{flex:1;overflow:hidden;position:relative;}
-  .qs-pane{position:absolute;inset:0;display:none;flex-direction:column;}
-  .qs-pane.active{display:flex;}
+  .qs-pane{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.18s ease;}
+  .qs-pane.active{opacity:1;pointer-events:all;}
+  .qs-tab{flex:1;padding:9px 10px;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;color:#808880;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;letter-spacing:0.3px;}
+  .qs-tab.active{color:#2da866;border-bottom-color:#2da866;}
+  .qs-tab:hover:not(.active){color:#e8ede8;background:rgba(255,255,255,0.03);}
   .qs-loading{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#484848;font-family:'Share Tech Mono',monospace;font-size:12px;}
   .qs-spinner{width:28px;height:28px;border:2px solid #2e2e2e;border-top-color:#2da866;border-radius:50%;animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -200,6 +216,32 @@
   </div>
 
   <div class="page active" id="page-record">
+
+    <!-- ── Environment & compatibility warnings (shown by JS on load) ── -->
+    <div class="env-banner critical" id="envFileWarning">
+      <div class="env-banner-title red">&#128683; Coin won't work when opened as a local file</div>
+      <p>You're opening this as a <strong>file:// URL</strong> (double-click). Chrome blocks microphone and tab audio capture on local files — transcription will silently fail.</p>
+      <div class="env-steps">
+        <div style="font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px;">How to fix — pick one:</div>
+        <div class="env-step"><div class="env-step-num red">A</div><div><strong style="color:var(--text);">Easiest — use VS Code Live Server:</strong> Install the <em>Live Server</em> extension, right-click <code>coin.html</code> → Open with Live Server. Opens at <code>http://localhost:5500</code></div></div>
+        <div class="env-step"><div class="env-step-num red">B</div><div><strong style="color:var(--text);">Python (if installed):</strong> In Terminal, <code>cd</code> to the folder containing coin.html, run <code>python3 -m http.server 8080</code>, then open <code>http://localhost:8080/coin.html</code></div></div>
+        <div class="env-step"><div class="env-step-num red">C</div><div><strong style="color:var(--text);">Node (if installed):</strong> Run <code>npx serve .</code> in the folder, open the URL it gives you.</div></div>
+      </div>
+      <button class="env-dismiss" onclick="document.getElementById('envFileWarning').classList.remove('show')">I understand, dismiss</button>
+    </div>
+
+    <div class="env-banner caution" id="envZoomWarning">
+      <div class="env-banner-title amber">&#9888;&#65039; Using Zoom? Read this first</div>
+      <p><strong>Zoom desktop app won't work</strong> — Chrome can't capture audio from it. You must use <strong>Zoom's web client</strong> in a Chrome tab.</p>
+      <div class="env-steps">
+        <div class="env-step"><div class="env-step-num">1</div><div>Join your Zoom meeting via browser: use the link <code>zoom.us/wc/&lt;meeting-id&gt;</code> or click <strong>"Join from your browser"</strong> on the Zoom join page</div></div>
+        <div class="env-step"><div class="env-step-num">2</div><div>When sharing the tab, make sure the picker shows <strong>Chrome Tab</strong> (not Window or Screen), and tick <strong>"Share tab audio" &#9989;</strong> — if you don't see this checkbox, you've picked the wrong share type</div></div>
+        <div class="env-step"><div class="env-step-num">3</div><div>Keep the <strong>Zoom tab active/visible</strong> — Chrome may suspend backgrounded tabs and cut the audio stream</div></div>
+        <div class="env-step"><div class="env-step-num">4</div><div>If the host has <strong>muted all participants</strong> or audio processing is on, the captured audio may be very low — check the Audio Level bar shows movement when people speak</div></div>
+      </div>
+      <button class="env-dismiss" onclick="document.getElementById('envZoomWarning').classList.remove('show');localStorage.setItem('coin_zoom_dismissed','1')">Got it, don't show again</button>
+    </div>
+
     <div class="instructions">
       <div style="font-size:20px;flex-shrink:0;margin-top:1px;">&#128161;</div>
       <div>
@@ -220,15 +262,19 @@
     <div class="banner success" id="successBanner"></div>
 
     <div class="volume-row">
-      <span class="volume-label">&#128266; Audio level</span>
+      <span class="volume-label">&#128266; Tab</span>
       <div class="volume-bar-bg"><div class="volume-bar" id="volumeBar"></div></div>
       <span class="volume-hint" id="volumeHint">&mdash;</span>
+      <span class="volume-label" style="margin-left:10px;">&#127908; Mic</span>
+      <div class="volume-bar-bg"><div class="volume-bar" id="micBar" style="background:linear-gradient(90deg,#4a7acc,#6aa3ff);"></div></div>
+      <span class="volume-hint" id="micHint">&mdash;</span>
     </div>
 
     <div class="controls">
       <button class="btn btn-primary" id="btnStart" onclick="startTranscription()">&#9654; Start Transcribing</button>
       <button class="btn btn-amber" id="btnPause" onclick="pauseTranscription()" disabled>&#9208; Pause</button>
       <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>&#9209; Stop</button>
+      <button class="btn btn-secondary" id="btnMic" onclick="toggleMic()" title="Toggle your microphone capture" style="border-color:rgba(74,122,204,0.4);color:#6aa3ff;">&#127908; My Mic: On</button>
       <div class="controls-right">
         <button class="btn btn-secondary" id="btnSearch" onclick="toggleSearch()">&#128269; Search</button>
         <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>&#128203; Copy</button>
@@ -319,13 +365,13 @@
     <button class="qs-close" onclick="qsClose()">&times;</button>
   </div>
   <div class="qs-tabs">
-    <button class="qs-tab active" id="qsTabAI" onclick="qsSwitchTab('ai',this)">&#128196; Summary</button>
+    <button class="qs-tab active" id="qsTabAI" onclick="qsSwitchTab('ai',this)">&#129302; Claude AI</button>
     <button class="qs-tab" id="qsTabNews" onclick="qsSwitchTab('news',this)">&#128240; News</button>
-    <button class="qs-tab" id="qsTabWeb" onclick="qsSwitchTab('web',this)">&#127760; Web</button>
+    <button class="qs-tab" id="qsTabWeb" onclick="qsSwitchTab('web',this)">&#128218; Wikipedia</button>
   </div>
   <div class="qs-body">
     <div class="qs-pane active" id="qsPaneAI">
-      <div class="qs-loading" id="qsAILoading"><div class="qs-spinner"></div><span>Generating summary...</span></div>
+      <div class="qs-loading" id="qsAILoading"><div class="qs-spinner"></div><span>Asking Claude...</span></div>
       <div class="qs-links" id="qsAIContent" style="display:none;"></div>
     </div>
     <div class="qs-pane" id="qsPaneNews">
@@ -333,13 +379,14 @@
       <div class="qs-links" id="qsNewsContent" style="display:none;"></div>
     </div>
     <div class="qs-pane" id="qsPaneWeb">
-      <div class="qs-loading" id="qsWebLoading"><div class="qs-spinner"></div><span>Loading results...</span></div>
+      <div class="qs-loading" id="qsWebLoading"><div class="qs-spinner"></div><span>Searching Wikipedia...</span></div>
       <div class="qs-links" id="qsWebContent" style="display:none;"></div>
     </div>
   </div>
   <div class="qs-footer" id="qsFooter">
     <a id="qsGoogleLink" href="#" target="_blank" class="qs-open-btn">&#128269; Google</a>
     <a id="qsNewsLink" href="#" target="_blank" class="qs-open-btn">&#128240; Google News</a>
+    <a id="qsWikiLink" href="#" target="_blank" class="qs-open-btn">&#128218; Wikipedia</a>
   </div>
 </div>
 
@@ -354,8 +401,9 @@ var FONT_KEY     = 'coin_fontsize';
 var isListening = false, isPaused = false;
 var transcriptEntries = [], wordCount = 0;
 var startTime = null, durationInterval = null;
-var screenStream = null, audioContext = null;
+var screenStream = null, micStream = null, audioContext = null;
 var volumeInterval = null, socket = null, processor = null, gainNode = null;
+var micEnabled = true;
 var currentModalId = null, currentModalData = null;
 var autosaveTimer = null;
 var currentFontSize = 14;
@@ -389,19 +437,43 @@ function setStatus(state) {
   else{document.getElementById('statusText').textContent='Ready';stat.textContent='Idle';stat.style.color='var(--accent)';}
 }
 
-function startVolumeMeter(stream) {
+function startVolumeMeter(tabStream, micStreamArg) {
   try {
-    var ctx=new (window.AudioContext||window.webkitAudioContext)();
-    var analyser=ctx.createAnalyser(); analyser.fftSize=512;
-    ctx.createMediaStreamSource(stream).connect(analyser);
-    var data=new Uint8Array(analyser.frequencyBinCount);
-    volumeInterval=setInterval(function(){
-      analyser.getByteFrequencyData(data);
-      var sum=0; for(var i=0;i<data.length;i++) sum+=data[i];
-      var pct=Math.min(100,(sum/data.length)*3);
-      document.getElementById('volumeBar').style.width=pct+'%';
-      document.getElementById('volumeHint').textContent=pct<2?'Silent':pct<15?'Low':pct<55?'Good \u2713':'Loud';
-    },80);
+    var ctx = new (window.AudioContext||window.webkitAudioContext)();
+
+    // Tab audio analyser
+    var tabAnalyser = ctx.createAnalyser(); tabAnalyser.fftSize = 512;
+    ctx.createMediaStreamSource(tabStream).connect(tabAnalyser);
+    var tabData = new Uint8Array(tabAnalyser.frequencyBinCount);
+
+    // Mic analyser (optional)
+    var micAnalyser = null, micData = null;
+    if (micStreamArg) {
+      micAnalyser = ctx.createAnalyser(); micAnalyser.fftSize = 512;
+      ctx.createMediaStreamSource(micStreamArg).connect(micAnalyser);
+      micData = new Uint8Array(micAnalyser.frequencyBinCount);
+    }
+
+    volumeInterval = setInterval(function() {
+      // Tab bar
+      tabAnalyser.getByteFrequencyData(tabData);
+      var sum = 0; for(var i=0;i<tabData.length;i++) sum+=tabData[i];
+      var pct = Math.min(100,(sum/tabData.length)*3);
+      document.getElementById('volumeBar').style.width = pct+'%';
+      document.getElementById('volumeHint').textContent = pct<2?'Silent':pct<15?'Low':pct<55?'Good \u2713':'Loud';
+
+      // Mic bar
+      if (micAnalyser && micEnabled) {
+        micAnalyser.getByteFrequencyData(micData);
+        var msum = 0; for(var j=0;j<micData.length;j++) msum+=micData[j];
+        var mpct = Math.min(100,(msum/micData.length)*3);
+        document.getElementById('micBar').style.width = mpct+'%';
+        document.getElementById('micHint').textContent = mpct<2?'Silent':mpct<15?'Low':mpct<55?'Active \u2713':'Loud';
+      } else {
+        document.getElementById('micBar').style.width = '0%';
+        document.getElementById('micHint').textContent = micEnabled ? '\u2014' : 'Off';
+      }
+    }, 80);
   } catch(e){}
 }
 
@@ -409,6 +481,8 @@ function stopVolumeMeter() {
   clearInterval(volumeInterval);
   document.getElementById('volumeBar').style.width='0%';
   document.getElementById('volumeHint').textContent='\u2014';
+  document.getElementById('micBar').style.width='0%';
+  document.getElementById('micHint').textContent='\u2014';
 }
 
 async function startTranscription() {
@@ -426,12 +500,24 @@ async function startTranscription() {
   }
   var audioTracks=screenStream.getAudioTracks();
   if (audioTracks.length===0) {
-    showBanner('warning','\u26a0\ufe0f <strong>No audio captured.</strong> Stop and try again \u2014 tick <strong>"Share tab audio"</strong> when selecting your tab.');
+    showBanner('warning','\u26a0\ufe0f <strong>No audio captured.</strong> Make sure you: (1) picked a <strong>Chrome Tab</strong> (not Window or Screen), (2) ticked <strong>"Share tab audio"</strong> &#9989;. If using Zoom, you must use the <strong>web client</strong> (zoom.us/wc/) — the desktop app cannot be captured.');
     screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null; return;
   }
   screenStream.getVideoTracks().forEach(function(t){t.stop();});
   var audioStream=new MediaStream(audioTracks);
-  startVolumeMeter(audioStream);
+
+  // Request microphone — gracefully skip if denied
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:true,noiseSuppression:true,sampleRate:16000}
+    });
+    showBanner('success','\u2705 Tab audio + microphone captured \u2014 both will be transcribed.');
+  } catch(e) {
+    micStream = null;
+    showBanner('success','\u2705 Tab audio captured. Microphone not available \u2014 only meeting audio will be transcribed.');
+  }
+
+  startVolumeMeter(audioStream, micStream);
   connectDeepgram(audioStream);
 }
 
@@ -469,22 +555,78 @@ function connectDeepgram(audioStream) {
 
 function startAudioPipeline(stream) {
   try {
-    audioContext=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    var source=audioContext.createMediaStreamSource(stream);
-    gainNode=audioContext.createGain();
-    gainNode.gain.value=0;
-    processor=audioContext.createScriptProcessor(4096,1,1);
-    processor.onaudioprocess=function(e){
-      if (!socket||socket.readyState!==WebSocket.OPEN) return;
-      var f32=e.inputBuffer.getChannelData(0);
-      var i16=new Int16Array(f32.length);
-      for (var i=0;i<f32.length;i++) i16[i]=Math.max(-32768,Math.min(32767,f32[i]*32768));
+    audioContext = new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    var dest = audioContext.createMediaStreamDestination();
+
+    // ── Audio enhancement chain (applied to tab audio) ──
+    // 1. High-pass filter — removes low rumble/hum (below 80Hz)
+    var highPass = audioContext.createBiquadFilter();
+    highPass.type = 'highpass';
+    highPass.frequency.value = 80;
+
+    // 2. Gain boost — compensates for degraded/quiet meeting audio
+    var tabGain = audioContext.createGain();
+    tabGain.gain.value = 2.2;
+
+    // 3. Dynamics compressor — evens out loud/quiet speakers
+    var compressor = audioContext.createDynamicsCompressor();
+    compressor.threshold.value = -24;
+    compressor.knee.value = 10;
+    compressor.ratio.value = 4;
+    compressor.attack.value = 0.003;
+    compressor.release.value = 0.25;
+
+    // Connect tab audio chain: source → highpass → gain → compressor → dest
+    var tabSource = audioContext.createMediaStreamSource(stream);
+    tabSource.connect(highPass);
+    highPass.connect(tabGain);
+    tabGain.connect(compressor);
+    compressor.connect(dest);
+
+    // ── Microphone — mixed in separately if available and enabled ──
+    if (micStream && micEnabled) {
+      var micSource = audioContext.createMediaStreamSource(micStream);
+      var micGain = audioContext.createGain();
+      micGain.gain.value = 1.0; // mic is already clean, no boost needed
+      micSource.connect(micGain);
+      micGain.connect(dest);
+    }
+
+    // ── ScriptProcessor reads from the mixed destination stream ──
+    gainNode = audioContext.createGain();
+    gainNode.gain.value = 0;
+    processor = audioContext.createScriptProcessor(4096, 1, 1);
+    var mixedSource = audioContext.createMediaStreamSource(dest.stream);
+    processor.onaudioprocess = function(e) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
+      var f32 = e.inputBuffer.getChannelData(0);
+      var i16 = new Int16Array(f32.length);
+      for (var i = 0; i < f32.length; i++) i16[i] = Math.max(-32768, Math.min(32767, f32[i] * 32768));
       socket.send(i16.buffer);
     };
-    source.connect(processor);
+    mixedSource.connect(processor);
     processor.connect(gainNode);
     gainNode.connect(audioContext.destination);
-  } catch(e){showBanner('error','\u274c Audio error: '+e.message);stopTranscription();}
+  } catch(e) { showBanner('error', '\u274c Audio error: '+e.message); stopTranscription(); }
+}
+
+function toggleMic() {
+  micEnabled = !micEnabled;
+  var btn = document.getElementById('btnMic');
+  if (micEnabled) {
+    btn.textContent = '\u127908 My Mic: On';
+    btn.style.borderColor = 'rgba(74,122,204,0.4)';
+    btn.style.color = '#6aa3ff';
+  } else {
+    btn.textContent = '\u127908 My Mic: Off';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-muted)';
+  }
+  // If already recording, rebuild the pipeline with new mic state
+  if (isListening && audioContext && screenStream) {
+    if (processor) try { processor.disconnect(); } catch(e) {}
+    startAudioPipeline(new MediaStream(screenStream.getAudioTracks()));
+  }
 }
 
 function pauseTranscription() {
@@ -509,6 +651,7 @@ function stopTranscription() {
   if (audioContext){try{audioContext.close();}catch(e){} audioContext=null;}
   if (socket){try{socket.close();}catch(e){} socket=null;}
   if (screenStream){screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null;}
+  if (micStream){micStream.getTracks().forEach(function(t){t.stop();}); micStream=null;}
   stopVolumeMeter(); clearInterval(durationInterval); removeInterim();
   setStatus('idle'); gainNode=null;
   document.getElementById('btnStart').disabled=false;
@@ -1101,6 +1244,37 @@ updateLibBadge();
 loadFontSize();
 loadDraft();
 
+// ── Environment & compatibility checks ────────────────────────────────────
+(function() {
+  // 1. file:// check — capture APIs are blocked
+  if (window.location.protocol === 'file:') {
+    var el = document.getElementById('envFileWarning');
+    if (el) el.classList.add('show');
+    // Also disable the Start button with a clear message
+    var btn = document.getElementById('btnStart');
+    if (btn) {
+      btn.disabled = true;
+      btn.title = 'Cannot capture audio when opened as a local file. See the warning above.';
+    }
+  }
+
+  // 2. Zoom warning — show once unless dismissed
+  if (!localStorage.getItem('coin_zoom_dismissed')) {
+    var zw = document.getElementById('envZoomWarning');
+    if (zw) zw.classList.add('show');
+  }
+
+  // 3. Non-Chrome browser warning — getDisplayMedia with audio is Chrome-only
+  var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  if (!isChrome) {
+    var nb = document.getElementById('warnBanner');
+    if (nb) {
+      nb.innerHTML = '&#9888;&#65039; <strong>Chrome recommended.</strong> Tab audio capture works best in Chrome. Other browsers may not support "Share tab audio".';
+      nb.classList.add('show');
+    }
+  }
+})();
+
 // ── Quick Search Panel ─────────────────────────────────────────────────────
 var qsCurrentQuery = '';
 var qsCurrentTab = 'ai';
@@ -1156,24 +1330,48 @@ function hideQsTooltip() {
   clearTimeout(qsTooltipTimer);
 }
 
+// Cache: keyed by "tab:query" so switching back is instant
+var qsCache = {};
+var qsLoaded = {};  // tracks which tabs have been triggered for current query
+
 function qsSearch() {
   if (!qsCurrentQuery) return;
   hideQsTooltip();
   var panel = document.getElementById('qsPanel');
   var queryEl = document.getElementById('qsQueryText');
   if (!panel || !queryEl) return;
+
+  // If this is a new query, clear cache state for this search
+  var isNewQuery = (qsLoaded.query !== qsCurrentQuery);
+  if (isNewQuery) {
+    qsLoaded = { query: qsCurrentQuery };
+    // Reset all pane content to loading state
+    ['AI','News','Web'].forEach(function(t) {
+      var loading = document.getElementById('qs' + t + 'Loading');
+      var content = document.getElementById('qs' + t + 'Content');
+      if (loading) { loading.style.display = 'flex'; }
+      if (content) { content.style.display = 'none'; content.innerHTML = ''; }
+    });
+  }
+
   queryEl.textContent = qsCurrentQuery;
   panel.classList.add('open');
   document.querySelector('.container').classList.add('panel-open');
+
   var q = encodeURIComponent(qsCurrentQuery);
   var gLink = document.getElementById('qsGoogleLink');
   var nLink = document.getElementById('qsNewsLink');
+  var wLink = document.getElementById('qsWikiLink');
   if (gLink) gLink.href = 'https://www.google.com/search?q=' + q;
   if (nLink) nLink.href = 'https://news.google.com/search?q=' + q;
-  qsLoadAI(qsCurrentQuery);
-  qsLoadNews(qsCurrentQuery);
-  qsLoadWeb(qsCurrentQuery);
+  if (wLink) wLink.href = 'https://en.wikipedia.org/w/index.php?search=' + q;
+
+  // Switch to AI tab and load it immediately
   qsSwitchTab('ai', document.getElementById('qsTabAI'));
+
+  // Pre-fetch News and Web in background without blocking
+  setTimeout(function() { qsLoadNews(qsCurrentQuery); }, 50);
+  setTimeout(function() { qsLoadWeb(qsCurrentQuery);  }, 100);
 }
 
 function qsClose() {
@@ -1184,98 +1382,132 @@ function qsClose() {
 
 function qsSwitchTab(tab, btn) {
   ['ai','news','web'].forEach(function(t) {
-    var pane = document.getElementById('qsPane' + t.charAt(0).toUpperCase() + t.slice(1));
-    var tabBtn = document.getElementById('qsTab' + t.charAt(0).toUpperCase() + t.slice(1));
-    if (pane) pane.classList.remove('active');
+    var pane   = document.getElementById('qsPane' + t.charAt(0).toUpperCase() + t.slice(1));
+    var tabBtn = document.getElementById('qsTab'  + t.charAt(0).toUpperCase() + t.slice(1));
+    if (pane)   pane.classList.remove('active');
     if (tabBtn) tabBtn.classList.remove('active');
   });
   var activePane = document.getElementById('qsPane' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activePane) activePane.classList.add('active');
   if (btn) btn.classList.add('active');
   qsCurrentTab = tab;
+
+  // Lazy-load: trigger the fetch only when the tab is first visited
+  var loaderMap = { ai: qsLoadAI, news: qsLoadNews, web: qsLoadWeb };
+  if (!qsLoaded[tab] && qsCurrentQuery) {
+    qsLoaded[tab] = true;
+    loaderMap[tab](qsCurrentQuery);
+  }
 }
+
+// ── Claude AI briefing ────────────────────────────────────────────────────
+// Requires your Anthropic API key set below.
+// Get one at: https://console.anthropic.com
+var ANTHROPIC_KEY = 'YOUR_ANTHROPIC_KEY_HERE';
 
 function qsLoadAI(query) {
   var loading = document.getElementById('qsAILoading');
   var content = document.getElementById('qsAIContent');
   if (!loading || !content) return;
+
+  // Serve from cache if available
+  var cacheKey = 'ai:' + query;
+  if (qsCache[cacheKey]) {
+    loading.style.display = 'none';
+    content.style.display = 'flex';
+    content.innerHTML = qsCache[cacheKey];
+    return;
+  }
+
   loading.style.display = 'flex';
   content.style.display = 'none';
   content.innerHTML = '';
 
-  // Use Wikipedia search API — free, no key, no CORS issues
-  var searchUrl = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
-    encodeURIComponent(query) + '&srlimit=1&format=json&origin=*';
+  // If no key set, show a helpful prompt rather than a failed request
+  if (!ANTHROPIC_KEY || ANTHROPIC_KEY === 'YOUR_ANTHROPIC_KEY_HERE') {
+    loading.style.display = 'none';
+    content.style.display = 'flex';
+    content.innerHTML =
+      '<div style="background:#252525;border:1px solid rgba(255,184,0,0.3);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">' +
+      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#ffb800;text-transform:uppercase;letter-spacing:1px;">&#9888; API Key Required</div>' +
+      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#808880;line-height:1.65;">To enable live Claude AI briefings, open <strong style="color:#e8ede8;">coin.html</strong> in a text editor and replace <code style="background:#1c1c1c;padding:2px 6px;border-radius:4px;color:#2da866;">YOUR_ANTHROPIC_KEY_HERE</code> with your key from <a href="https://console.anthropic.com" target="_blank" style="color:#2da866;">console.anthropic.com</a></div>' +
+      '<a href="https://console.anthropic.com" target="_blank" style="font-size:12px;color:#2da866;font-family:Rajdhani,sans-serif;font-weight:600;text-decoration:none;padding:7px 14px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;text-align:center;">Get API Key &rarr;</a>' +
+      '</div>';
+    return;
+  }
 
-  fetch(searchUrl)
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: 'You are a financial and current affairs analyst. Give a concise factual briefing on: "' + query + '"\n\nCover:\n- What it is and current status (2-3 sentences)\n- Financial, economic, or political relevance\n- Most recent notable development\n- Key risks or watch points\n\nPlain text only. No bullet symbols, no markdown, no asterisks. Use short paragraphs.'
+      }]
+    })
+  })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var results = data.query && data.query.search;
-    if (!results || results.length === 0) {
-      loading.style.display = 'none';
-      content.style.display = 'flex';
-      content.innerHTML = '<div class="qs-empty">No summary found.<br>Try the Web or News tabs.</div>';
+    loading.style.display = 'none';
+    content.style.display = 'flex';
+    if (data.error) {
+      content.innerHTML = '<div class="qs-empty">Claude API error: ' + escapeHtml(data.error.message || 'Unknown error') + '</div>';
       return;
     }
-    var pageTitle = results[0].title;
-    // Now fetch the extract for that page
-    var extractUrl = 'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles=' +
-      encodeURIComponent(pageTitle) + '&format=json&origin=*';
-    return fetch(extractUrl).then(function(r) { return r.json(); }).then(function(d) {
-      loading.style.display = 'none';
-      content.style.display = 'flex';
-      var pages = d.query && d.query.pages;
-      var page = pages && pages[Object.keys(pages)[0]];
-      var extract = page && page.extract ? page.extract.slice(0, 900).trim() : null;
-      if (!extract) {
-        content.innerHTML = '<div class="qs-empty">No summary found.<br>Try the Web or News tabs.</div>';
-        return;
-      }
-      // Trim to last full sentence
-      var lastPeriod = extract.lastIndexOf('.');
-      if (lastPeriod > 200) extract = extract.slice(0, lastPeriod + 1);
-      var wikiUrl = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(pageTitle);
-      content.innerHTML =
-        '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
-        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">&#128196; ' + escapeHtml(pageTitle) + ' — Wikipedia</div>' +
-        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;">' + escapeHtml(extract) + '</div>' +
-        '<a href="' + wikiUrl + '" target="_blank" style="display:inline-block;margin-top:10px;font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;">Read full article &rarr;</a>' +
-        '</div>';
-    });
+    var text = data.content && data.content[0] && data.content[0].text ? data.content[0].text : null;
+    if (!text) { content.innerHTML = '<div class="qs-empty">No response from Claude.</div>'; return; }
+    var html =
+      '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
+      '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#129302; Claude AI Briefing</div>' +
+      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.8;white-space:pre-wrap;">' + escapeHtml(text) + '</div>' +
+      '</div>';
+    qsCache['ai:' + query] = html;
+    content.innerHTML = html;
   })
-  .catch(function() {
+  .catch(function(err) {
     loading.style.display = 'none';
     content.style.display = 'flex';
     var q = encodeURIComponent(query);
     content.innerHTML =
-      '<div class="qs-empty" style="flex-direction:column;gap:12px;">' +
-      '<div>Summary unavailable — check your connection.</div>' +
-      '<a href="https://www.google.com/search?q=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:8px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">&#128269; Search Google instead</a>' +
+      '<div class="qs-empty" style="flex-direction:column;gap:10px;">' +
+      '<div>Could not reach Claude API. Check your key or connection.</div>' +
+      '<a href="https://www.google.com/search?q=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:7px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">Search Google instead &rarr;</a>' +
       '</div>';
   });
 }
 
+// ── News via Google News RSS (allorigins CORS proxy) ──────────────────────
 function qsLoadNews(query) {
   var loading = document.getElementById('qsNewsLoading');
   var content = document.getElementById('qsNewsContent');
   if (!loading || !content) return;
+
+  var cacheKey = 'news:' + query;
+  if (qsCache[cacheKey]) {
+    loading.style.display = 'none';
+    content.style.display = 'flex';
+    content.innerHTML = qsCache[cacheKey];
+    return;
+  }
+
   loading.style.display = 'flex';
   content.style.display = 'none';
   content.innerHTML = '';
 
-  // Use GNews API (free tier, 100 req/day, no CORS issues)
-  var gnewsUrl = 'https://gnews.io/api/v4/search?q=' + encodeURIComponent(query) +
-    '&lang=en&max=8&apikey=pub_no_key_fallback';
-
-  // Primary: try RSS2JSON with a more reliable public CORS proxy
   var rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-US&gl=US&ceid=US:en';
   var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
 
   fetch(proxyUrl)
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (!data.contents) throw new Error('no contents');
-    // Parse the RSS XML from the proxy response
+    if (!data.contents) throw new Error('empty');
     var parser = new DOMParser();
     var xml = parser.parseFromString(data.contents, 'text/xml');
     var items = xml.querySelectorAll('item');
@@ -1286,82 +1518,127 @@ function qsLoadNews(query) {
     var count = 0;
     items.forEach(function(item) {
       if (count >= 8) return;
-      var title = item.querySelector('title') ? item.querySelector('title').textContent : '';
-      var link  = item.querySelector('link')  ? item.querySelector('link').textContent  : '#';
+      var title   = item.querySelector('title')   ? item.querySelector('title').textContent   : '';
+      var link    = item.querySelector('link')    ? item.querySelector('link').textContent    : '#';
       var pubDate = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-      var source = item.querySelector('source') ? item.querySelector('source').textContent : '';
-      var desc = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]+>/g,'').slice(0,120) : '';
+      var source  = item.querySelector('source')  ? item.querySelector('source').textContent  : '';
+      var desc    = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]+>/g,'').slice(0,120) : '';
       var dateStr = pubDate ? new Date(pubDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
       html += '<a href="' + link + '" target="_blank" class="qs-result">' +
-        (source ? '<div class="qs-result-source">' + escapeHtml(source) + '</div>' : '') +
-        '<div class="qs-result-title">' + escapeHtml(title) + '</div>' +
-        (desc ? '<div class="qs-result-snippet">' + escapeHtml(desc) + '...</div>' : '') +
-        (dateStr ? '<div class="qs-result-date">' + dateStr + '</div>' : '') +
+        (source  ? '<div class="qs-result-source">'  + escapeHtml(source)  + '</div>' : '') +
+        '<div class="qs-result-title">'   + escapeHtml(title)   + '</div>' +
+        (desc    ? '<div class="qs-result-snippet">' + escapeHtml(desc)    + '...</div>' : '') +
+        (dateStr ? '<div class="qs-result-date">'    + dateStr             + '</div>' : '') +
         '</a>';
       count++;
     });
-    content.innerHTML = html || '<div class="qs-empty">No news found for this query.</div>';
+    var finalHtml = html || '<div class="qs-empty">No news found.</div>';
+    qsCache['news:' + query] = finalHtml;
+    content.innerHTML = finalHtml;
   })
   .catch(function() {
-    // Fallback: show direct links to Google News and BBC search
     loading.style.display = 'none';
     content.style.display = 'flex';
     var q = encodeURIComponent(query);
     content.innerHTML =
       '<div style="padding:4px;display:flex;flex-direction:column;gap:8px;">' +
-      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#484848;padding:4px 0;">News feed blocked by browser — open directly:</div>' +
-      '<a href="https://news.google.com/search?q=' + q + '" target="_blank" class="qs-result">' +
-        '<div class="qs-result-title">&#128240; Google News — ' + escapeHtml(query) + '</div>' +
-        '<div class="qs-result-snippet">Search Google News for the latest articles</div>' +
-      '</a>' +
-      '<a href="https://www.bbc.co.uk/search?q=' + q + '" target="_blank" class="qs-result">' +
-        '<div class="qs-result-title">&#127758; BBC News — ' + escapeHtml(query) + '</div>' +
-        '<div class="qs-result-snippet">Search BBC News coverage</div>' +
-      '</a>' +
-      '<a href="https://www.reuters.com/search/news?blob=' + q + '" target="_blank" class="qs-result">' +
-        '<div class="qs-result-title">&#128209; Reuters — ' + escapeHtml(query) + '</div>' +
-        '<div class="qs-result-snippet">Search Reuters for latest reports</div>' +
-      '</a>' +
+      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#484848;padding:4px 0 6px;">News feed blocked — open directly:</div>' +
+      '<a href="https://news.google.com/search?q=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#128240; Google News &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">Latest articles on Google News</div></a>' +
+      '<a href="https://www.bbc.co.uk/search?q=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#127758; BBC News &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">BBC News coverage</div></a>' +
+      '<a href="https://www.reuters.com/search/news?blob=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#128209; Reuters &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">Reuters reports</div></a>' +
       '</div>';
   });
 }
 
+// ── Wikipedia summary ─────────────────────────────────────────────────────
 function qsLoadWeb(query) {
   var loading = document.getElementById('qsWebLoading');
   var content = document.getElementById('qsWebContent');
   if (!loading || !content) return;
+
+  var cacheKey = 'web:' + query;
+  if (qsCache[cacheKey]) {
+    loading.style.display = 'none';
+    content.style.display = 'flex';
+    content.innerHTML = qsCache[cacheKey];
+    return;
+  }
+
   loading.style.display = 'flex';
   content.style.display = 'none';
   content.innerHTML = '';
-  var url = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1&skip_disambig=1';
-  fetch(url)
+
+  // Step 1: search Wikipedia for best matching article title
+  var searchUrl = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
+    encodeURIComponent(query) + '&srlimit=3&format=json&origin=*';
+
+  fetch(searchUrl)
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    var html = '';
-    if (data.AbstractText) {
-      html += '<div style="background:#252525;border:1px solid #2e2e2e;border-radius:10px;padding:12px 14px;">' +
-        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">&#128196; ' + escapeHtml(data.AbstractSource || 'Overview') + '</div>' +
-        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.7;">' + escapeHtml(data.AbstractText) + '</div>' +
-        (data.AbstractURL ? '<a href="' + data.AbstractURL + '" target="_blank" style="font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;display:block;margin-top:8px;">Read more &rarr;</a>' : '') +
-        '</div>';
-    }
-    if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-      var topics = data.RelatedTopics.slice(0,5).filter(function(t){return t.Text;});
-      topics.forEach(function(t) {
-        html += '<a href="' + (t.FirstURL || '#') + '" target="_blank" class="qs-result">' +
-          '<div class="qs-result-title">' + escapeHtml(t.Text.slice(0,80)) + '</div>' +
+    var results = data.query && data.query.search;
+    if (!results || results.length === 0) throw new Error('no results');
+    var pageTitle = results[0].title;
+
+    // Step 2: fetch the intro extract + page image for that article
+    var extractUrl = 'https://en.wikipedia.org/w/api.php?action=query' +
+      '&prop=extracts|pageimages|info' +
+      '&exintro=true&explaintext=true&piprop=thumbnail&pithumbsize=120' +
+      '&inprop=url' +
+      '&titles=' + encodeURIComponent(pageTitle) +
+      '&format=json&origin=*';
+
+    return fetch(extractUrl).then(function(r) { return r.json(); }).then(function(d) {
+      var pages = d.query && d.query.pages;
+      var page = pages && pages[Object.keys(pages)[0]];
+      if (!page || page.missing !== undefined) throw new Error('page missing');
+
+      var extract = page.extract ? page.extract.trim() : '';
+      // Trim to a readable length — end at last sentence within ~800 chars
+      if (extract.length > 800) {
+        var cut = extract.slice(0, 800);
+        var lastDot = cut.lastIndexOf('.');
+        extract = lastDot > 200 ? cut.slice(0, lastDot + 1) : cut;
+      }
+      var thumb = page.thumbnail && page.thumbnail.source ? page.thumbnail.source : null;
+      var wikiUrl = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(pageTitle);
+
+      loading.style.display = 'none';
+      content.style.display = 'flex';
+
+      // Also show the other 2 search results as related links
+      var related = results.slice(1).map(function(r) {
+        return '<a href="https://en.wikipedia.org/wiki/' + encodeURIComponent(r.title) + '" target="_blank" class="qs-result" style="padding:8px 12px;">' +
+          '<div class="qs-result-source">Wikipedia</div>' +
+          '<div class="qs-result-title">' + escapeHtml(r.title) + '</div>' +
           '</a>';
-      });
-    }
-    if (!html) { html = '<div class="qs-empty">No instant results.<br>Click "Google" below to search the web.</div>'; }
-    content.innerHTML = html;
+      }).join('');
+
+      content.innerHTML =
+        // Main article card
+        '<div style="background:#252525;border:1px solid rgba(26,122,74,0.25);border-radius:10px;padding:14px 16px;">' +
+        '<div style="display:flex;gap:12px;align-items:flex-start;">' +
+        (thumb ? '<img src="' + thumb + '" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.remove()">' : '') +
+        '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#128218; Wikipedia</div>' +
+        '<div style="font-size:14px;font-family:Rajdhani,sans-serif;font-weight:700;color:#e8ede8;margin-bottom:8px;">' + escapeHtml(pageTitle) + '</div>' +
+        '</div></div>' +
+        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;margin-top:10px;">' + escapeHtml(extract) + '</div>' +
+        '<a href="' + wikiUrl + '" target="_blank" style="display:inline-block;margin-top:10px;font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;letter-spacing:0.5px;">Read full article &rarr;</a>' +
+        '</div>' +
+        // Related articles
+        (related ? '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;padding:4px 2px;">Related</div>' + related : '');
+      qsCache['web:' + query] = content.innerHTML;
+    });
   })
   .catch(function() {
     loading.style.display = 'none';
     content.style.display = 'flex';
-    content.innerHTML = '<div class="qs-empty">Web results unavailable.<br>Click "Google" below.</div>';
+    var q = encodeURIComponent(query);
+    content.innerHTML =
+      '<div class="qs-empty" style="flex-direction:column;gap:10px;">' +
+      '<div>No Wikipedia article found for this term.</div>' +
+      '<a href="https://en.wikipedia.org/w/index.php?search=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:7px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">Search Wikipedia &rarr;</a>' +
+      '</div>';
   });
 }
 </script>
