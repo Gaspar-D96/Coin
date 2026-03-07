@@ -62,9 +62,6 @@
   .btn-secondary:hover:not(:disabled){background:var(--border);}
   .btn-amber{background:rgba(255,184,0,0.1);color:var(--amber);border:1px solid rgba(255,184,0,0.25);}
   .btn-amber:hover:not(:disabled){background:rgba(255,184,0,0.2);}
-  .btn-mute{background:rgba(26,122,74,0.07);color:var(--accent);border:1px solid rgba(26,122,74,0.2);}
-  .btn-mute:hover:not(:disabled){background:rgba(26,122,74,0.15);}
-  .btn-mute.muted{background:rgba(26,122,74,0.15);color:#4db87a;border-color:rgba(45,168,102,0.6);}
   .controls-right{margin-left:auto;display:flex;gap:8px;}
   .stats-bar{display:flex;gap:1px;background:var(--border);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
   .stat{flex:1;background:var(--surface);padding:11px 16px;}
@@ -232,7 +229,6 @@
       <button class="btn btn-primary" id="btnStart" onclick="startTranscription()">&#9654; Start Transcribing</button>
       <button class="btn btn-amber" id="btnPause" onclick="pauseTranscription()" disabled>&#9208; Pause</button>
       <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>&#9209; Stop</button>
-      <button class="btn btn-mute" id="btnMute" onclick="toggleMute()" disabled>&#128247; Mute Mic</button>
       <div class="controls-right">
         <button class="btn btn-secondary" id="btnSearch" onclick="toggleSearch()">&#128269; Search</button>
         <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>&#128203; Copy</button>
@@ -370,7 +366,7 @@ var STORAGE_KEY  = 'livescribe_transcripts';
 var DRAFT_KEY    = 'coin_draft';
 var FONT_KEY     = 'coin_fontsize';
 
-var isListening = false, isPaused = false, isMuted = false;
+var isListening = false, isPaused = false;
 var transcriptEntries = [], wordCount = 0;
 var startTime = null, durationInterval = null;
 var screenStream = null, audioContext = null;
@@ -464,7 +460,6 @@ function connectDeepgram(audioStream) {
     document.getElementById('btnStart').disabled=true;
     document.getElementById('btnPause').disabled=false;
     document.getElementById('btnStop').disabled=false;
-    document.getElementById('btnMute').disabled=false;
     var es=document.getElementById('emptyState');
     if (es) es.style.display='none';
     if (!startTime){startTime=Date.now();durationInterval=setInterval(updateDuration,1000);}
@@ -496,7 +491,6 @@ function startAudioPipeline(stream) {
     processor=audioContext.createScriptProcessor(4096,1,1);
     processor.onaudioprocess=function(e){
       if (!socket||socket.readyState!==WebSocket.OPEN) return;
-      if (isMuted) return; // muted — don't send audio to Deepgram
       var f32=e.inputBuffer.getChannelData(0);
       var i16=new Int16Array(f32.length);
       for (var i=0;i<f32.length;i++) i16[i]=Math.max(-32768,Math.min(32767,f32[i]*32768));
@@ -524,22 +518,6 @@ function pauseTranscription() {
   }
 }
 
-function toggleMute() {
-  if (!gainNode) return;
-  isMuted=!isMuted;
-  // gain 0 = silent (no echo to speakers), gain 1 = audible
-  gainNode.gain.value=isMuted?0:0; // speaker output stays silent either way (tab audio echo suppressed)
-  var btn=document.getElementById('btnMute');
-  if (isMuted) {
-    btn.textContent='\ud83d\udd0a Unmute Mic';
-    btn.classList.add('muted');
-    showBanner('warning','\ud83d\udd07 Mic muted \u2014 audio paused, transcription will resume when unmuted.');
-  } else {
-    btn.textContent='\ud83d\udd07 Mute Mic';
-    btn.classList.remove('muted');
-    ['errorBanner','warnBanner','successBanner'].forEach(function(id){document.getElementById(id).classList.remove('show');});
-  }
-}
 
 function stopTranscription() {
   isListening=false; isPaused=false;
@@ -548,14 +526,11 @@ function stopTranscription() {
   if (socket){try{socket.close();}catch(e){} socket=null;}
   if (screenStream){screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null;}
   stopVolumeMeter(); clearInterval(durationInterval); removeInterim();
-  setStatus('idle'); isMuted=false; gainNode=null;
-  document.getElementById('btnMute').textContent='\ud83d\udd07 Mute Mic';
-  document.getElementById('btnMute').classList.remove('muted');
+  setStatus('idle'); gainNode=null;
   document.getElementById('btnStart').disabled=false;
   document.getElementById('btnPause').disabled=true;
   document.getElementById('btnPause').textContent='\u23f8 Pause';
   document.getElementById('btnStop').disabled=true;
-  document.getElementById('btnMute').disabled=true;
   if (transcriptEntries.length>0){
     document.getElementById('btnCopy').disabled=false;
     document.getElementById('btnSave').disabled=false;
