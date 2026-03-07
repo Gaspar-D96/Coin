@@ -232,7 +232,7 @@
       <button class="btn btn-primary" id="btnStart" onclick="startTranscription()">&#9654; Start Transcribing</button>
       <button class="btn btn-amber" id="btnPause" onclick="pauseTranscription()" disabled>&#9208; Pause</button>
       <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>&#9209; Stop</button>
-      <button class="btn btn-mute" id="btnMute" onclick="toggleMute()" disabled>&#128247; Silence Audio</button>
+      <button class="btn btn-mute" id="btnMute" onclick="toggleMute()" disabled>&#128247; Mute Mic</button>
       <div class="controls-right">
         <button class="btn btn-secondary" id="btnSearch" onclick="toggleSearch()">&#128269; Search</button>
         <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>&#128203; Copy</button>
@@ -496,6 +496,7 @@ function startAudioPipeline(stream) {
     processor=audioContext.createScriptProcessor(4096,1,1);
     processor.onaudioprocess=function(e){
       if (!socket||socket.readyState!==WebSocket.OPEN) return;
+      if (isMuted) return; // muted — don't send audio to Deepgram
       var f32=e.inputBuffer.getChannelData(0);
       var i16=new Int16Array(f32.length);
       for (var i=0;i<f32.length;i++) i16[i]=Math.max(-32768,Math.min(32767,f32[i]*32768));
@@ -526,10 +527,18 @@ function pauseTranscription() {
 function toggleMute() {
   if (!gainNode) return;
   isMuted=!isMuted;
-  gainNode.gain.value=isMuted?1:0;
+  // gain 0 = silent (no echo to speakers), gain 1 = audible
+  gainNode.gain.value=isMuted?0:0; // speaker output stays silent either way (tab audio echo suppressed)
   var btn=document.getElementById('btnMute');
-  btn.textContent=isMuted?'\ud83d\udd0a Audio On':'\ud83d\udd07 Silence Audio';
-  btn.classList.toggle('muted',isMuted);
+  if (isMuted) {
+    btn.textContent='\ud83d\udd0a Unmute Mic';
+    btn.classList.add('muted');
+    showBanner('warning','\ud83d\udd07 Mic muted \u2014 audio paused, transcription will resume when unmuted.');
+  } else {
+    btn.textContent='\ud83d\udd07 Mute Mic';
+    btn.classList.remove('muted');
+    ['errorBanner','warnBanner','successBanner'].forEach(function(id){document.getElementById(id).classList.remove('show');});
+  }
 }
 
 function stopTranscription() {
@@ -540,7 +549,7 @@ function stopTranscription() {
   if (screenStream){screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null;}
   stopVolumeMeter(); clearInterval(durationInterval); removeInterim();
   setStatus('idle'); isMuted=false; gainNode=null;
-  document.getElementById('btnMute').textContent='\ud83d\udd07 Silence Audio';
+  document.getElementById('btnMute').textContent='\ud83d\udd07 Mute Mic';
   document.getElementById('btnMute').classList.remove('muted');
   document.getElementById('btnStart').disabled=false;
   document.getElementById('btnPause').disabled=true;
