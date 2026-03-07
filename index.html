@@ -319,7 +319,7 @@
     <button class="qs-close" onclick="qsClose()">&times;</button>
   </div>
   <div class="qs-tabs">
-    <button class="qs-tab active" id="qsTabAI" onclick="qsSwitchTab('ai',this)">&#129302; AI Summary</button>
+    <button class="qs-tab active" id="qsTabAI" onclick="qsSwitchTab('ai',this)">&#128196; Summary</button>
     <button class="qs-tab" id="qsTabNews" onclick="qsSwitchTab('news',this)">&#128240; News</button>
     <button class="qs-tab" id="qsTabWeb" onclick="qsSwitchTab('web',this)">&#127760; Web</button>
   </div>
@@ -1202,41 +1202,54 @@ function qsLoadAI(query) {
   loading.style.display = 'flex';
   content.style.display = 'none';
   content.innerHTML = '';
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': '',
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 600,
-      messages: [{
-        role: 'user',
-        content: 'You are a financial and current affairs analyst. Provide a concise, factual briefing on: "' + query + '"\n\nInclude:\n- What it is / current status (2-3 sentences)\n- Key context: financial, economic, political, or market relevance\n- Most recent significant development\n- Any notable risks or watch points\n\nBe direct and informative. Use plain text only, no markdown symbols.'
-      }]
-    })
-  })
+
+  // Use Wikipedia search API — free, no key, no CORS issues
+  var searchUrl = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
+    encodeURIComponent(query) + '&srlimit=1&format=json&origin=*';
+
+  fetch(searchUrl)
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    var text = data.content && data.content[0] && data.content[0].text ? data.content[0].text : null;
-    if (!text) { content.innerHTML = '<div class="qs-empty">Could not generate summary.<br>Try opening in Google.</div>'; return; }
-    content.innerHTML =
-      '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
-      '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#129302; AI Briefing</div>' +
-      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;white-space:pre-wrap;">' + escapeHtml(text) + '</div>' +
-      '</div>';
+    var results = data.query && data.query.search;
+    if (!results || results.length === 0) {
+      loading.style.display = 'none';
+      content.style.display = 'flex';
+      content.innerHTML = '<div class="qs-empty">No summary found.<br>Try the Web or News tabs.</div>';
+      return;
+    }
+    var pageTitle = results[0].title;
+    // Now fetch the extract for that page
+    var extractUrl = 'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles=' +
+      encodeURIComponent(pageTitle) + '&format=json&origin=*';
+    return fetch(extractUrl).then(function(r) { return r.json(); }).then(function(d) {
+      loading.style.display = 'none';
+      content.style.display = 'flex';
+      var pages = d.query && d.query.pages;
+      var page = pages && pages[Object.keys(pages)[0]];
+      var extract = page && page.extract ? page.extract.slice(0, 900).trim() : null;
+      if (!extract) {
+        content.innerHTML = '<div class="qs-empty">No summary found.<br>Try the Web or News tabs.</div>';
+        return;
+      }
+      // Trim to last full sentence
+      var lastPeriod = extract.lastIndexOf('.');
+      if (lastPeriod > 200) extract = extract.slice(0, lastPeriod + 1);
+      var wikiUrl = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(pageTitle);
+      content.innerHTML =
+        '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
+        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">&#128196; ' + escapeHtml(pageTitle) + ' — Wikipedia</div>' +
+        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;">' + escapeHtml(extract) + '</div>' +
+        '<a href="' + wikiUrl + '" target="_blank" style="display:inline-block;margin-top:10px;font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;">Read full article &rarr;</a>' +
+        '</div>';
+    });
   })
   .catch(function() {
     loading.style.display = 'none';
     content.style.display = 'flex';
     var q = encodeURIComponent(query);
-    content.innerHTML = '<div class="qs-empty" style="flex-direction:column;gap:12px;">' +
-      '<div>AI briefing unavailable from this browser context.</div>' +
+    content.innerHTML =
+      '<div class="qs-empty" style="flex-direction:column;gap:12px;">' +
+      '<div>Summary unavailable — check your connection.</div>' +
       '<a href="https://www.google.com/search?q=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:8px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">&#128269; Search Google instead</a>' +
       '</div>';
   });
@@ -1249,33 +1262,67 @@ function qsLoadNews(query) {
   loading.style.display = 'flex';
   content.style.display = 'none';
   content.innerHTML = '';
-  var rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-GB&gl=GB&ceid=GB:en';
-  var proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl) + '&count=8';
+
+  // Use GNews API (free tier, 100 req/day, no CORS issues)
+  var gnewsUrl = 'https://gnews.io/api/v4/search?q=' + encodeURIComponent(query) +
+    '&lang=en&max=8&apikey=pub_no_key_fallback';
+
+  // Primary: try RSS2JSON with a more reliable public CORS proxy
+  var rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-US&gl=US&ceid=US:en';
+  var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
+
   fetch(proxyUrl)
   .then(function(r) { return r.json(); })
   .then(function(data) {
+    if (!data.contents) throw new Error('no contents');
+    // Parse the RSS XML from the proxy response
+    var parser = new DOMParser();
+    var xml = parser.parseFromString(data.contents, 'text/xml');
+    var items = xml.querySelectorAll('item');
+    if (!items || items.length === 0) throw new Error('no items');
     loading.style.display = 'none';
     content.style.display = 'flex';
-    var items = data.items;
-    if (!items || items.length === 0) { content.innerHTML = '<div class="qs-empty">No news found for this query.</div>'; return; }
-    content.innerHTML = items.map(function(item) {
-      var source = item.author || (item.source ? item.source.name : '') || '';
-      var date = item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-GB', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-      var title = item.title || 'No title';
-      var snippet = item.description ? item.description.replace(/<[^>]+>/g,'').slice(0,120) + '...' : '';
-      var link = item.link || '#';
-      return '<a href="' + link + '" target="_blank" class="qs-result">' +
-        '<div class="qs-result-source">' + escapeHtml(source) + '</div>' +
+    var html = '';
+    var count = 0;
+    items.forEach(function(item) {
+      if (count >= 8) return;
+      var title = item.querySelector('title') ? item.querySelector('title').textContent : '';
+      var link  = item.querySelector('link')  ? item.querySelector('link').textContent  : '#';
+      var pubDate = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
+      var source = item.querySelector('source') ? item.querySelector('source').textContent : '';
+      var desc = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]+>/g,'').slice(0,120) : '';
+      var dateStr = pubDate ? new Date(pubDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+      html += '<a href="' + link + '" target="_blank" class="qs-result">' +
+        (source ? '<div class="qs-result-source">' + escapeHtml(source) + '</div>' : '') +
         '<div class="qs-result-title">' + escapeHtml(title) + '</div>' +
-        (snippet ? '<div class="qs-result-snippet">' + escapeHtml(snippet) + '</div>' : '') +
-        (date ? '<div class="qs-result-date">' + date + '</div>' : '') +
+        (desc ? '<div class="qs-result-snippet">' + escapeHtml(desc) + '...</div>' : '') +
+        (dateStr ? '<div class="qs-result-date">' + dateStr + '</div>' : '') +
         '</a>';
-    }).join('');
+      count++;
+    });
+    content.innerHTML = html || '<div class="qs-empty">No news found for this query.</div>';
   })
   .catch(function() {
+    // Fallback: show direct links to Google News and BBC search
     loading.style.display = 'none';
     content.style.display = 'flex';
-    content.innerHTML = '<div class="qs-empty">Could not load news.<br>Click "Google News" below.</div>';
+    var q = encodeURIComponent(query);
+    content.innerHTML =
+      '<div style="padding:4px;display:flex;flex-direction:column;gap:8px;">' +
+      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#484848;padding:4px 0;">News feed blocked by browser — open directly:</div>' +
+      '<a href="https://news.google.com/search?q=' + q + '" target="_blank" class="qs-result">' +
+        '<div class="qs-result-title">&#128240; Google News — ' + escapeHtml(query) + '</div>' +
+        '<div class="qs-result-snippet">Search Google News for the latest articles</div>' +
+      '</a>' +
+      '<a href="https://www.bbc.co.uk/search?q=' + q + '" target="_blank" class="qs-result">' +
+        '<div class="qs-result-title">&#127758; BBC News — ' + escapeHtml(query) + '</div>' +
+        '<div class="qs-result-snippet">Search BBC News coverage</div>' +
+      '</a>' +
+      '<a href="https://www.reuters.com/search/news?blob=' + q + '" target="_blank" class="qs-result">' +
+        '<div class="qs-result-title">&#128209; Reuters — ' + escapeHtml(query) + '</div>' +
+        '<div class="qs-result-snippet">Search Reuters for latest reports</div>' +
+      '</a>' +
+      '</div>';
   });
 }
 
