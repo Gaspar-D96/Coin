@@ -8,19 +8,20 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
   :root {
-    --bg: #050705;
-    --surface: #0c110c;
-    --surface2: #111a11;
-    --border: #1a2e1a;
+    --bg: #1c1c1c;
+    --surface: #252525;
+    --surface2: #2e2e2e;
+    --border: #383838;
     --accent: #1a7a4a;
     --accent2: #145c38;
+    --glow: rgba(26,122,74,0.15);
+    --glow-strong: rgba(26,122,74,0.25);
     --green: #1a7a4a;
     --red: #ff4444;
     --amber: #ffb800;
-    --purple: #1a7a4a;
-    --text: #e8f5e8;
-    --text-muted: #5a7a5a;
-    --text-dim: #2a3e2a;
+    --text: #e8ede8;
+    --text-muted: #808880;
+    --text-dim: #484848;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,14 +34,15 @@
 
   body::before {
     content: ''; position: fixed; inset: 0;
-    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 32px 32px; opacity: 0.15; pointer-events: none; z-index: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
 
   .container { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 28px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; gap: 18px; }
 
   /* ── Nav tabs ── */
-  .nav-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; width: fit-content; }
+  .nav-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; width: fit-content; transition: border-color 0.25s, box-shadow 0.25s; }
+  .nav-tabs:hover { border-color: rgba(26,122,74,0.4); box-shadow: 0 0 14px rgba(26,122,74,0.1); }
   .nav-tab { padding: 8px 20px; border-radius: 9px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s; }
   .nav-tab.active { background: rgba(26,122,74,0.08); color: var(--accent); border: 1px solid rgba(26,122,74,0.25); font-weight: 600; }
   .nav-tab:hover:not(.active) { color: var(--text); }
@@ -63,7 +65,8 @@
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.75);} }
 
   /* ── Instructions ── */
-  .instructions { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
+  .instructions { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; transition: border-color 0.25s, box-shadow 0.25s; }
+  .instructions:hover { border-color: rgba(26,122,74,0.5); box-shadow: 0 0 18px rgba(26,122,74,0.12), inset 0 0 20px rgba(26,122,74,0.03); }
   .instructions-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
   .instructions h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--accent); letter-spacing: 0.5px; text-transform: uppercase; }
   .instructions p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
@@ -71,13 +74,15 @@
 
   /* ── Steps ── */
   .steps { display: flex; gap: 10px; flex-wrap: wrap; }
-  .step { flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; gap: 11px; align-items: flex-start; }
+  .step { flex: 1; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; gap: 11px; align-items: flex-start; transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s; }
+  .step:hover { border-color: rgba(26,122,74,0.5); box-shadow: 0 0 16px rgba(26,122,74,0.14), inset 0 0 16px rgba(26,122,74,0.03); transform: translateY(-2px); }
   .step-num { width: 24px; height: 24px; border-radius: 50%; background: rgba(26,122,74,0.1); border: 1px solid rgba(26,122,74,0.3); color: var(--accent); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Share Tech Mono', monospace; }
   .step-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
   .step-text strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 13px; }
 
   /* ── Volume ── */
-  .volume-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; }
+  .volume-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; transition: border-color 0.25s, box-shadow 0.25s; }
+  .volume-row:hover { border-color: rgba(26,122,74,0.45); box-shadow: 0 0 14px rgba(26,122,74,0.1); }
   .volume-label { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); white-space: nowrap; }
   .volume-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
   .volume-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 3px; transition: width 0.08s; }
@@ -104,13 +109,15 @@
 
   /* ── Stats ── */
   .stats-bar { display: flex; gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-  .stat { flex: 1; background: var(--surface); padding: 11px 16px; }
+  .stat { flex: 1; background: var(--surface); padding: 11px 16px; transition: background 0.25s, box-shadow 0.25s; }
+  .stat:hover { background: var(--surface2); box-shadow: inset 0 0 20px rgba(26,122,74,0.06); }
   .stat-label { font-size: 11px; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
   .stat-value { font-size: 19px; font-weight: 600; font-family: 'Share Tech Mono', monospace; }
   .stat-value.accent { color: var(--accent); text-shadow: 0 0 12px rgba(26,122,74,0.35); }
 
   /* ── Transcript panel ── */
-  .transcript-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 280px; }
+  .transcript-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 280px; transition: border-color 0.25s, box-shadow 0.25s; }
+  .transcript-wrapper:hover { border-color: rgba(26,122,74,0.4); box-shadow: 0 0 22px rgba(26,122,74,0.1); }
   .transcript-header { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .transcript-title { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; }
   .entry-count { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; font-size: 11px; color: var(--text-muted); }
@@ -147,13 +154,14 @@
   .library-header { display: flex; align-items: center; justify-content: space-between; }
   .library-header h2 { font-size: 16px; font-weight: 600; }
   .library-count { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); }
-  .library-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 48px; text-align: center; color: var(--text-dim); }
+  .library-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 48px; text-align: center; color: var(--text-dim); transition: border-color 0.25s, box-shadow 0.25s; }
+  .library-empty:hover { border-color: rgba(26,122,74,0.35); box-shadow: 0 0 18px rgba(26,122,74,0.08); }
   .library-empty .empty-icon { font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px; }
   .library-empty p { font-size: 14px; line-height: 1.7; }
 
   .library-grid { display: flex; flex-direction: column; gap: 10px; }
-  .library-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 16px; transition: border-color 0.2s, background 0.2s; cursor: pointer; }
-  .library-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .library-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 16px; transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.2s; cursor: pointer; }
+  .library-card:hover { border-color: rgba(26,122,74,0.6); background: var(--surface2); box-shadow: 0 0 20px rgba(26,122,74,0.16), inset 0 0 20px rgba(26,122,74,0.04); transform: translateY(-1px); }
   .library-card-icon { font-size: 24px; flex-shrink: 0; }
   .library-card-info { flex: 1; min-width: 0; }
   .library-card-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
@@ -185,6 +193,32 @@
   .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
 
   footer { text-align: center; font-size: 11px; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; padding-bottom: 16px; position: relative; z-index: 1; }
+
+  /* ── Search bar ── */
+  .search-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; transition: border-color 0.25s, box-shadow 0.25s; }
+  .search-row:focus-within { border-color: rgba(26,122,74,0.6); box-shadow: 0 0 14px rgba(26,122,74,0.12); }
+  .search-row input { flex: 1; background: none; border: none; outline: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--text); }
+  .search-row input::placeholder { color: var(--text-dim); }
+  .search-icon { color: var(--text-dim); font-size: 14px; }
+  .search-count { font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--text-muted); white-space: nowrap; }
+  .search-clear { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 0 2px; }
+  .search-clear:hover { color: var(--text); }
+  .entry-highlight { background: rgba(255,198,0,0.25); border-radius: 2px; color: var(--text); }
+
+  /* ── Font size toggle ── */
+  .font-toggle { display: flex; align-items: center; gap: 4px; }
+  .font-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; font-family: 'Share Tech Mono', monospace; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 11px; }
+  .font-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .font-size-label { font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--text-dim); min-width: 28px; text-align: center; }
+
+  /* ── Auto-save indicator ── */
+  .autosave-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--text-dim); padding: 4px 10px; border-radius: 999px; border: 1px solid transparent; transition: all 0.4s; }
+  .autosave-pill.saved { color: var(--accent); border-color: rgba(26,122,74,0.3); background: rgba(26,122,74,0.06); }
+  .autosave-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── Rename in library ── */
+  .rename-input { background: var(--surface2); border: 1px solid rgba(26,122,74,0.5); border-radius: 6px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 500; padding: 2px 8px; outline: none; width: 100%; }
+  .rename-input:focus { box-shadow: 0 0 8px rgba(26,122,74,0.2); }
 </style>
 </head>
 <body>
@@ -218,14 +252,14 @@
       <div class="instructions-icon">💡</div>
       <div>
         <h3>How to use</h3>
-        <p>Open your meeting on any platform. Click <strong>Start Transcribing</strong>, pick your screen or meeting tab, and tick <strong>"Share system audio"</strong> or <strong>"Share tab audio"</strong>. Transcript builds live. Click <strong>Save & Store</strong> when done — it saves to your Library automatically.</p>
+        <p>Open your meeting in a <strong>Chrome tab</strong> (e.g. teams.microsoft.com, Google Meet, Zoom web). Click <strong>Start Transcribing</strong>, select the meeting tab from the picker, and make sure <strong>"Share tab audio"</strong> is ticked ✅. Transcript builds live. Click <strong>Save & Store</strong> when done.</p>
       </div>
     </div>
 
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Open your meeting</strong>Any platform works</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Click Start Transcribing</strong>Chrome asks what to share</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Tick "Share audio"</strong>At the bottom of the popup ✅</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Open your meeting in Chrome</strong>Use the browser version of Teams, Meet, Zoom etc.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Click Start Transcribing</strong>A tab picker will appear</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Select your meeting tab</strong>Tick "Share tab audio" ✅</div></div>
       <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Save & Store when done</strong>Goes to your Library</div></div>
     </div>
 
@@ -245,6 +279,7 @@
       <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>⏹ Stop</button>
       <button class="btn btn-mute" id="btnMute" onclick="toggleMute()" disabled>🔇 Silence Audio</button>
       <div class="controls-right">
+        <button class="btn btn-secondary" id="btnSearch" onclick="toggleSearch()">🔍 Search</button>
         <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>📋 Copy</button>
         <button class="btn btn-primary" id="btnSave" onclick="saveAndStore()" disabled>💾 Save & Store</button>
         <button class="btn btn-secondary" onclick="clearTranscript()">🗑 Clear</button>
@@ -261,7 +296,22 @@
     <div class="transcript-wrapper">
       <div class="transcript-header">
         <div class="transcript-title">📄 Live Transcript <span class="entry-count" id="entryCount">0 entries</span></div>
-        <div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;" id="sessionDate"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="autosave-pill" id="autosavePill"><div class="autosave-dot"></div><span id="autosaveText">Draft</span></div>
+          <div class="font-toggle">
+            <span style="font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--text-dim);margin-right:2px;">Font</span>
+            <button class="font-btn" onclick="changeFontSize(-1)" title="Decrease font size">−</button>
+            <span class="font-size-label" id="fontSizeLabel">14</span>
+            <button class="font-btn" onclick="changeFontSize(1)" title="Increase font size">+</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;" id="sessionDate"></div>
+        </div>
+      </div>
+      <div class="search-row" id="searchRow" style="margin:10px 16px 0;display:none;">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search transcript…" oninput="searchTranscript(this.value)">
+        <span class="search-count" id="searchCount"></span>
+        <button class="search-clear" onclick="clearSearch()" title="Clear search">✕</button>
       </div>
       <div class="transcript-body" id="transcriptBody">
         <div class="empty-state" id="emptyState">
@@ -302,11 +352,10 @@
     </div>
     <div class="modal-tabs" id="modalTabs">
       <button class="modal-tab active" onclick="switchModalTab('transcript', this)">📄 Transcript</button>
-
     </div>
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" onclick="downloadFromModal()">💾 Download .txt</button>
+      <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" onclick="downloadFromModal()">💾 Download .docx</button>
       <button class="btn btn-ai" style="font-size:12px;padding:8px 14px;" id="modalSummariseBtn" onclick="summarizeViaClaudeFromModal()">✨ Summarize via Claude</button>
       <button class="btn btn-secondary" style="font-size:12px;padding:8px 14px;" onclick="closeModal()">Close</button>
     </div>
@@ -384,14 +433,14 @@
   async function startTranscription() {
     ['errorBanner','warnBanner','successBanner'].forEach(id => document.getElementById(id).classList.remove('show'));
     try {
-      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: { echoCancellation: false, noiseSuppression: false, sampleRate: 16000 } });
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: { echoCancellation: false, noiseSuppression: false, sampleRate: 16000 }, preferCurrentTab: false, selfBrowserSurface: 'exclude', surfaceSwitching: 'exclude', systemAudio: 'exclude', displaySurface: 'browser' });
     } catch(e) {
-      showBanner('warning', '⚠️ Screen sharing was cancelled. Please try again and click <strong>Share</strong>.');
+      showBanner('warning', '⚠️ Tab sharing was cancelled. Please try again and select your meeting tab from the picker.');
       return;
     }
     const audioTracks = screenStream.getAudioTracks();
     if (audioTracks.length === 0) {
-      showBanner('warning', '⚠️ <strong>No audio captured.</strong> Please Stop and try again — tick <strong>"Share system audio"</strong> or <strong>"Share tab audio"</strong> in the popup.');
+      showBanner('warning', '⚠️ <strong>No audio captured.</strong> Please Stop and try again — make sure to tick <strong>"Share tab audio"</strong> when selecting your meeting tab.');
       screenStream.getTracks().forEach(t => t.stop()); screenStream = null; return;
     }
     screenStream.getVideoTracks().forEach(t => t.stop());
@@ -541,7 +590,7 @@
   }
 
   function copyTranscript() {
-    navigator.clipboard.writeText(buildText()).then(() => {
+    navigator.clipboard.writeText(buildPlainText()).then(() => {
       const btn = document.getElementById('btnCopy');
       btn.textContent = '✅ Copied!';
       setTimeout(() => btn.textContent = '📋 Copy', 2000);
@@ -572,12 +621,8 @@
     saveLibrary(lib);
     updateLibBadge();
 
-    // Also download the .txt file
-    const blob = new Blob([buildText()], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename + '.txt';
-    a.click();
+    // Download as Word doc with branded header
+    downloadTranscriptAsDocx(record);
 
     showBanner('success', `✅ Saved as <strong>${filename}</strong> and stored in your Library!`);
   }
@@ -594,7 +639,8 @@
     closeSummary();
   }
 
-  function buildText(entries, wc, dur) {
+  // ── Plain text builder (for copy) ───────────────────────
+  function buildPlainText(entries, wc, dur) {
     const e = entries || transcriptEntries;
     const w = wc || wordCount;
     const d = dur || document.getElementById('statDuration').textContent;
@@ -602,6 +648,148 @@
     let out = `MEETING TRANSCRIPT\nDate: ${date}\nDuration: ${d}\nWords: ${w}\n${'─'.repeat(50)}\n\n`;
     e.forEach(en => { out += `[${en.time}]  ${en.text}\n\n`; });
     return out;
+  }
+
+  // ── Word doc builder for transcripts (with Coin header) ──
+  function downloadTranscriptAsDocx(rec) {
+    const entries = rec.entries || transcriptEntries;
+    const dur = rec.duration || document.getElementById('statDuration').textContent;
+    const wc = rec.wordCount || wordCount;
+    const date = rec.date || new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const filename = rec.filename || 'transcript';
+
+    // Build the transcript rows HTML — one row per segment with a blank line spacer between
+    let rowsHtml = '';
+    entries.forEach((en, idx) => {
+      rowsHtml += `
+        <tr>
+          <td style="width:70pt;padding:5pt 10pt 5pt 5pt;vertical-align:top;font-family:Courier New,monospace;font-size:9pt;color:#777777;white-space:nowrap;">[${en.time}]</td>
+          <td style="padding:5pt 5pt 5pt 10pt;vertical-align:top;font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;line-height:1.6;">${en.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>
+        </tr>`;
+      // Blank spacer row between segments for readability
+      if (idx < entries.length - 1) {
+        rowsHtml += `<tr><td colspan="2" style="height:10pt;padding:0;border:none;">&nbsp;</td></tr>`;
+      }
+    });
+
+    const wordHtml = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 15">
+<!--[if gte mso 9]>
+<xml>
+  <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+  /* Page setup */
+  @page {
+    margin: 0cm 2.2cm 2.5cm 2.2cm;
+    mso-header-margin: 0cm;
+    mso-footer-margin: 1.5cm;
+  }
+
+  body {
+    font-family: Calibri, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Dark grey header strip — appears at top of every page */
+  .page-header {
+    background-color: #2d2d2d;
+    width: 100%;
+    padding: 14pt 20pt 14pt 20pt;
+    margin: 0 0 28pt 0;
+    mso-element: header;
+  }
+
+  .coin-wordmark {
+    font-family: Rajdhani, Calibri, sans-serif;
+    font-size: 18pt;
+    font-weight: bold;
+    color: #1a7a4a;
+    letter-spacing: 4pt;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+  }
+
+  .doc-meta {
+    font-family: Courier New, monospace;
+    font-size: 9pt;
+    color: #888888;
+    margin: 16pt 0 24pt 0;
+    border-bottom: 1pt solid #dddddd;
+    padding-bottom: 12pt;
+  }
+
+  .transcript-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4pt;
+  }
+
+  .transcript-table td {
+    border: none;
+  }
+
+  .doc-footer {
+    margin-top: 32pt;
+    border-top: 1pt solid #eeeeee;
+    padding-top: 8pt;
+    font-family: Courier New, monospace;
+    font-size: 8pt;
+    color: #aaaaaa;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Branded dark grey header strip with Coin in dark green -->
+  <div class="page-header">
+    <span class="coin-wordmark">Coin</span>
+  </div>
+
+  <!-- Document metadata -->
+  <div class="doc-meta">
+    <strong>Meeting Transcript</strong> &nbsp;·&nbsp;
+    ${date} &nbsp;·&nbsp;
+    Duration: ${dur} &nbsp;·&nbsp;
+    ${wc} words &nbsp;·&nbsp;
+    ${entries.length} segments
+  </div>
+
+  <!-- Transcript entries — each segment separated by a blank row -->
+  <table class="transcript-table">
+    <tbody>
+      ${rowsHtml}
+    </tbody>
+  </table>
+
+  <div class="doc-footer">
+    Generated by Coin · Meeting Transcription Tool · ${new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})}
+  </div>
+
+</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename + '.doc';
+    a.click();
   }
 
   // ── Library storage ──────────────────────────────────────
@@ -646,6 +834,7 @@
         </div>
         <div class="library-card-actions" onclick="event.stopPropagation()">
           <button class="lib-btn ai-btn" onclick="summarizeViaClaude('${r.id}')">✨ Summarize via Claude</button>
+          <button class="lib-btn" onclick="startRename('${r.id}')">✏️ Rename</button>
           <button class="lib-btn" onclick="downloadRecord('${r.id}')">💾 Download</button>
           <button class="lib-btn danger" onclick="deleteRecord('${r.id}')">🗑 Delete</button>
         </div>
@@ -664,11 +853,7 @@
   function downloadRecord(id) {
     const rec = loadLibrary().find(r => r.id === id);
     if (!rec) return;
-    const blob = new Blob([buildText(rec.entries, rec.wordCount, rec.duration)], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = rec.filename + '.txt';
-    a.click();
+    downloadTranscriptAsDocx(rec);
   }
 
   // ── Modal ────────────────────────────────────────────────
@@ -767,7 +952,6 @@
       </div>`;
     document.body.appendChild(modal);
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    // Select preset by default
     setTimeout(() => selectPromptType('preset'), 50);
   }
 
@@ -879,23 +1063,15 @@
   function processSummary(id, filename, date) {
     const summaryText = document.getElementById('claudeResponseInput').value.trim();
     if (!summaryText) { alert('Please paste Claude\'s summary first.'); return; }
-
-    // Close modal
     document.getElementById('promptModal').remove();
-
-    // Show summary in app
     showSummaryInApp(summaryText, filename, date);
-
-    // Download as Word doc
     downloadAsWord(summaryText, filename, date);
   }
 
   function showSummaryInApp(text, filename, date) {
-    // Remove existing summary display
     const existing = document.getElementById('summaryDisplay');
     if (existing) existing.remove();
 
-    // Switch to record page
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('page-record').classList.add('active');
@@ -914,44 +1090,94 @@
       </div>
       <div id="summaryContent" style="padding:20px;font-size:14px;line-height:1.8;color:#5a7a5a;font-family:'Rajdhani',sans-serif;white-space:pre-wrap;">${escapeHtml(text)}</div>`;
 
-    // Insert after transcript wrapper
     const tw = document.querySelector('.transcript-wrapper');
     tw.parentNode.insertBefore(div, tw.nextSibling);
     setTimeout(() => div.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
+  // ── Summary Word doc (also with Coin header) ─────────────
   function downloadAsWord(text, filename, date) {
-    // Build a proper Word-compatible HTML document
     const wordHtml = `
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta charset="UTF-8">
 <meta name=ProgId content=Word.Document>
 <meta name=Generator content="Microsoft Word 15">
 <!--[if gte mso 9]>
-<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml>
+<xml>
+  <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+  </w:WordDocument>
+</xml>
 <![endif]-->
 <style>
-  @page { margin: 2.5cm; }
-  body { font-family: Calibri, sans-serif; font-size: 11pt; color: #1a1a1a; }
-  .coin-header { text-align: center; margin-bottom: 28pt; border-bottom: 3px solid #1a7a4a; padding-bottom: 14pt; }
-  .coin-title { font-size: 28pt; font-weight: bold; color: #1a7a4a; letter-spacing: 4pt; font-family: Calibri, sans-serif; margin: 0; }
-  .coin-sub { font-size: 10pt; color: #5a7a5a; margin-top: 4pt; letter-spacing: 1pt; text-transform: uppercase; }
-  .meta { font-size: 9pt; color: #888; margin-bottom: 20pt; text-align: center; }
-  .summary-body { font-size: 11pt; line-height: 1.7; white-space: pre-wrap; color: #1a1a1a; }
-  .footer { margin-top: 32pt; border-top: 1px solid #ddd; padding-top: 8pt; font-size: 8pt; color: #aaa; text-align: center; }
+  @page {
+    margin: 0cm 2.2cm 2.5cm 2.2cm;
+    mso-header-margin: 0cm;
+    mso-footer-margin: 1.5cm;
+  }
+  body {
+    font-family: Calibri, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
+  }
+  .page-header {
+    background-color: #2d2d2d;
+    width: 100%;
+    padding: 14pt 20pt 14pt 20pt;
+    margin: 0 0 28pt 0;
+  }
+  .coin-wordmark {
+    font-family: Calibri, sans-serif;
+    font-size: 18pt;
+    font-weight: bold;
+    color: #1a7a4a;
+    letter-spacing: 4pt;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+  }
+  .doc-meta {
+    font-family: Courier New, monospace;
+    font-size: 9pt;
+    color: #888888;
+    margin: 0 0 24pt 0;
+    border-bottom: 1pt solid #dddddd;
+    padding-bottom: 12pt;
+  }
+  .summary-body {
+    font-family: Calibri, sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: #1a1a1a;
+  }
+  .doc-footer {
+    margin-top: 32pt;
+    border-top: 1pt solid #eeeeee;
+    padding-top: 8pt;
+    font-family: Courier New, monospace;
+    font-size: 8pt;
+    color: #aaaaaa;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
-  <div class="coin-header">
-    <p class="coin-title">COIN</p>
-    <p class="coin-sub">Meeting Summary</p>
+  <div class="page-header">
+    <span class="coin-wordmark">Coin</span>
   </div>
-  <div class="meta">
-    <strong>File:</strong> ${filename} &nbsp;|&nbsp; <strong>Date:</strong> ${date} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
+  <div class="doc-meta">
+    <strong>Meeting Summary</strong> &nbsp;·&nbsp; ${filename} &nbsp;·&nbsp; ${date} &nbsp;·&nbsp; Generated: ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}
   </div>
   <div class="summary-body">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-  <div class="footer">Generated by Coin · Meeting Transcription Tool</div>
+  <div class="doc-footer">Generated by Coin · Meeting Transcription Tool</div>
 </body>
 </html>`;
 
@@ -988,6 +1214,214 @@
 
   // Init
   updateLibBadge();
+
+  // ── Feature 1: Auto-save draft ───────────────────────────
+  const DRAFT_KEY = 'coin_draft';
+  let autosaveTimer = null;
+
+  function scheduleDraftSave() {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      if (transcriptEntries.length === 0) return;
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          entries: transcriptEntries,
+          wordCount,
+          savedAt: Date.now()
+        }));
+        showAutosavePill();
+      } catch(e) {}
+    }, 30000); // save every 30s after last entry
+  }
+
+  function showAutosavePill() {
+    const pill = document.getElementById('autosavePill');
+    const txt = document.getElementById('autosaveText');
+    txt.textContent = 'Draft saved';
+    pill.classList.add('saved');
+    setTimeout(() => { pill.classList.remove('saved'); txt.textContent = 'Draft'; }, 3000);
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft.entries || draft.entries.length === 0) return;
+      const age = Math.round((Date.now() - draft.savedAt) / 60000);
+      const ageStr = age < 60 ? `${age} min ago` : `${Math.round(age/60)}h ago`;
+      if (confirm(`You have an unsaved draft (${draft.entries.length} segments, saved ${ageStr}). Restore it?`)) {
+        transcriptEntries = draft.entries;
+        wordCount = draft.wordCount || 0;
+        const es = document.getElementById('emptyState');
+        if (es) es.remove();
+        const body = document.getElementById('transcriptBody');
+        transcriptEntries.forEach(en => {
+          const el = document.createElement('div');
+          el.className = 'transcript-entry';
+          el.innerHTML = \`<span class="entry-time">\${en.time}</span><span class="entry-text">\${escapeHtml(en.text)}</span>\`;
+          body.appendChild(el);
+        });
+        document.getElementById('statWords').textContent = wordCount;
+        document.getElementById('statSegments').textContent = transcriptEntries.length;
+        document.getElementById('entryCount').textContent = transcriptEntries.length + ' entries';
+        document.getElementById('btnCopy').disabled = false;
+        document.getElementById('btnSave').disabled = false;
+        applyFontSize();
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch(e) {}
+  }
+
+  // Hook auto-save into addEntry
+  const _origAddEntry = addEntry;
+  // Override done inline below — patch addEntry to trigger draft save
+  // We patch by wrapping the existing function call in saveAndStore / clearTranscript to clear draft
+  // and by calling scheduleDraftSave after each new entry (done by modifying addEntry body instead)
+
+  // ── Feature 2: Search transcript ─────────────────────────
+  let searchActive = false;
+  let originalEntryHTML = new Map(); // idx -> original innerHTML
+
+  function toggleSearch() {
+    searchActive = !searchActive;
+    const row = document.getElementById('searchRow');
+    const btn = document.getElementById('btnSearch');
+    if (searchActive) {
+      row.style.display = 'flex';
+      document.getElementById('searchInput').focus();
+      btn.textContent = '✕ Search';
+    } else {
+      row.style.display = 'none';
+      btn.textContent = '🔍 Search';
+      clearSearch();
+    }
+  }
+
+  function searchTranscript(query) {
+    const entries = document.querySelectorAll('#transcriptBody .transcript-entry');
+    const countEl = document.getElementById('searchCount');
+    if (!query.trim()) {
+      // Restore all
+      entries.forEach((el, i) => {
+        if (originalEntryHTML.has(i)) el.querySelector('.entry-text').innerHTML = originalEntryHTML.get(i);
+      });
+      originalEntryHTML.clear();
+      countEl.textContent = '';
+      return;
+    }
+    let matches = 0;
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + escaped + ')', 'gi');
+    entries.forEach((el, i) => {
+      const textEl = el.querySelector('.entry-text');
+      if (!originalEntryHTML.has(i)) originalEntryHTML.set(i, textEl.innerHTML);
+      const orig = originalEntryHTML.get(i);
+      if (re.test(orig)) {
+        matches++;
+        textEl.innerHTML = orig.replace(re, '<mark class="entry-highlight">$1</mark>');
+      } else {
+        textEl.innerHTML = orig;
+      }
+    });
+    countEl.textContent = matches > 0 ? matches + ' match' + (matches !== 1 ? 'es' : '') : 'No matches';
+  }
+
+  function clearSearch() {
+    const input = document.getElementById('searchInput');
+    if (input) { input.value = ''; searchTranscript(''); }
+    document.getElementById('searchCount').textContent = '';
+    originalEntryHTML.clear();
+  }
+
+  // ── Feature 3: Font size toggle ───────────────────────────
+  let currentFontSize = 14;
+  const FONT_KEY = 'coin_fontsize';
+
+  function changeFontSize(delta) {
+    currentFontSize = Math.max(11, Math.min(20, currentFontSize + delta));
+    applyFontSize();
+    localStorage.setItem(FONT_KEY, currentFontSize);
+  }
+
+  function applyFontSize() {
+    document.querySelectorAll('.entry-text').forEach(el => el.style.fontSize = currentFontSize + 'px');
+    const lbl = document.getElementById('fontSizeLabel');
+    if (lbl) lbl.textContent = currentFontSize;
+  }
+
+  function loadFontSize() {
+    const saved = parseInt(localStorage.getItem(FONT_KEY));
+    if (saved && saved >= 11 && saved <= 20) { currentFontSize = saved; applyFontSize(); }
+  }
+
+  // ── Feature 4: Rename transcript in library ───────────────
+  function startRename(id) {
+    const card = document.querySelector(\`.library-card[data-id="\${id}"]\`);
+    if (!card) return;
+    const nameEl = card.querySelector('.library-card-name');
+    const currentName = nameEl.textContent;
+    nameEl.innerHTML = \`<input class="rename-input" id="renameInput-\${id}" value="\${escapeHtml(currentName)}" onclick="event.stopPropagation()" onkeydown="handleRenameKey(event, '\${id}')">\`;
+    const inp = document.getElementById(\`renameInput-\${id}\`);
+    inp.focus(); inp.select();
+  }
+
+  function handleRenameKey(e, id) {
+    if (e.key === 'Enter') { e.preventDefault(); commitRename(id); }
+    if (e.key === 'Escape') { e.preventDefault(); renderLibrary(); }
+  }
+
+  function commitRename(id) {
+    const inp = document.getElementById(\`renameInput-\${id}\`);
+    if (!inp) return;
+    const newName = inp.value.trim();
+    if (!newName) { renderLibrary(); return; }
+    const lib = loadLibrary();
+    const rec = lib.find(r => r.id === id);
+    if (rec) { rec.filename = newName; saveLibrary(lib); }
+    renderLibrary();
+  }
+
+  // ── Patch addEntry to schedule auto-save ─────────────────
+  const _addEntryOrig = addEntry;
+  addEntry = function(text) {
+    _addEntryOrig(text);
+    scheduleDraftSave();
+    applyFontSize();
+  };
+
+  // ── Patch clearTranscript to clear draft ──────────────────
+  const _clearOrig = clearTranscript;
+  clearTranscript = function() {
+    _clearOrig();
+    localStorage.removeItem(DRAFT_KEY);
+    clearSearch();
+  };
+
+  // ── Patch saveAndStore to clear draft after save ──────────
+  const _saveOrig = saveAndStore;
+  saveAndStore = function() {
+    _saveOrig();
+    localStorage.removeItem(DRAFT_KEY);
+  };
+
+  // ── Patch renderLibrary to attach data-id to cards ────────
+  const _renderLibOrig = renderLibrary;
+  renderLibrary = function() {
+    _renderLibOrig();
+    // Attach data-id to each card for rename targeting
+    const lib = loadLibrary();
+    document.querySelectorAll('.library-card').forEach((card, i) => {
+      if (lib[i]) card.setAttribute('data-id', lib[i].id);
+    });
+  };
+
+  // ── Boot ──────────────────────────────────────────────────
+  loadFontSize();
+  loadDraft();
+
 </script>
 </body>
 </html>
+
