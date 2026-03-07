@@ -1158,8 +1158,8 @@ function qsLoadAI(query) {
     // Format into a nice card
     content.innerHTML =
       '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
-      '<div style="font-size:10px;font-family:'Share Tech Mono',monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#129302; AI Briefing</div>' +
-      '<div style="font-size:13px;font-family:'Rajdhani',sans-serif;color:#c0c8c0;line-height:1.75;white-space:pre-wrap;">' + escapeHtml(text) + '</div>' +
+      '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#129302; AI Briefing</div>' +
+      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;white-space:pre-wrap;">' + escapeHtml(text) + '</div>' +
       '</div>';
   })
   .catch(function() {
@@ -1234,9 +1234,9 @@ function qsLoadWeb(query) {
     // Abstract (Wikipedia-style summary)
     if (data.AbstractText) {
       html += '<div style="background:#252525;border:1px solid #2e2e2e;border-radius:10px;padding:12px 14px;">' +
-        '<div style="font-size:10px;font-family:'Share Tech Mono',monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">&#128196; ' + escapeHtml(data.AbstractSource || 'Overview') + '</div>' +
-        '<div style="font-size:13px;font-family:'Rajdhani',sans-serif;color:#c0c8c0;line-height:1.7;">' + escapeHtml(data.AbstractText) + '</div>' +
-        (data.AbstractURL ? '<a href="' + data.AbstractURL + '" target="_blank" style="font-size:11px;color:#2da866;font-family:'Share Tech Mono',monospace;text-decoration:none;display:block;margin-top:8px;">Read more &rarr;</a>' : '') +
+        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">&#128196; ' + escapeHtml(data.AbstractSource || 'Overview') + '</div>' +
+        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.7;">' + escapeHtml(data.AbstractText) + '</div>' +
+        (data.AbstractURL ? '<a href="' + data.AbstractURL + '" target="_blank" style="font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;display:block;margin-top:8px;">Read more &rarr;</a>' : '') +
         '</div>';
     }
 
