@@ -230,17 +230,6 @@
       <button class="env-dismiss" onclick="document.getElementById('envFileWarning').classList.remove('show')">I understand, dismiss</button>
     </div>
 
-    <div class="env-banner caution" id="envZoomWarning">
-      <div class="env-banner-title amber">&#9888;&#65039; Using Zoom? Read this first</div>
-      <p><strong>Zoom desktop app won't work</strong> — Chrome can't capture audio from it. You must use <strong>Zoom's web client</strong> in a Chrome tab.</p>
-      <div class="env-steps">
-        <div class="env-step"><div class="env-step-num">1</div><div>Join your Zoom meeting via browser: use the link <code>zoom.us/wc/&lt;meeting-id&gt;</code> or click <strong>"Join from your browser"</strong> on the Zoom join page</div></div>
-        <div class="env-step"><div class="env-step-num">2</div><div>When sharing the tab, make sure the picker shows <strong>Chrome Tab</strong> (not Window or Screen), and tick <strong>"Share tab audio" &#9989;</strong> — if you don't see this checkbox, you've picked the wrong share type</div></div>
-        <div class="env-step"><div class="env-step-num">3</div><div>Keep the <strong>Zoom tab active/visible</strong> — Chrome may suspend backgrounded tabs and cut the audio stream</div></div>
-        <div class="env-step"><div class="env-step-num">4</div><div>If the host has <strong>muted all participants</strong> or audio processing is on, the captured audio may be very low — check the Audio Level bar shows movement when people speak</div></div>
-      </div>
-      <button class="env-dismiss" onclick="document.getElementById('envZoomWarning').classList.remove('show');localStorage.setItem('coin_zoom_dismissed','1')">Got it, don't show again</button>
-    </div>
 
     <div class="instructions">
       <div style="font-size:20px;flex-shrink:0;margin-top:1px;">&#128161;</div>
@@ -262,19 +251,15 @@
     <div class="banner success" id="successBanner"></div>
 
     <div class="volume-row">
-      <span class="volume-label">&#128266; Tab</span>
+      <span class="volume-label">&#128266; Audio level</span>
       <div class="volume-bar-bg"><div class="volume-bar" id="volumeBar"></div></div>
       <span class="volume-hint" id="volumeHint">&mdash;</span>
-      <span class="volume-label" style="margin-left:10px;">&#127908; Mic</span>
-      <div class="volume-bar-bg"><div class="volume-bar" id="micBar" style="background:linear-gradient(90deg,#4a7acc,#6aa3ff);"></div></div>
-      <span class="volume-hint" id="micHint">&mdash;</span>
     </div>
 
     <div class="controls">
       <button class="btn btn-primary" id="btnStart" onclick="startTranscription()">&#9654; Start Transcribing</button>
       <button class="btn btn-amber" id="btnPause" onclick="pauseTranscription()" disabled>&#9208; Pause</button>
       <button class="btn btn-danger" id="btnStop" onclick="stopTranscription()" disabled>&#9209; Stop</button>
-      <button class="btn btn-secondary" id="btnMic" onclick="toggleMic()" title="Toggle your microphone capture" style="border-color:rgba(74,122,204,0.4);color:#6aa3ff;">&#127908; My Mic: On</button>
       <div class="controls-right">
         <button class="btn btn-secondary" id="btnSearch" onclick="toggleSearch()">&#128269; Search</button>
         <button class="btn btn-secondary" id="btnCopy" onclick="copyTranscript()" disabled>&#128203; Copy</button>
@@ -401,9 +386,8 @@ var FONT_KEY     = 'coin_fontsize';
 var isListening = false, isPaused = false;
 var transcriptEntries = [], wordCount = 0;
 var startTime = null, durationInterval = null;
-var screenStream = null, micStream = null, audioContext = null;
+var screenStream = null, audioContext = null;
 var volumeInterval = null, socket = null, processor = null, gainNode = null;
-var micEnabled = true;
 var currentModalId = null, currentModalData = null;
 var autosaveTimer = null;
 var currentFontSize = 14;
@@ -437,42 +421,18 @@ function setStatus(state) {
   else{document.getElementById('statusText').textContent='Ready';stat.textContent='Idle';stat.style.color='var(--accent)';}
 }
 
-function startVolumeMeter(tabStream, micStreamArg) {
+function startVolumeMeter(tabStream) {
   try {
     var ctx = new (window.AudioContext||window.webkitAudioContext)();
-
-    // Tab audio analyser
     var tabAnalyser = ctx.createAnalyser(); tabAnalyser.fftSize = 512;
     ctx.createMediaStreamSource(tabStream).connect(tabAnalyser);
     var tabData = new Uint8Array(tabAnalyser.frequencyBinCount);
-
-    // Mic analyser (optional)
-    var micAnalyser = null, micData = null;
-    if (micStreamArg) {
-      micAnalyser = ctx.createAnalyser(); micAnalyser.fftSize = 512;
-      ctx.createMediaStreamSource(micStreamArg).connect(micAnalyser);
-      micData = new Uint8Array(micAnalyser.frequencyBinCount);
-    }
-
     volumeInterval = setInterval(function() {
-      // Tab bar
       tabAnalyser.getByteFrequencyData(tabData);
       var sum = 0; for(var i=0;i<tabData.length;i++) sum+=tabData[i];
       var pct = Math.min(100,(sum/tabData.length)*3);
       document.getElementById('volumeBar').style.width = pct+'%';
       document.getElementById('volumeHint').textContent = pct<2?'Silent':pct<15?'Low':pct<55?'Good \u2713':'Loud';
-
-      // Mic bar
-      if (micAnalyser && micEnabled) {
-        micAnalyser.getByteFrequencyData(micData);
-        var msum = 0; for(var j=0;j<micData.length;j++) msum+=micData[j];
-        var mpct = Math.min(100,(msum/micData.length)*3);
-        document.getElementById('micBar').style.width = mpct+'%';
-        document.getElementById('micHint').textContent = mpct<2?'Silent':mpct<15?'Low':mpct<55?'Active \u2713':'Loud';
-      } else {
-        document.getElementById('micBar').style.width = '0%';
-        document.getElementById('micHint').textContent = micEnabled ? '\u2014' : 'Off';
-      }
     }, 80);
   } catch(e){}
 }
@@ -481,8 +441,6 @@ function stopVolumeMeter() {
   clearInterval(volumeInterval);
   document.getElementById('volumeBar').style.width='0%';
   document.getElementById('volumeHint').textContent='\u2014';
-  document.getElementById('micBar').style.width='0%';
-  document.getElementById('micHint').textContent='\u2014';
 }
 
 async function startTranscription() {
@@ -506,18 +464,7 @@ async function startTranscription() {
   screenStream.getVideoTracks().forEach(function(t){t.stop();});
   var audioStream=new MediaStream(audioTracks);
 
-  // Request microphone — gracefully skip if denied
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({
-      audio:{echoCancellation:true,noiseSuppression:true,sampleRate:16000}
-    });
-    showBanner('success','\u2705 Tab audio + microphone captured \u2014 both will be transcribed.');
-  } catch(e) {
-    micStream = null;
-    showBanner('success','\u2705 Tab audio captured. Microphone not available \u2014 only meeting audio will be transcribed.');
-  }
-
-  startVolumeMeter(audioStream, micStream);
+  startVolumeMeter(audioStream);
   connectDeepgram(audioStream);
 }
 
@@ -583,14 +530,7 @@ function startAudioPipeline(stream) {
     tabGain.connect(compressor);
     compressor.connect(dest);
 
-    // ── Microphone — mixed in separately if available and enabled ──
-    if (micStream && micEnabled) {
-      var micSource = audioContext.createMediaStreamSource(micStream);
-      var micGain = audioContext.createGain();
-      micGain.gain.value = 1.0; // mic is already clean, no boost needed
-      micSource.connect(micGain);
-      micGain.connect(dest);
-    }
+    // ── Microphone mixing disabled for now ──
 
     // ── ScriptProcessor reads from the mixed destination stream ──
     gainNode = audioContext.createGain();
@@ -610,24 +550,7 @@ function startAudioPipeline(stream) {
   } catch(e) { showBanner('error', '\u274c Audio error: '+e.message); stopTranscription(); }
 }
 
-function toggleMic() {
-  micEnabled = !micEnabled;
-  var btn = document.getElementById('btnMic');
-  if (micEnabled) {
-    btn.textContent = '\u127908 My Mic: On';
-    btn.style.borderColor = 'rgba(74,122,204,0.4)';
-    btn.style.color = '#6aa3ff';
-  } else {
-    btn.textContent = '\u127908 My Mic: Off';
-    btn.style.borderColor = 'var(--border)';
-    btn.style.color = 'var(--text-muted)';
-  }
-  // If already recording, rebuild the pipeline with new mic state
-  if (isListening && audioContext && screenStream) {
-    if (processor) try { processor.disconnect(); } catch(e) {}
-    startAudioPipeline(new MediaStream(screenStream.getAudioTracks()));
-  }
-}
+
 
 function pauseTranscription() {
   if (!isPaused){
@@ -651,7 +574,6 @@ function stopTranscription() {
   if (audioContext){try{audioContext.close();}catch(e){} audioContext=null;}
   if (socket){try{socket.close();}catch(e){} socket=null;}
   if (screenStream){screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null;}
-  if (micStream){micStream.getTracks().forEach(function(t){t.stop();}); micStream=null;}
   stopVolumeMeter(); clearInterval(durationInterval); removeInterim();
   setStatus('idle'); gainNode=null;
   document.getElementById('btnStart').disabled=false;
@@ -1256,12 +1178,6 @@ loadDraft();
       btn.disabled = true;
       btn.title = 'Cannot capture audio when opened as a local file. See the warning above.';
     }
-  }
-
-  // 2. Zoom warning — show once unless dismissed
-  if (!localStorage.getItem('coin_zoom_dismissed')) {
-    var zw = document.getElementById('envZoomWarning');
-    if (zw) zw.classList.add('show');
   }
 
   // 3. Non-Chrome browser warning — getDisplayMedia with audio is Chrome-only
