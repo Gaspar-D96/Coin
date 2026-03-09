@@ -6,6 +6,7 @@
 <title>Coin – Meeting Transcriber</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
     --bg:#1c1c1c; --surface:#252525; --surface2:#2e2e2e; --border:#383838;
@@ -157,6 +158,13 @@
   .modal-entry-text{font-size:13px;color:var(--text);line-height:1.65;}
   .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
   footer{text-align:center;font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;padding-bottom:16px;position:relative;z-index:1;}
+  .tpl-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px;font-family:'Share Tech Mono',monospace;}
+  .tpl-status{color:var(--text-muted);flex:1;}
+  .tpl-status.loaded{color:var(--green);}
+  .tpl-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(26,122,74,0.4);background:rgba(26,122,74,0.08);color:var(--green);font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .tpl-btn:hover{background:rgba(26,122,74,0.2);}
+  .tpl-btn.danger{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.07);color:var(--red);}
+  .tpl-btn.danger:hover{background:rgba(239,68,68,0.18);}
 
   /* ── CHANGE 2: Scroll jump button — fixed position, coords set via JS ── */
   .scroll-jump-btn {
@@ -290,6 +298,14 @@
       <div class="stat"><div class="stat-label">Words</div><div class="stat-value" id="statWords">0</div></div>
       <div class="stat"><div class="stat-label">Segments</div><div class="stat-value" id="statSegments">0</div></div>
       <div class="stat"><div class="stat-label">Status</div><div class="stat-value accent" id="statStatus">Idle</div></div>
+    </div>
+
+    <!-- Template upload bar -->
+    <div class="tpl-bar">
+      <span id="tplStatus" class="tpl-status">&#128196; No template loaded — outputs use built-in styling</span>
+      <button class="tpl-btn" onclick="document.getElementById('tplFileInput').click()">&#128194; Load .docx Template</button>
+      <button class="tpl-btn danger" id="tplClearBtn" onclick="clearTemplate()" style="display:none">&#10006; Remove</button>
+      <input type="file" id="tplFileInput" accept=".docx" style="display:none" onchange="loadTemplate(this)">
     </div>
 
     <div class="transcript-wrapper">
@@ -684,20 +700,143 @@ function buildPlainText(entries,wc,dur) {
   return out;
 }
 
+// ── Template management ────────────────────────────────────────────────────
+var TEMPLATE_KEY = 'coin_docx_template';
+
+function loadTemplate(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var b64 = e.target.result.split(',')[1];
+    localStorage.setItem(TEMPLATE_KEY, b64);
+    updateTemplateUI();
+    showBanner('success', '\u2705 Template <strong>' + file.name + '</strong> loaded and saved.');
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function clearTemplate() {
+  localStorage.removeItem(TEMPLATE_KEY);
+  updateTemplateUI();
+  showBanner('success', 'Template removed \u2014 outputs will use built-in styling.');
+}
+
+function updateTemplateUI() {
+  var has = !!localStorage.getItem(TEMPLATE_KEY);
+  var st = document.getElementById('tplStatus');
+  var cl = document.getElementById('tplClearBtn');
+  if (!st) return;
+  if (has) {
+    st.textContent = '\u2705 Template loaded \u2014 all downloads will use your .docx';
+    st.className = 'tpl-status loaded';
+    if (cl) cl.style.display = 'inline-block';
+  } else {
+    st.textContent = '\u{1F4C4} No template loaded \u2014 outputs use built-in styling';
+    st.className = 'tpl-status';
+    if (cl) cl.style.display = 'none';
+  }
+}
+
+// Core docx builder: clones template, appends content, triggers download
+async function buildAndDownloadDocx(paragraphs, filename) {
+  var b64 = localStorage.getItem(TEMPLATE_KEY);
+  if (!b64 || typeof JSZip === 'undefined') return false;
+  try {
+    var binary = atob(b64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var zip = await JSZip.loadAsync(bytes.buffer);
+    var docXml = await zip.file('word/document.xml').async('string');
+    var paraXml = '';
+    paragraphs.forEach(function(para) {
+      if (para.type === 'heading') {
+        paraXml += '<w:p><w:pPr><w:spacing w:before="240" w:after="80"/></w:pPr>' +
+          '<w:r><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="1A7A4A"/><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>' +
+          '<w:t xml:space="preserve">' + xmlEsc(para.text) + '</w:t></w:r></w:p>';
+      } else if (para.type === 'meta') {
+        paraXml += '<w:p><w:pPr><w:spacing w:before="200" w:after="80"/></w:pPr>' +
+          '<w:r><w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/><w:sz w:val="16"/><w:color w:val="888888"/></w:rPr>' +
+          '<w:t xml:space="preserve">' + xmlEsc(para.text) + '</w:t></w:r></w:p>';
+      } else if (para.type === 'divider') {
+        paraXml += '<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="CCCCCC"/></w:pBdr><w:spacing w:before="60" w:after="200"/></w:pPr></w:p>';
+      } else if (para.type === 'timestamp') {
+        paraXml += '<w:p><w:pPr><w:spacing w:before="40" w:after="40"/></w:pPr>' +
+          '<w:r><w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/><w:sz w:val="16"/><w:color w:val="999999"/></w:rPr>' +
+          '<w:t xml:space="preserve">' + xmlEsc(para.time) + '   </w:t></w:r>' +
+          '<w:r><w:rPr><w:sz w:val="22"/></w:rPr>' +
+          '<w:t xml:space="preserve">' + xmlEsc(para.text) + '</w:t></w:r></w:p>';
+      } else if (para.type === 'blank') {
+        paraXml += '<w:p><w:pPr><w:spacing w:before="0" w:after="160"/></w:pPr></w:p>';
+      } else {
+        var lines = para.text.split('\n');
+        paraXml += '<w:p><w:pPr><w:spacing w:before="40" w:after="100"/></w:pPr>';
+        lines.forEach(function(line, li) {
+          if (li > 0) paraXml += '<w:r><w:br/></w:r>';
+          paraXml += '<w:r><w:rPr><w:sz w:val="22"/><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/></w:rPr><w:t xml:space="preserve">' + xmlEsc(line) + '</w:t></w:r>';
+        });
+        paraXml += '</w:p>';
+      }
+    });
+    var newDocXml = docXml.replace(/<\/w:body>/, paraXml + '</w:body>');
+    zip.file('word/document.xml', newDocXml);
+    var outBlob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(outBlob);
+    a.download = filename + '.docx';
+    a.click();
+    return true;
+  } catch(e) {
+    console.error('docx build error', e);
+    return false;
+  }
+}
+
+function xmlEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
 function downloadTranscriptAsDocx(rec) {
-  var entries=rec.entries||transcriptEntries;
-  var dur=rec.duration||document.getElementById('statDuration').textContent;
-  var wc=rec.wordCount||wordCount;
-  var date=rec.date||new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var filename=rec.filename||'transcript';
-  var rows='';
-  entries.forEach(function(en,idx){
-    rows+='<tr><td style="width:70pt;padding:5pt 10pt 5pt 5pt;vertical-align:top;font-family:Courier New,monospace;font-size:9pt;color:#777;white-space:nowrap;">['+en.time+']</td><td style="padding:5pt 5pt 5pt 10pt;vertical-align:top;font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;line-height:1.6;">'+en.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</td></tr>';
-    if(idx<entries.length-1) rows+='<tr><td colspan="2" style="height:10pt;padding:0;border:none;">&nbsp;</td></tr>';
+  var entries = rec.entries || transcriptEntries;
+  var dur     = rec.duration || document.getElementById('statDuration').textContent;
+  var wc      = rec.wordCount || wordCount;
+  var date    = rec.date || new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var filename = rec.filename || 'transcript';
+
+  // Build paragraph list for template injection
+  var paragraphs = [];
+  paragraphs.push({ type:'meta', text:'Meeting Transcript  \u00b7  ' + date + '  \u00b7  Duration: ' + dur + '  \u00b7  ' + wc + ' words  \u00b7  ' + entries.length + ' segments' });
+  paragraphs.push({ type:'divider' });
+  entries.forEach(function(en) {
+    paragraphs.push({ type:'timestamp', time:'['+en.time+']', text:en.text });
   });
-  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta name=ProgId content=Word.Document><style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}.ph{background:#1a1a1a;display:block;margin:-1cm -2.2cm 24pt -2.2cm;padding:12pt 2.2cm 12pt 2.2cm;border-bottom:3pt solid #1a7a4a;}.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT","IM Fell English",Georgia,serif;display:block;}.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:16pt 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}.tt{width:100%;border-collapse:collapse;}.tt td{border:none;}.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style></head><body><div class="ph"><span class="cw">Reports by Coin</span></div><div class="dm"><strong>Meeting Transcript</strong> &nbsp;&middot;&nbsp; '+date+' &nbsp;&middot;&nbsp; Duration: '+dur+' &nbsp;&middot;&nbsp; '+wc+' words &nbsp;&middot;&nbsp; '+entries.length+' segments</div><table class="tt"><tbody>'+rows+'</tbody></table><div class="df">Generated by Coin &middot; '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></body></html>';
-  var blob=new Blob(['\ufeff'+html],{type:'application/msword'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename+'.doc'; a.click();
+  paragraphs.push({ type:'blank' });
+  paragraphs.push({ type:'meta', text:'Generated by Coin  \u00b7  ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) });
+
+  buildAndDownloadDocx(paragraphs, filename).then(function(used) {
+    if (used) return;
+    // Fallback: HTML-in-doc (no template loaded)
+    var rows = '';
+    entries.forEach(function(en, idx) {
+      rows += '<tr><td style="width:70pt;padding:5pt 10pt 5pt 5pt;vertical-align:top;font-family:Courier New,monospace;font-size:9pt;color:#777;white-space:nowrap;">['+en.time+']</td>' +
+              '<td style="padding:5pt 5pt 5pt 10pt;vertical-align:top;font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;line-height:1.6;">'+en.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</td></tr>';
+      if (idx < entries.length-1) rows += '<tr><td colspan="2" style="height:10pt;padding:0;border:none;">&nbsp;</td></tr>';
+    });
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta name=ProgId content=Word.Document>' +
+      '<style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}' +
+      '.ph{background:#1a1a1a;width:100%;padding:12pt 24pt 12pt 24pt;margin:0 0 24pt 0;border-bottom:3pt solid #1a7a4a;}' +
+      '.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT",Georgia,serif;display:block;margin-bottom:2pt;}' +
+      '.cs{font-size:9pt;font-weight:bold;color:#1a7a4a;font-family:Arial,sans-serif;display:block;}' +
+      '.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:16pt 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}' +
+      '.tt{width:100%;border-collapse:collapse;}.tt td{border:none;}' +
+      '.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style></head><body>' +
+      '<div class="ph"><span class="cw">Reports by Coin</span><span class="cs">For RIL front office</span></div>' +
+      '<div class="dm"><strong>Meeting Transcript</strong> &nbsp;&middot;&nbsp; '+date+' &nbsp;&middot;&nbsp; Duration: '+dur+' &nbsp;&middot;&nbsp; '+wc+' words &nbsp;&middot;&nbsp; '+entries.length+' segments</div>' +
+      '<table class="tt"><tbody>'+rows+'</tbody></table>' +
+      '<div class="df">Generated by Coin &middot; '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></body></html>';
+    var blob = new Blob(['\ufeff'+html], {type:'application/msword'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename+'.doc'; a.click();
+  });
 }
 
 function loadLibrary(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
@@ -1095,23 +1234,62 @@ function showSummaryInApp(text, filename, date, label) {
 }
 
 function downloadAsWord(text, filename, date, docTitle) {
-  date=date||''; docTitle=docTitle||'Meeting Summary';
-  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
-    '<head><meta charset="UTF-8"><meta name=ProgId content=Word.Document>'+
-    '<style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}'+
-    '.ph{background:#1a1a1a;display:block;margin:-1cm -2.2cm 24pt -2.2cm;padding:12pt 2.2cm 12pt 2.2cm;border-bottom:3pt solid #1a7a4a;}'+
-    '.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT","IM Fell English",Georgia,serif;display:block;}'+
-    '.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:0 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}'+
-    '.sb{font-size:11pt;line-height:1.75;white-space:pre-wrap;}'+
-    '.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style>'+
-    '</head><body>'+
-    '<div class="ph"><span class="cw">Reports by Coin</span></div>'+
-    '<div class="dm"><strong>'+escapeHtml(docTitle)+'</strong> &nbsp;&middot;&nbsp; '+escapeHtml(filename)+(date?' &nbsp;&middot;&nbsp; '+escapeHtml(date):'')+'</div>'+
-    '<div class="sb">'+text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
-    '<div class="df">Generated by Coin &middot; Meeting Transcription Tool</div>'+
-    '</body></html>';
-  var blob=new Blob(['\ufeff'+html],{type:'application/msword'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename+'.doc'; a.click();
+  date = date || '';
+  docTitle = docTitle || 'Meeting Summary';
+
+  // Build structured paragraph list from the summary text
+  var paragraphs = [];
+  paragraphs.push({ type:'meta', text: docTitle + (filename ? '  \u00b7  ' + filename : '') + (date ? '  \u00b7  ' + date : '') });
+  paragraphs.push({ type:'divider' });
+
+  // Split text into paragraphs; detect section headings (e.g. "== DOC 1 ==" or lines ending with ":")
+  var lines = text.split('\n');
+  var buf = [];
+  function flushBuf() {
+    if (buf.length === 0) return;
+    var joined = buf.join('\n').trim();
+    if (joined) paragraphs.push({ type:'body', text: joined });
+    buf = [];
+  }
+  lines.forEach(function(line) {
+    var trimmed = line.trim();
+    if (trimmed === '') {
+      flushBuf();
+      paragraphs.push({ type:'blank' });
+    } else if (/^==\s*.+\s*==$/.test(trimmed)) {
+      flushBuf();
+      paragraphs.push({ type:'heading', text: trimmed.replace(/^==\s*|\s*==$/g,'').trim() });
+    } else if (/^\d+\.\s+[A-Z]/.test(trimmed) || (/^[A-Z][^a-z]{4,}:?$/.test(trimmed) && trimmed.length < 60)) {
+      flushBuf();
+      paragraphs.push({ type:'heading', text: trimmed });
+    } else {
+      buf.push(line);
+    }
+  });
+  flushBuf();
+  paragraphs.push({ type:'blank' });
+  paragraphs.push({ type:'meta', text:'Generated by Coin  \u00b7  Meeting Transcription Tool' });
+
+  buildAndDownloadDocx(paragraphs, filename).then(function(used) {
+    if (used) return;
+    // Fallback: HTML-in-doc
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+      '<head><meta charset="UTF-8"><meta name=ProgId content=Word.Document>' +
+      '<style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}' +
+      '.ph{background:#1a1a1a;width:100%;padding:12pt 24pt 12pt 24pt;margin:0 0 24pt 0;border-bottom:3pt solid #1a7a4a;}' +
+      '.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT",Georgia,serif;display:block;margin-bottom:2pt;}' +
+      '.cs{font-size:9pt;font-weight:bold;color:#1a7a4a;font-family:Arial,sans-serif;display:block;}' +
+      '.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:0 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}' +
+      '.sb{font-size:11pt;line-height:1.75;white-space:pre-wrap;}' +
+      '.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style></head><body>' +
+      '<div class="ph"><span class="cw">Reports by Coin</span><span class="cs">For RIL front office</span></div>' +
+      '<div class="dm"><strong>'+escapeHtml(docTitle)+'</strong> &nbsp;&middot;&nbsp; '+escapeHtml(filename)+(date?' &nbsp;&middot;&nbsp; '+escapeHtml(date):'')+'</div>' +
+      '<div class="sb">'+text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' +
+      '<div class="df">Generated by Coin &middot; Meeting Transcription Tool</div>' +
+      '</body></html>';
+    var blob = new Blob(['\ufeff'+html], {type:'application/msword'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename+'.doc'; a.click();
+  });
 }
 
 function copyAndOpenAI(url,aiName) {
@@ -1132,6 +1310,7 @@ function escapeHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;
 updateLibBadge();
 loadFontSize();
 loadDraft();
+updateTemplateUI();
 
 // ── Environment & compatibility checks ────────────────────────────────────
 (function() {
