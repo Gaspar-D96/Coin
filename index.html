@@ -68,7 +68,8 @@
   .stat-label{font-size:11px;color:var(--text-muted);font-family:'Share Tech Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
   .stat-value{font-size:19px;font-weight:600;font-family:'Share Tech Mono',monospace;}
   .stat-value.accent{color:var(--accent);}
-  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:280px;transition:border-color 0.25s,box-shadow 0.25s;}
+  /* ── transcript wrapper needs position:relative for the jump button ── */
+  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:280px;transition:border-color 0.25s,box-shadow 0.25s;position:relative;}
   .transcript-wrapper:hover{border-color:rgba(26,122,74,0.4);box-shadow:0 0 22px rgba(26,122,74,0.08);}
   .transcript-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .transcript-title{font-size:12px;font-family:'Share Tech Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:8px;}
@@ -156,6 +157,32 @@
   .modal-entry-text{font-size:13px;color:var(--text);line-height:1.65;}
   .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
   footer{text-align:center;font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;padding-bottom:16px;position:relative;z-index:1;}
+
+  /* ── CHANGE 2: Scroll jump button ── */
+  .scroll-jump-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(26,122,74,0.5);
+    background: rgba(26,122,74,0.15);
+    color: var(--green);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: none; /* hidden until there are entries */
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s, opacity 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+  }
+  .scroll-jump-btn.visible { display: flex; }
+  .scroll-jump-btn:hover { background: rgba(26,122,74,0.35); transform: scale(1.1); }
+
+  /* ── CHANGE 1: Quick Search panel — Wikipedia only (no tabs needed) ── */
   .qs-panel{position:fixed;top:0;right:-440px;width:420px;height:100vh;background:#1e1e1e;border-left:1px solid #383838;z-index:500;display:flex;flex-direction:column;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 32px rgba(0,0,0,0.5);}
   .qs-panel.open{right:0;}
   .qs-header{padding:14px 16px;border-bottom:1px solid #2e2e2e;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-shrink:0;background:#252525;}
@@ -164,13 +191,8 @@
   .qs-query{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:#2da866;word-break:break-word;line-height:1.4;}
   .qs-close{background:#2e2e2e;border:1px solid #383838;color:#808880;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .qs-close:hover{color:#e8ede8;}
-  .qs-tabs{display:flex;border-bottom:1px solid #2e2e2e;flex-shrink:0;background:#1e1e1e;}
   .qs-body{flex:1;overflow:hidden;position:relative;}
-  .qs-pane{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.18s ease;}
-  .qs-pane.active{opacity:1;pointer-events:all;}
-  .qs-tab{flex:1;padding:9px 10px;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;color:#808880;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;letter-spacing:0.3px;}
-  .qs-tab.active{color:#2da866;border-bottom-color:#2da866;}
-  .qs-tab:hover:not(.active){color:#e8ede8;background:rgba(255,255,255,0.03);}
+  .qs-pane{position:absolute;inset:0;display:flex;flex-direction:column;}
   .qs-loading{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#484848;font-family:'Share Tech Mono',monospace;font-size:12px;}
   .qs-spinner{width:28px;height:28px;border:2px solid #2e2e2e;border-top-color:#2da866;border-radius:50%;animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -182,7 +204,6 @@
   .qs-result-source{font-size:10px;font-family:'Share Tech Mono',monospace;color:#484848;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .qs-result-title{font-size:13px;font-family:'Rajdhani',sans-serif;font-weight:600;color:#e8ede8;line-height:1.4;margin-bottom:4px;}
   .qs-result-snippet{font-size:12px;font-family:'Rajdhani',sans-serif;color:#808880;line-height:1.5;}
-  .qs-result-date{font-size:10px;font-family:'Share Tech Mono',monospace;color:#2da866;margin-top:5px;}
   .qs-empty{flex:1;display:flex;align-items:center;justify-content:center;color:#484848;font-family:'Share Tech Mono',monospace;font-size:12px;text-align:center;padding:20px;line-height:1.7;}
   .qs-footer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #2e2e2e;flex-shrink:0;background:#1e1e1e;}
   .qs-open-btn{flex:1;padding:8px 12px;border-radius:8px;border:1px solid #2e2e2e;background:#252525;color:#808880;font-size:12px;font-family:'Rajdhani',sans-serif;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block;}
@@ -217,7 +238,6 @@
 
   <div class="page active" id="page-record">
 
-    <!-- ── Environment & compatibility warnings (shown by JS on load) ── -->
     <div class="env-banner critical" id="envFileWarning">
       <div class="env-banner-title red">&#128683; Coin won't work when opened as a local file</div>
       <p>You're opening this as a <strong>file:// URL</strong> (double-click). Chrome blocks microphone and tab audio capture on local files — transcription will silently fail.</p>
@@ -229,7 +249,6 @@
       </div>
       <button class="env-dismiss" onclick="document.getElementById('envFileWarning').classList.remove('show')">I understand, dismiss</button>
     </div>
-
 
     <div class="instructions">
       <div style="font-size:20px;flex-shrink:0;margin-top:1px;">&#128161;</div>
@@ -307,6 +326,8 @@
           <p>Your transcript will appear here as people speak.<br><strong style="color:var(--text)">Press Start Transcribing to begin.</strong></p>
         </div>
       </div>
+      <!-- CHANGE 2: jump button, sits inside .transcript-wrapper (position:relative) -->
+      <button class="scroll-jump-btn" id="scrollJumpBtn" title="Jump to bottom" onclick="scrollJump()">&#8681;</button>
     </div>
   </div>
 
@@ -340,38 +361,24 @@
 <!-- Quick Search Tooltip -->
 <div class="qs-tooltip" id="qsTooltip" onclick="qsSearch()">&#128269; Search this</div>
 
-<!-- Quick Search Panel -->
+<!-- CHANGE 1: Quick Search Panel — Wikipedia only, no tabs -->
 <div class="qs-panel" id="qsPanel">
   <div class="qs-header">
     <div class="qs-query-wrap">
-      <div class="qs-label">Searching for</div>
+      <div class="qs-label">&#128218; Wikipedia — searching for</div>
       <div class="qs-query" id="qsQueryText">&mdash;</div>
     </div>
     <button class="qs-close" onclick="qsClose()">&times;</button>
   </div>
-  <div class="qs-tabs">
-    <button class="qs-tab active" id="qsTabAI" onclick="qsSwitchTab('ai',this)">&#129302; Claude AI</button>
-    <button class="qs-tab" id="qsTabNews" onclick="qsSwitchTab('news',this)">&#128240; News</button>
-    <button class="qs-tab" id="qsTabWeb" onclick="qsSwitchTab('web',this)">&#128218; Wikipedia</button>
-  </div>
   <div class="qs-body">
-    <div class="qs-pane active" id="qsPaneAI">
-      <div class="qs-loading" id="qsAILoading"><div class="qs-spinner"></div><span>Asking Claude...</span></div>
-      <div class="qs-links" id="qsAIContent" style="display:none;"></div>
-    </div>
-    <div class="qs-pane" id="qsPaneNews">
-      <div class="qs-loading" id="qsNewsLoading"><div class="qs-spinner"></div><span>Loading news...</span></div>
-      <div class="qs-links" id="qsNewsContent" style="display:none;"></div>
-    </div>
     <div class="qs-pane" id="qsPaneWeb">
       <div class="qs-loading" id="qsWebLoading"><div class="qs-spinner"></div><span>Searching Wikipedia...</span></div>
       <div class="qs-links" id="qsWebContent" style="display:none;"></div>
     </div>
   </div>
-  <div class="qs-footer" id="qsFooter">
+  <div class="qs-footer">
     <a id="qsGoogleLink" href="#" target="_blank" class="qs-open-btn">&#128269; Google</a>
-    <a id="qsNewsLink" href="#" target="_blank" class="qs-open-btn">&#128240; Google News</a>
-    <a id="qsWikiLink" href="#" target="_blank" class="qs-open-btn">&#128218; Wikipedia</a>
+    <a id="qsWikiLink"   href="#" target="_blank" class="qs-open-btn">&#128218; Wikipedia</a>
   </div>
 </div>
 
@@ -395,6 +402,46 @@ var searchActive = false;
 var originalEntryHTML = new Map();
 
 document.getElementById('sessionDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+// ─────────────────────────────────────────────────────────────────────────
+// CHANGE 2 — Scroll Jump Button
+// Shows ⬇ when scrolled to/near top (offer to jump to bottom)
+// Shows ⬆ when scrolled to/near bottom (offer to jump to top)
+// Hidden when there is no content.
+// ─────────────────────────────────────────────────────────────────────────
+(function() {
+  var body = document.getElementById('transcriptBody');
+  var btn  = document.getElementById('scrollJumpBtn');
+
+  function updateBtn() {
+    if (transcriptEntries.length === 0) { btn.classList.remove('visible'); return; }
+    if (body.scrollHeight <= body.clientHeight) { btn.classList.remove('visible'); return; }
+    btn.classList.add('visible');
+    var nearBottom = (body.scrollHeight - body.scrollTop - body.clientHeight) < 60;
+    if (nearBottom) {
+      btn.innerHTML = '&#8679;'; // ↑  — at bottom, offer to go top
+      btn.title = 'Jump to top';
+    } else {
+      btn.innerHTML = '&#8681;'; // ↓  — elsewhere, offer to go bottom
+      btn.title = 'Jump to bottom';
+    }
+  }
+
+  body.addEventListener('scroll', updateBtn);
+  // Expose so addEntry / loadDraft can trigger a refresh
+  window._updateScrollBtn = updateBtn;
+})();
+
+function scrollJump() {
+  var body = document.getElementById('transcriptBody');
+  var nearBottom = (body.scrollHeight - body.scrollTop - body.clientHeight) < 60;
+  if (nearBottom) {
+    body.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
@@ -463,7 +510,6 @@ async function startTranscription() {
   }
   screenStream.getVideoTracks().forEach(function(t){t.stop();});
   var audioStream=new MediaStream(audioTracks);
-
   startVolumeMeter(audioStream);
   connectDeepgram(audioStream);
 }
@@ -472,7 +518,6 @@ function connectDeepgram(audioStream) {
   var params=new URLSearchParams({encoding:'linear16',sample_rate:'16000',channels:'1',punctuate:'true',smart_format:'true',interim_results:'true',language:'en-US'});
   var url='wss://api.deepgram.com/v1/listen?'+params.toString();
   socket=new WebSocket(url,['token',DEEPGRAM_KEY]);
-
   socket.onopen=function(){
     isListening=true; setStatus('listening');
     document.getElementById('btnStart').disabled=true;
@@ -484,7 +529,6 @@ function connectDeepgram(audioStream) {
     showBanner('success','\u2705 Connected \u2014 transcription is live!');
     startAudioPipeline(audioStream);
   };
-
   socket.onmessage=function(event){
     try {
       var data=JSON.parse(event.data);
@@ -495,7 +539,6 @@ function connectDeepgram(audioStream) {
       else showInterim(t);
     } catch(e){}
   };
-
   socket.onerror=function(){showBanner('error','\u274c Could not connect to transcription service. Check your internet and try again.');stopTranscription();};
   socket.onclose=function(){if(isListening){showBanner('warning','\u26a0\ufe0f Connection closed. Click Start to reconnect.');stopTranscription();}};
 }
@@ -504,37 +547,15 @@ function startAudioPipeline(stream) {
   try {
     audioContext = new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
     var dest = audioContext.createMediaStreamDestination();
-
-    // ── Audio enhancement chain (applied to tab audio) ──
-    // 1. High-pass filter — removes low rumble/hum (below 80Hz)
     var highPass = audioContext.createBiquadFilter();
-    highPass.type = 'highpass';
-    highPass.frequency.value = 80;
-
-    // 2. Gain boost — compensates for degraded/quiet meeting audio
-    var tabGain = audioContext.createGain();
-    tabGain.gain.value = 2.2;
-
-    // 3. Dynamics compressor — evens out loud/quiet speakers
+    highPass.type = 'highpass'; highPass.frequency.value = 80;
+    var tabGain = audioContext.createGain(); tabGain.gain.value = 2.2;
     var compressor = audioContext.createDynamicsCompressor();
-    compressor.threshold.value = -24;
-    compressor.knee.value = 10;
-    compressor.ratio.value = 4;
-    compressor.attack.value = 0.003;
-    compressor.release.value = 0.25;
-
-    // Connect tab audio chain: source → highpass → gain → compressor → dest
+    compressor.threshold.value = -24; compressor.knee.value = 10;
+    compressor.ratio.value = 4; compressor.attack.value = 0.003; compressor.release.value = 0.25;
     var tabSource = audioContext.createMediaStreamSource(stream);
-    tabSource.connect(highPass);
-    highPass.connect(tabGain);
-    tabGain.connect(compressor);
-    compressor.connect(dest);
-
-    // ── Microphone mixing disabled for now ──
-
-    // ── ScriptProcessor reads from the mixed destination stream ──
-    gainNode = audioContext.createGain();
-    gainNode.gain.value = 0;
+    tabSource.connect(highPass); highPass.connect(tabGain); tabGain.connect(compressor); compressor.connect(dest);
+    gainNode = audioContext.createGain(); gainNode.gain.value = 0;
     processor = audioContext.createScriptProcessor(4096, 1, 1);
     var mixedSource = audioContext.createMediaStreamSource(dest.stream);
     processor.onaudioprocess = function(e) {
@@ -544,13 +565,9 @@ function startAudioPipeline(stream) {
       for (var i = 0; i < f32.length; i++) i16[i] = Math.max(-32768, Math.min(32767, f32[i] * 32768));
       socket.send(i16.buffer);
     };
-    mixedSource.connect(processor);
-    processor.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    mixedSource.connect(processor); processor.connect(gainNode); gainNode.connect(audioContext.destination);
   } catch(e) { showBanner('error', '\u274c Audio error: '+e.message); stopTranscription(); }
 }
-
-
 
 function pauseTranscription() {
   if (!isPaused){
@@ -602,6 +619,7 @@ function addEntry(text) {
   document.getElementById('btnCopy').disabled=false;
   document.getElementById('btnSave').disabled=false;
   scheduleDraftSave();
+  if (window._updateScrollBtn) window._updateScrollBtn();
 }
 
 function showInterim(text) {
@@ -658,6 +676,7 @@ function clearTranscript() {
   document.getElementById('btnSave').disabled=true;
   localStorage.removeItem(DRAFT_KEY);
   clearSearch();
+  document.getElementById('scrollJumpBtn').classList.remove('visible');
   var sd=document.getElementById('summaryDisplay'); if(sd) sd.remove();
 }
 
@@ -681,14 +700,14 @@ function downloadTranscriptAsDocx(rec) {
     rows+='<tr><td style="width:70pt;padding:5pt 10pt 5pt 5pt;vertical-align:top;font-family:Courier New,monospace;font-size:9pt;color:#777;white-space:nowrap;">['+en.time+']</td><td style="padding:5pt 5pt 5pt 10pt;vertical-align:top;font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;line-height:1.6;">'+en.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</td></tr>';
     if(idx<entries.length-1) rows+='<tr><td colspan="2" style="height:10pt;padding:0;border:none;">&nbsp;</td></tr>';
   });
-  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta name=ProgId content=Word.Document><style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}.ph{background:#3a3a3a;width:100%;padding:16pt 24pt 14pt 24pt;margin:0 0 28pt 0;}.cw{font-size:22pt;font-weight:bold;color:#1a7a4a;font-family:Georgia,serif;display:block;margin-bottom:3pt;}.cs{font-size:9pt;font-weight:bold;color:#1a7a4a;font-family:Calibri,sans-serif;letter-spacing:1pt;text-transform:uppercase;display:block;}.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:16pt 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}.tt{width:100%;border-collapse:collapse;}.tt td{border:none;}.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style></head><body><div class="ph"><span class="cw">Reports by Coin</span><span class="cs">RIL Front office</span></div><div class="dm"><strong>Meeting Transcript</strong> &nbsp;&middot;&nbsp; '+date+' &nbsp;&middot;&nbsp; Duration: '+dur+' &nbsp;&middot;&nbsp; '+wc+' words &nbsp;&middot;&nbsp; '+entries.length+' segments</div><table class="tt"><tbody>'+rows+'</tbody></table><div class="df">Generated by Coin &middot; '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></body></html>';
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta name=ProgId content=Word.Document><style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}.ph{background:#1a1a1a;display:block;margin:-1cm -2.2cm 24pt -2.2cm;padding:12pt 2.2cm 12pt 2.2cm;border-bottom:3pt solid #1a7a4a;}.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT","IM Fell English",Georgia,serif;display:block;}.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:16pt 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}.tt{width:100%;border-collapse:collapse;}.tt td{border:none;}.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style></head><body><div class="ph"><span class="cw">Reports by Coin</span></div><div class="dm"><strong>Meeting Transcript</strong> &nbsp;&middot;&nbsp; '+date+' &nbsp;&middot;&nbsp; Duration: '+dur+' &nbsp;&middot;&nbsp; '+wc+' words &nbsp;&middot;&nbsp; '+entries.length+' segments</div><table class="tt"><tbody>'+rows+'</tbody></table><div class="df">Generated by Coin &middot; '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</div></body></html>';
   var blob=new Blob(['\ufeff'+html],{type:'application/msword'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename+'.doc'; a.click();
 }
 
 function loadLibrary(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
 function saveLibrary(lib){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(lib));}catch(e){showBanner('error','\u26a0\ufe0f Could not save \u2014 storage may be full.');}}
-function updateLibBadge(){var lib=loadLibrary();document.getElementById('libBadge').textContent=lib.length>0?'('+lib.length+')':(''  );}
+function updateLibBadge(){var lib=loadLibrary();document.getElementById('libBadge').textContent=lib.length>0?'('+lib.length+')':'';}
 
 function renderLibrary() {
   var lib=loadLibrary();
@@ -787,6 +806,7 @@ function loadDraft() {
       document.getElementById('entryCount').textContent=transcriptEntries.length+' entries';
       document.getElementById('btnCopy').disabled=false;
       document.getElementById('btnSave').disabled=false;
+      if (window._updateScrollBtn) window._updateScrollBtn();
     } else { localStorage.removeItem(DRAFT_KEY); }
   }catch(e){}
 }
@@ -844,7 +864,6 @@ function loadFontSize() {
 function summarizeViaClaude(id){var rec=loadLibrary().find(function(r){return r.id===id;});if(rec)showStep1Modal(rec);}
 function summarizeViaClaudeFromModal(){var id=currentModalId;closeModal();if(id)summarizeViaClaude(id);}
 
-// ── Build preset prompt — length-aware ────────────────────────────────────
 function buildPresetPrompt(lengthChoice) {
   var lengthMap = {
     '1page':  'approximately 1 page (concise — keep Doc 1 tight, around 400-500 words)',
@@ -856,34 +875,22 @@ function buildPresetPrompt(lengthChoice) {
   return [
     'You are summarising a professional meeting transcript. Produce a structured summary covering ALL key points discussed. Use the following sections:\n',
     '1. Overview (2-3 sentences)\n',
-    '2. Speaker Info: If speakers are identified or mentioned (e.g. "HSBC chief economist", "Nobel laureate", company title), list each speaker and their background/role.\n',
-    '3. Speaker Identification: There may be multiple speakers. Identify their names where possible and attribute what each person is saying.\n',
-    '4. Topics & Speaker Positions: The meeting may cover multiple topics (economics, politics, finance, current affairs, etc.). Identify each topic and summarise what each speaker said about it. Format as:\n',
-    '   [Topic Name]:\n',
-    '   Speaker A: ...\n',
-    '   Speaker B: ...\n',
-    '   (repeat for each topic)\n',
-    '5. Questions & Answers: If a question is asked, present it clearly with the response:\n',
-    '   Question: [question text]\n',
-    '   Answer: [answer text]\n',
-    '6. Formatting: Write in brief paragraphs. If a speaker presents a structured list or numbered points, preserve that structure:\n',
-    '   e.g. "There are 3 ways to approach this:"\n',
-    '   a. Way 1\n',
-    '      a.1. Step 1: ...\n',
-    '      a.2. Step 2: ...\n',
-    '   b. Way 2\n',
-    '   c. Way 3\n',
-    '7. Fact-Check Notes: Verify every factual claim, figure, name, statistic, and current affairs reference against reliable sources. Flag anything unconfirmed or potentially inaccurate.\n',
+    '2. Speaker Info: If speakers are identified or mentioned, list each speaker and their background/role.\n',
+    '3. Speaker Identification: Identify speaker names where possible and attribute what each person is saying.\n',
+    '4. Topics & Speaker Positions: Identify each topic and summarise what each speaker said. Format as:\n',
+    '   [Topic Name]:\n   Speaker A: ...\n   Speaker B: ...\n',
+    '5. Questions & Answers:\n   Question: [question text]\n   Answer: [answer text]\n',
+    '6. Formatting: Write in brief paragraphs, preserving any structured lists the speaker uses.\n',
+    '7. Fact-Check Notes: Flag anything unconfirmed or potentially inaccurate.\n',
     '\n---\n',
-    'IMPORTANT: Generate TWO separate documents as part of your response, clearly labelled:\n',
+    'IMPORTANT: Generate TWO separate documents clearly labelled:\n',
     '\n== DOC 1: AI VERSION ==\n',
-    'A polished, heavily edited summary. Target length: ' + lengthInstruction + '. Paraphrase and condense the content so it is ready to send or distribute as-is. Keep it professional.\n',
+    'A polished, heavily edited summary. Target length: ' + lengthInstruction + '.\n',
     '\n== DOC 2: SUMMARY VERSION ==\n',
-    'A more detailed, multi-page narration. Do not heavily paraphrase — capture what each speaker said in their own approximate words (not word-for-word, but close to their natural language and flow). This document can be as long as needed to faithfully represent the discussion.'
+    'A detailed narration capturing what each speaker said in their approximate words. As long as needed.'
   ].join('');
 }
 
-// ── Step 1: Choose prompt type ─────────────────────────────────────────────
 function showStep1Modal(rec) {
   selectedLength = '1page';
   var ex=document.getElementById('promptModal'); if(ex)ex.remove();
@@ -897,26 +904,22 @@ function showStep1Modal(rec) {
     '</div>'+
     '<div style="padding:22px;display:flex;flex-direction:column;gap:18px;">'+
     '<div style="font-size:11px;font-family:\'Share Tech Mono\',monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;">Step 1 &mdash; Choose summary style</div>'+
-    // Option 1: structured summary
     '<div id="presetBtn" onclick="selectPromptType(\'preset\')" data-selected="true" style="cursor:pointer;padding:16px 18px;border-radius:12px;border:2px solid #1a7a4a;background:rgba(26,122,74,0.07);display:flex;gap:14px;align-items:flex-start;transition:all 0.2s;">'+
     '<div id="presetRadio" style="width:20px;height:20px;border-radius:50%;border:2px solid #1a7a4a;margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><div style="width:10px;height:10px;border-radius:50%;background:#2da866;"></div></div>'+
     '<div style="flex:1;"><div style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e8ede8;margin-bottom:4px;">&#128203; Structured Summary &mdash; All Points Verified</div>'+
-    '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:#808880;line-height:1.55;margin-bottom:12px;">Speaker attribution, topic breakdown, Q&amp;A capture, fact-check notes, and two output documents: a polished AI version and a detailed narration.</div>'+
-    // Length selector chips
+    '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:#808880;line-height:1.55;margin-bottom:12px;">Speaker attribution, topic breakdown, Q&amp;A capture, fact-check notes, two output documents.</div>'+
     '<div id="lengthRow" style="display:flex;gap:7px;flex-wrap:wrap;" onclick="event.stopPropagation()">'+
     '<div style="font-size:11px;font-family:\'Share Tech Mono\',monospace;color:#484848;text-transform:uppercase;letter-spacing:0.8px;width:100%;margin-bottom:2px;">Doc 1 length:</div>'+
-    '<button id="len-1page"  onclick="selectLength(\'1page\')"  style="padding:5px 14px;border-radius:7px;border:1px solid #1a7a4a;background:rgba(26,122,74,0.15);color:#2da866;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;">1 page</button>'+
-    '<button id="len-2page"  onclick="selectLength(\'2page\')"  style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;">2 pages</button>'+
-    '<button id="len-3page"  onclick="selectLength(\'3page\')"  style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;">3 pages</button>'+
-    '<button id="len-3plus"  onclick="selectLength(\'3plus\')"  style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;transition:all 0.15s;">+3 pages</button>'+
-    '</div>'+
-    '</div></div>'+
-    // Option 2: custom
+    '<button id="len-1page" onclick="selectLength(\'1page\')" style="padding:5px 14px;border-radius:7px;border:1px solid #1a7a4a;background:rgba(26,122,74,0.15);color:#2da866;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;">1 page</button>'+
+    '<button id="len-2page" onclick="selectLength(\'2page\')" style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;">2 pages</button>'+
+    '<button id="len-3page" onclick="selectLength(\'3page\')" style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;">3 pages</button>'+
+    '<button id="len-3plus" onclick="selectLength(\'3plus\')" style="padding:5px 14px;border-radius:7px;border:1px solid #383838;background:#1c1c1c;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;font-weight:600;">+3 pages</button>'+
+    '</div></div></div>'+
     '<div id="customBtn" onclick="selectPromptType(\'custom\')" data-selected="false" style="cursor:pointer;padding:16px 18px;border-radius:12px;border:2px solid #383838;background:#1c1c1c;display:flex;gap:14px;align-items:flex-start;transition:all 0.2s;">'+
     '<div id="customRadio" style="width:20px;height:20px;border-radius:50%;border:2px solid #1a7a4a;margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>'+
     '<div style="flex:1;"><div style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e8ede8;margin-bottom:4px;">&#9998; Write Your Own Instructions</div>'+
     '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:#808880;line-height:1.55;margin-bottom:10px;">Tell the AI exactly what you need from this transcript.</div>'+
-    '<textarea id="userPromptInput" placeholder="e.g. Summarise key economic data points and policy decisions referenced. Flag any geopolitical risks mentioned." style="width:100%;height:88px;background:#252525;color:#e8ede8;border:1px solid #383838;border-radius:8px;padding:10px 12px;font-size:13px;font-family:Rajdhani,sans-serif;resize:none;line-height:1.55;outline:none;display:none;" onclick="event.stopPropagation()"></textarea>'+
+    '<textarea id="userPromptInput" placeholder="e.g. Summarise key economic data points and policy decisions referenced." style="width:100%;height:88px;background:#252525;color:#e8ede8;border:1px solid #383838;border-radius:8px;padding:10px 12px;font-size:13px;font-family:Rajdhani,sans-serif;resize:none;line-height:1.55;outline:none;display:none;" onclick="event.stopPropagation()"></textarea>'+
     '</div></div>'+
     '<div style="border-top:1px solid #2e2e2e;"></div>'+
     '<div style="font-size:11px;font-family:\'Share Tech Mono\',monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;">Step 2 &mdash; Choose your AI</div>'+
@@ -930,13 +933,11 @@ function showStep1Modal(rec) {
     '<div style="width:34px;height:34px;border-radius:8px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">&#129302;</div>'+
     '<div><div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;color:#e8ede8;">ChatGPT</div><div style="font-family:Rajdhani,sans-serif;font-size:11px;color:#808880;">chatgpt.com</div></div>'+
     '<div id="aiGPTCheck" style="margin-left:auto;width:18px;height:18px;border-radius:50%;background:transparent;border:2px solid #383838;display:flex;align-items:center;justify-content:center;font-size:10px;"></div>'+
-    '</div>'+
-    '</div>'+
+    '</div></div>'+
     '<div style="display:flex;gap:10px;justify-content:flex-end;padding-top:4px;">'+
     '<button onclick="document.getElementById(\'promptModal\').remove()" style="padding:10px 18px;border-radius:10px;background:#2e2e2e;border:1px solid #383838;color:#808880;font-size:13px;font-family:Rajdhani,sans-serif;cursor:pointer;">Cancel</button>'+
     '<button onclick="buildAndShowPrompt(\''+rec.id+'\')" style="padding:10px 26px;border-radius:10px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8ede8;font-size:13px;font-weight:700;font-family:Rajdhani,sans-serif;cursor:pointer;letter-spacing:0.3px;">Build Prompt &rarr;</button>'+
-    '</div>'+
-    '</div></div>';
+    '</div></div></div>';
   document.body.appendChild(m);
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});
 }
@@ -962,13 +963,9 @@ var selectedLength = '1page';
 function selectLength(len) {
   selectedLength = len;
   ['1page','2page','3page','3plus'].forEach(function(l) {
-    var btn = document.getElementById('len-'+l);
-    if (!btn) return;
-    if (l === len) {
-      btn.style.borderColor='#1a7a4a'; btn.style.background='rgba(26,122,74,0.15)'; btn.style.color='#2da866';
-    } else {
-      btn.style.borderColor='#383838'; btn.style.background='#1c1c1c'; btn.style.color='#808880';
-    }
+    var btn = document.getElementById('len-'+l); if (!btn) return;
+    if (l === len) { btn.style.borderColor='#1a7a4a'; btn.style.background='rgba(26,122,74,0.15)'; btn.style.color='#2da866'; }
+    else           { btn.style.borderColor='#383838'; btn.style.background='#1c1c1c'; btn.style.color='#808880'; }
   });
 }
 
@@ -989,7 +986,6 @@ function selectAI(ai) {
   }
 }
 
-// ── Step 2: Prompt ready ───────────────────────────────────────────────────
 function buildAndShowPrompt(id) {
   var rec=loadLibrary().find(function(r){return r.id===id;}); if(!rec)return;
   var isPreset=document.getElementById('presetBtn')&&document.getElementById('presetBtn').dataset.selected==='true';
@@ -1000,7 +996,6 @@ function buildAndShowPrompt(id) {
   var req=isPreset?buildPresetPrompt(selectedLength):(customText||'Summarise this transcript covering all key points, decisions, and any finance, economics, political, or current affairs references. Flag any unverified claims.');
   var fullText=rec.entries.map(function(e){return '['+e.time+'] '+e.text;}).join('\n');
   var prompt=req+'\n\n---\nFile: '+rec.filename+' | Date: '+rec.date+' | Duration: '+rec.duration+' | Words: '+rec.wordCount+'\n\n'+fullText;
-
   var ex=document.getElementById('promptModal'); if(ex)ex.remove();
   var m=document.createElement('div'); m.id='promptModal';
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);';
@@ -1010,7 +1005,7 @@ function buildAndShowPrompt(id) {
     '<div style="font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;color:#2da866;">&#128203; Prompt Ready &mdash; '+aiName+'</div>'+
     '<button onclick="document.getElementById(\'promptModal\').remove()" style="background:#2e2e2e;border:1px solid #383838;color:#808880;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;">&times;</button>'+
     '</div>'+
-    '<div style="padding:12px 22px;border-bottom:1px solid #2e2e2e;background:rgba(26,122,74,0.04);display:flex;align-items:center;gap:20px;">'+
+    '<div style="padding:12px 22px;border-bottom:1px solid #2e2e2e;background:rgba(26,122,74,0.04);display:flex;align-items:center;gap:20px;flex-wrap:wrap;">'+
     '<div style="display:flex;align-items:center;gap:8px;"><div style="width:22px;height:22px;border-radius:50%;background:#1a7a4a;color:#e8ede8;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</div><span style="font-size:12px;font-family:Rajdhani,sans-serif;color:#808880;">Copy the prompt below</span></div>'+
     '<div style="color:#383838;">&#8594;</div>'+
     '<div style="display:flex;align-items:center;gap:8px;"><div style="width:22px;height:22px;border-radius:50%;background:#1a7a4a;color:#e8ede8;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div><span style="font-size:12px;font-family:Rajdhani,sans-serif;color:#808880;">Paste into '+aiName+'</span></div>'+
@@ -1029,11 +1024,10 @@ function buildAndShowPrompt(id) {
   m.addEventListener('click',function(e){if(e.target===m)m.remove();});
 }
 
-// ── Step 3: Paste summary back ─────────────────────────────────────────────
 function showStep3Modal(id, filename, isPreset) {
   var ex=document.getElementById('promptModal'); if(ex)ex.remove();
   var twoDocNote = isPreset
-    ? '<p style="font-size:12px;font-family:Rajdhani,sans-serif;color:#2da866;line-height:1.6;margin-top:8px;">&#9432; You used the <strong>Structured Summary</strong> preset — the AI will have produced <strong>two documents</strong> (Doc 1: AI Version &amp; Doc 2: Summary). Paste the full AI response below and Coin will download both as separate Word files.</p>'
+    ? '<p style="font-size:12px;font-family:Rajdhani,sans-serif;color:#2da866;line-height:1.6;margin-top:8px;">&#9432; You used the <strong>Structured Summary</strong> preset — the AI will have produced <strong>two documents</strong>. Paste the full AI response and Coin will download both as separate Word files.</p>'
     : '';
   var m=document.createElement('div'); m.id='promptModal';
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);';
@@ -1059,42 +1053,22 @@ function showStep3Modal(id, filename, isPreset) {
   setTimeout(function(){var el=document.getElementById('claudeResponseInput');if(el)el.focus();},100);
 }
 
-// ── Process & split two-doc response ──────────────────────────────────────
 function processSummary(id, filename, isPreset) {
   var txt=document.getElementById('claudeResponseInput').value.trim();
   if(!txt){alert("Please paste the AI's summary first.");return;}
   var rec=loadLibrary().find(function(r){return r.id===id;})||{date:'',filename:filename};
   document.getElementById('promptModal').remove();
-
   if (isPreset) {
-    // Try to split on == DOC 1 / == DOC 2 markers (case-insensitive, flexible spacing)
     var doc1Text = '', doc2Text = '';
-    var re1 = /==\s*DOC\s*1[^=]*==/i;
-    var re2 = /==\s*DOC\s*2[^=]*==/i;
-    var m1 = re1.exec(txt);
-    var m2 = re2.exec(txt);
-    if (m1 && m2) {
-      doc1Text = txt.substring(m1.index + m1[0].length, m2.index).trim();
-      doc2Text = txt.substring(m2.index + m2[0].length).trim();
-    } else {
-      // Fallback: treat entire response as doc1 only
-      doc1Text = txt;
-    }
-    // Show doc1 in-app
+    var re1 = /==\s*DOC\s*1[^=]*==/i, re2 = /==\s*DOC\s*2[^=]*==/i;
+    var m1 = re1.exec(txt), m2 = re2.exec(txt);
+    if (m1 && m2) { doc1Text = txt.substring(m1.index + m1[0].length, m2.index).trim(); doc2Text = txt.substring(m2.index + m2[0].length).trim(); }
+    else { doc1Text = txt; }
     showSummaryInApp(doc1Text || txt, filename, rec.date, 'AI Version');
-    // Download Doc 1
     if (doc1Text) downloadAsWord(doc1Text, filename+'-AI-Version', rec.date, 'AI Version — Polished Summary');
-    // Download Doc 2
-    if (doc2Text) {
-      setTimeout(function(){
-        downloadAsWord(doc2Text, filename+'-Summary-Version', rec.date, 'Summary Version — Detailed Narration');
-      }, 800);
-    }
-    if (doc1Text && doc2Text) {
-      showBanner('success', '&#10024; Two Word documents downloaded: <strong>AI Version</strong> and <strong>Summary Version</strong>.');
-    } else {
-      showBanner('warning', '&#9888; Could not detect two separate documents in the response. Downloaded what was found. Make sure the AI included both <em>== DOC 1 ==</em> and <em>== DOC 2 ==</em> markers.');
-    }
+    if (doc2Text) setTimeout(function(){ downloadAsWord(doc2Text, filename+'-Summary-Version', rec.date, 'Summary Version — Detailed Narration'); }, 800);
+    if (doc1Text && doc2Text) showBanner('success', '&#10024; Two Word documents downloaded: <strong>AI Version</strong> and <strong>Summary Version</strong>.');
+    else showBanner('warning', '&#9888; Could not detect two separate documents. Make sure the AI included both <em>== DOC 1 ==</em> and <em>== DOC 2 ==</em> markers.');
   } else {
     showSummaryInApp(txt, filename, rec.date, 'Summary');
     downloadAsWord(txt, filename, rec.date, 'Meeting Summary');
@@ -1109,14 +1083,14 @@ function showSummaryInApp(text, filename, date, label) {
   document.querySelector('.nav-tab').classList.add('active');
   var div=document.createElement('div'); div.id='summaryDisplay';
   div.style.cssText='background:#252525;border:1px solid #1a7a4a;border-radius:14px;overflow:hidden;';
-  var safeFilename = filename.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  var safeDate = (date||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  var safeLabel = (label||'Summary').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  var sf=filename.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  var sd=(date||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  var sl=(label||'Summary').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   div.innerHTML=
     '<div style="padding:12px 18px;border-bottom:1px solid #383838;display:flex;align-items:center;justify-content:space-between;background:rgba(26,122,74,0.05);">'+
     '<div style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;color:#2da866;text-transform:uppercase;">&#10024; '+escapeHtml(label)+' &mdash; '+escapeHtml(filename)+'</div>'+
     '<div style="display:flex;gap:8px;">'+
-    '<button onclick="downloadAsWord(document.getElementById(\'summaryContent\').innerText,\''+safeFilename+'\',\''+safeDate+'\',\''+safeLabel+'\')" style="padding:5px 14px;border-radius:7px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8ede8;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;">&#128190; Download Word</button>'+
+    '<button onclick="downloadAsWord(document.getElementById(\'summaryContent\').innerText,\''+sf+'\',\''+sd+'\',\''+sl+'\')" style="padding:5px 14px;border-radius:7px;background:linear-gradient(135deg,#1a7a4a,#0f4a2e);border:none;color:#e8ede8;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;">&#128190; Download Word</button>'+
     '<button onclick="document.getElementById(\'summaryDisplay\').remove()" style="padding:5px 12px;border-radius:7px;background:#2e2e2e;border:1px solid #383838;color:#808880;font-size:12px;font-family:Rajdhani,sans-serif;cursor:pointer;">&times; Close</button>'+
     '</div></div>'+
     '<div id="summaryContent" style="padding:20px;font-size:14px;line-height:1.85;color:#c0c8c0;font-family:Rajdhani,sans-serif;white-space:pre-wrap;">'+escapeHtml(text)+'</div>';
@@ -1126,19 +1100,17 @@ function showSummaryInApp(text, filename, date, label) {
 }
 
 function downloadAsWord(text, filename, date, docTitle) {
-  date=date||'';
-  docTitle=docTitle||'Meeting Summary';
+  date=date||''; docTitle=docTitle||'Meeting Summary';
   var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
     '<head><meta charset="UTF-8"><meta name=ProgId content=Word.Document>'+
     '<style>@page{margin:0cm 2.2cm 2.5cm 2.2cm;}body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;}'+
-    '.ph{background:#3a3a3a;width:100%;padding:16pt 24pt 14pt 24pt;margin:0 0 28pt 0;}'+
-    '.cw{font-size:22pt;font-weight:bold;color:#1a7a4a;font-family:Georgia,serif;display:block;margin-bottom:3pt;}'+
-    '.cs{font-size:9pt;font-weight:bold;color:#1a7a4a;font-family:Calibri,sans-serif;letter-spacing:1pt;text-transform:uppercase;display:block;}'+
+    '.ph{background:#1a1a1a;display:block;margin:-1cm -2.2cm 24pt -2.2cm;padding:12pt 2.2cm 12pt 2.2cm;border-bottom:3pt solid #1a7a4a;}'+
+    '.cw{font-size:16pt;font-weight:bold;color:#1a7a4a;font-family:"Old English Text MT","IM Fell English",Georgia,serif;display:block;}'+
     '.dm{font-family:Courier New,monospace;font-size:9pt;color:#888;margin:0 0 24pt 0;border-bottom:1pt solid #ddd;padding-bottom:12pt;}'+
     '.sb{font-size:11pt;line-height:1.75;white-space:pre-wrap;}'+
     '.df{margin-top:32pt;border-top:1pt solid #eee;padding-top:8pt;font-family:Courier New,monospace;font-size:8pt;color:#aaa;text-align:center;}</style>'+
     '</head><body>'+
-    '<div class="ph"><span class="cw">Reports by Coin</span><span class="cs">RIL Front office</span></div>'+
+    '<div class="ph"><span class="cw">Reports by Coin</span></div>'+
     '<div class="dm"><strong>'+escapeHtml(docTitle)+'</strong> &nbsp;&middot;&nbsp; '+escapeHtml(filename)+(date?' &nbsp;&middot;&nbsp; '+escapeHtml(date):'')+'</div>'+
     '<div class="sb">'+text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
     '<div class="df">Generated by Coin &middot; Meeting Transcription Tool</div>'+
@@ -1168,63 +1140,48 @@ loadDraft();
 
 // ── Environment & compatibility checks ────────────────────────────────────
 (function() {
-  // 1. file:// check — capture APIs are blocked
   if (window.location.protocol === 'file:') {
     var el = document.getElementById('envFileWarning');
     if (el) el.classList.add('show');
-    // Also disable the Start button with a clear message
     var btn = document.getElementById('btnStart');
-    if (btn) {
-      btn.disabled = true;
-      btn.title = 'Cannot capture audio when opened as a local file. See the warning above.';
-    }
+    if (btn) { btn.disabled = true; btn.title = 'Cannot capture audio when opened as a local file. See the warning above.'; }
   }
-
-  // 3. Non-Chrome browser warning — getDisplayMedia with audio is Chrome-only
   var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
   if (!isChrome) {
     var nb = document.getElementById('warnBanner');
-    if (nb) {
-      nb.innerHTML = '&#9888;&#65039; <strong>Chrome recommended.</strong> Tab audio capture works best in Chrome. Other browsers may not support "Share tab audio".';
-      nb.classList.add('show');
-    }
+    if (nb) { nb.innerHTML = '&#9888;&#65039; <strong>Chrome recommended.</strong> Tab audio capture works best in Chrome. Other browsers may not support "Share tab audio".'; nb.classList.add('show'); }
   }
 })();
 
-// ── Quick Search Panel ─────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// CHANGE 1 — Quick Search: Wikipedia only (Claude AI + News removed)
+// Tooltip appears on text selection inside the transcript body.
+// Panel shows only the Wikipedia pane — no tabs needed.
+// ─────────────────────────────────────────────────────────────────────────
 var qsCurrentQuery = '';
-var qsCurrentTab = 'ai';
 var qsTooltipTimer = null;
+var qsCache = {};
 
 document.addEventListener('mouseup', function(e) {
-  // Don't interfere if clicking inside the tooltip or panel
   var tooltip = document.getElementById('qsTooltip');
-  var panel = document.getElementById('qsPanel');
+  var panel   = document.getElementById('qsPanel');
   if (tooltip && tooltip.contains(e.target)) return;
-  if (panel && panel.contains(e.target)) return;
-
+  if (panel   && panel.contains(e.target))   return;
   setTimeout(function() {
     var sel = window.getSelection();
     if (!sel || sel.isCollapsed) { hideQsTooltip(); return; }
     var text = sel.toString().trim();
     if (text.length < 2 || text.length > 200) { hideQsTooltip(); return; }
     var range = sel.getRangeAt(0);
-    var container = range.commonAncestorContainer;
     var transcriptBody = document.getElementById('transcriptBody');
-    if (!transcriptBody) { hideQsTooltip(); return; }
-    if (!transcriptBody.contains(container) && container !== transcriptBody) { hideQsTooltip(); return; }
-
-    // Position tooltip just below the selection
+    if (!transcriptBody || !transcriptBody.contains(range.commonAncestorContainer)) { hideQsTooltip(); return; }
     var rect = range.getBoundingClientRect();
     var tip = document.getElementById('qsTooltip');
-    var tipTop = rect.bottom + 8; // 8px below selection
-    var tipLeft = Math.max(8, Math.min(rect.left, window.innerWidth - 160));
-    // If too close to bottom of viewport, show above instead
+    var tipTop = rect.bottom + 8;
     if (tipTop + 40 > window.innerHeight) tipTop = rect.top - 40;
-    tip.style.left = tipLeft + 'px';
-    tip.style.top = tipTop + 'px';
+    tip.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 160)) + 'px';
+    tip.style.top  = tipTop + 'px';
     tip.classList.add('show');
-
     qsCurrentQuery = text;
     clearTimeout(qsTooltipTimer);
     qsTooltipTimer = setTimeout(hideQsTooltip, 5000);
@@ -1233,10 +1190,9 @@ document.addEventListener('mouseup', function(e) {
 
 document.addEventListener('mousedown', function(e) {
   var tooltip = document.getElementById('qsTooltip');
-  var panel = document.getElementById('qsPanel');
-  // Only hide tooltip if clicking completely outside tooltip AND panel
+  var panel   = document.getElementById('qsPanel');
   if (tooltip && tooltip.contains(e.target)) return;
-  if (panel && panel.contains(e.target)) return;
+  if (panel   && panel.contains(e.target))   return;
   hideQsTooltip();
 });
 
@@ -1246,28 +1202,19 @@ function hideQsTooltip() {
   clearTimeout(qsTooltipTimer);
 }
 
-// Cache: keyed by "tab:query" so switching back is instant
-var qsCache = {};
-var qsLoaded = {};  // tracks which tabs have been triggered for current query
-
 function qsSearch() {
   if (!qsCurrentQuery) return;
   hideQsTooltip();
-  var panel = document.getElementById('qsPanel');
-  var queryEl = document.getElementById('qsQueryText');
+  var panel    = document.getElementById('qsPanel');
+  var queryEl  = document.getElementById('qsQueryText');
   if (!panel || !queryEl) return;
 
-  // If this is a new query, clear cache state for this search
-  var isNewQuery = (qsLoaded.query !== qsCurrentQuery);
-  if (isNewQuery) {
-    qsLoaded = { query: qsCurrentQuery };
-    // Reset all pane content to loading state
-    ['AI','News','Web'].forEach(function(t) {
-      var loading = document.getElementById('qs' + t + 'Loading');
-      var content = document.getElementById('qs' + t + 'Content');
-      if (loading) { loading.style.display = 'flex'; }
-      if (content) { content.style.display = 'none'; content.innerHTML = ''; }
-    });
+  // Reset pane to loading state for new queries
+  var loading = document.getElementById('qsWebLoading');
+  var content = document.getElementById('qsWebContent');
+  if (!qsCache[qsCurrentQuery]) {
+    if (loading) loading.style.display = 'flex';
+    if (content) { content.style.display = 'none'; content.innerHTML = ''; }
   }
 
   queryEl.textContent = qsCurrentQuery;
@@ -1276,18 +1223,11 @@ function qsSearch() {
 
   var q = encodeURIComponent(qsCurrentQuery);
   var gLink = document.getElementById('qsGoogleLink');
-  var nLink = document.getElementById('qsNewsLink');
   var wLink = document.getElementById('qsWikiLink');
   if (gLink) gLink.href = 'https://www.google.com/search?q=' + q;
-  if (nLink) nLink.href = 'https://news.google.com/search?q=' + q;
   if (wLink) wLink.href = 'https://en.wikipedia.org/w/index.php?search=' + q;
 
-  // Switch to AI tab and load it immediately
-  qsSwitchTab('ai', document.getElementById('qsTabAI'));
-
-  // Pre-fetch News and Web in background without blocking
-  setTimeout(function() { qsLoadNews(qsCurrentQuery); }, 50);
-  setTimeout(function() { qsLoadWeb(qsCurrentQuery);  }, 100);
+  qsLoadWeb(qsCurrentQuery);
 }
 
 function qsClose() {
@@ -1296,187 +1236,16 @@ function qsClose() {
   document.querySelector('.container').classList.remove('panel-open');
 }
 
-function qsSwitchTab(tab, btn) {
-  ['ai','news','web'].forEach(function(t) {
-    var pane   = document.getElementById('qsPane' + t.charAt(0).toUpperCase() + t.slice(1));
-    var tabBtn = document.getElementById('qsTab'  + t.charAt(0).toUpperCase() + t.slice(1));
-    if (pane)   pane.classList.remove('active');
-    if (tabBtn) tabBtn.classList.remove('active');
-  });
-  var activePane = document.getElementById('qsPane' + tab.charAt(0).toUpperCase() + tab.slice(1));
-  if (activePane) activePane.classList.add('active');
-  if (btn) btn.classList.add('active');
-  qsCurrentTab = tab;
-
-  // Lazy-load: trigger the fetch only when the tab is first visited
-  var loaderMap = { ai: qsLoadAI, news: qsLoadNews, web: qsLoadWeb };
-  if (!qsLoaded[tab] && qsCurrentQuery) {
-    qsLoaded[tab] = true;
-    loaderMap[tab](qsCurrentQuery);
-  }
-}
-
-// ── Claude AI briefing ────────────────────────────────────────────────────
-// Requires your Anthropic API key set below.
-// Get one at: https://console.anthropic.com
-var ANTHROPIC_KEY = 'YOUR_ANTHROPIC_KEY_HERE';
-
-function qsLoadAI(query) {
-  var loading = document.getElementById('qsAILoading');
-  var content = document.getElementById('qsAIContent');
-  if (!loading || !content) return;
-
-  // Serve from cache if available
-  var cacheKey = 'ai:' + query;
-  if (qsCache[cacheKey]) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    content.innerHTML = qsCache[cacheKey];
-    return;
-  }
-
-  loading.style.display = 'flex';
-  content.style.display = 'none';
-  content.innerHTML = '';
-
-  // If no key set, show a helpful prompt rather than a failed request
-  if (!ANTHROPIC_KEY || ANTHROPIC_KEY === 'YOUR_ANTHROPIC_KEY_HERE') {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    content.innerHTML =
-      '<div style="background:#252525;border:1px solid rgba(255,184,0,0.3);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">' +
-      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#ffb800;text-transform:uppercase;letter-spacing:1px;">&#9888; API Key Required</div>' +
-      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#808880;line-height:1.65;">To enable live Claude AI briefings, open <strong style="color:#e8ede8;">coin.html</strong> in a text editor and replace <code style="background:#1c1c1c;padding:2px 6px;border-radius:4px;color:#2da866;">YOUR_ANTHROPIC_KEY_HERE</code> with your key from <a href="https://console.anthropic.com" target="_blank" style="color:#2da866;">console.anthropic.com</a></div>' +
-      '<a href="https://console.anthropic.com" target="_blank" style="font-size:12px;color:#2da866;font-family:Rajdhani,sans-serif;font-weight:600;text-decoration:none;padding:7px 14px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;text-align:center;">Get API Key &rarr;</a>' +
-      '</div>';
-    return;
-  }
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
-      messages: [{
-        role: 'user',
-        content: 'You are a financial and current affairs analyst. Give a concise factual briefing on: "' + query + '"\n\nCover:\n- What it is and current status (2-3 sentences)\n- Financial, economic, or political relevance\n- Most recent notable development\n- Key risks or watch points\n\nPlain text only. No bullet symbols, no markdown, no asterisks. Use short paragraphs.'
-      }]
-    })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    if (data.error) {
-      content.innerHTML = '<div class="qs-empty">Claude API error: ' + escapeHtml(data.error.message || 'Unknown error') + '</div>';
-      return;
-    }
-    var text = data.content && data.content[0] && data.content[0].text ? data.content[0].text : null;
-    if (!text) { content.innerHTML = '<div class="qs-empty">No response from Claude.</div>'; return; }
-    var html =
-      '<div style="background:#252525;border:1px solid rgba(26,122,74,0.3);border-radius:10px;padding:14px 16px;">' +
-      '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">&#129302; Claude AI Briefing</div>' +
-      '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.8;white-space:pre-wrap;">' + escapeHtml(text) + '</div>' +
-      '</div>';
-    qsCache['ai:' + query] = html;
-    content.innerHTML = html;
-  })
-  .catch(function(err) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    var q = encodeURIComponent(query);
-    content.innerHTML =
-      '<div class="qs-empty" style="flex-direction:column;gap:10px;">' +
-      '<div>Could not reach Claude API. Check your key or connection.</div>' +
-      '<a href="https://www.google.com/search?q=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:7px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">Search Google instead &rarr;</a>' +
-      '</div>';
-  });
-}
-
-// ── News via Google News RSS (allorigins CORS proxy) ──────────────────────
-function qsLoadNews(query) {
-  var loading = document.getElementById('qsNewsLoading');
-  var content = document.getElementById('qsNewsContent');
-  if (!loading || !content) return;
-
-  var cacheKey = 'news:' + query;
-  if (qsCache[cacheKey]) {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    content.innerHTML = qsCache[cacheKey];
-    return;
-  }
-
-  loading.style.display = 'flex';
-  content.style.display = 'none';
-  content.innerHTML = '';
-
-  var rssUrl = 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-US&gl=US&ceid=US:en';
-  var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
-
-  fetch(proxyUrl)
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (!data.contents) throw new Error('empty');
-    var parser = new DOMParser();
-    var xml = parser.parseFromString(data.contents, 'text/xml');
-    var items = xml.querySelectorAll('item');
-    if (!items || items.length === 0) throw new Error('no items');
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    var html = '';
-    var count = 0;
-    items.forEach(function(item) {
-      if (count >= 8) return;
-      var title   = item.querySelector('title')   ? item.querySelector('title').textContent   : '';
-      var link    = item.querySelector('link')    ? item.querySelector('link').textContent    : '#';
-      var pubDate = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-      var source  = item.querySelector('source')  ? item.querySelector('source').textContent  : '';
-      var desc    = item.querySelector('description') ? item.querySelector('description').textContent.replace(/<[^>]+>/g,'').slice(0,120) : '';
-      var dateStr = pubDate ? new Date(pubDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-      html += '<a href="' + link + '" target="_blank" class="qs-result">' +
-        (source  ? '<div class="qs-result-source">'  + escapeHtml(source)  + '</div>' : '') +
-        '<div class="qs-result-title">'   + escapeHtml(title)   + '</div>' +
-        (desc    ? '<div class="qs-result-snippet">' + escapeHtml(desc)    + '...</div>' : '') +
-        (dateStr ? '<div class="qs-result-date">'    + dateStr             + '</div>' : '') +
-        '</a>';
-      count++;
-    });
-    var finalHtml = html || '<div class="qs-empty">No news found.</div>';
-    qsCache['news:' + query] = finalHtml;
-    content.innerHTML = finalHtml;
-  })
-  .catch(function() {
-    loading.style.display = 'none';
-    content.style.display = 'flex';
-    var q = encodeURIComponent(query);
-    content.innerHTML =
-      '<div style="padding:4px;display:flex;flex-direction:column;gap:8px;">' +
-      '<div style="font-size:11px;font-family:Share Tech Mono,monospace;color:#484848;padding:4px 0 6px;">News feed blocked — open directly:</div>' +
-      '<a href="https://news.google.com/search?q=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#128240; Google News &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">Latest articles on Google News</div></a>' +
-      '<a href="https://www.bbc.co.uk/search?q=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#127758; BBC News &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">BBC News coverage</div></a>' +
-      '<a href="https://www.reuters.com/search/news?blob=' + q + '" target="_blank" class="qs-result"><div class="qs-result-title">&#128209; Reuters &mdash; ' + escapeHtml(query) + '</div><div class="qs-result-snippet">Reuters reports</div></a>' +
-      '</div>';
-  });
-}
-
-// ── Wikipedia summary ─────────────────────────────────────────────────────
+// ── Wikipedia lookup ───────────────────────────────────────────────────────
 function qsLoadWeb(query) {
   var loading = document.getElementById('qsWebLoading');
   var content = document.getElementById('qsWebContent');
   if (!loading || !content) return;
 
-  var cacheKey = 'web:' + query;
-  if (qsCache[cacheKey]) {
+  if (qsCache[query]) {
     loading.style.display = 'none';
     content.style.display = 'flex';
-    content.innerHTML = qsCache[cacheKey];
+    content.innerHTML = qsCache[query];
     return;
   }
 
@@ -1484,7 +1253,6 @@ function qsLoadWeb(query) {
   content.style.display = 'none';
   content.innerHTML = '';
 
-  // Step 1: search Wikipedia for best matching article title
   var searchUrl = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
     encodeURIComponent(query) + '&srlimit=3&format=json&origin=*';
 
@@ -1494,56 +1262,43 @@ function qsLoadWeb(query) {
     var results = data.query && data.query.search;
     if (!results || results.length === 0) throw new Error('no results');
     var pageTitle = results[0].title;
-
-    // Step 2: fetch the intro extract + page image for that article
     var extractUrl = 'https://en.wikipedia.org/w/api.php?action=query' +
-      '&prop=extracts|pageimages|info' +
-      '&exintro=true&explaintext=true&piprop=thumbnail&pithumbsize=120' +
-      '&inprop=url' +
-      '&titles=' + encodeURIComponent(pageTitle) +
-      '&format=json&origin=*';
-
-    return fetch(extractUrl).then(function(r) { return r.json(); }).then(function(d) {
+      '&prop=extracts|pageimages|info&exintro=true&explaintext=true' +
+      '&piprop=thumbnail&pithumbsize=120&inprop=url' +
+      '&titles=' + encodeURIComponent(pageTitle) + '&format=json&origin=*';
+    return fetch(extractUrl).then(function(r){return r.json();}).then(function(d){
       var pages = d.query && d.query.pages;
-      var page = pages && pages[Object.keys(pages)[0]];
+      var page  = pages && pages[Object.keys(pages)[0]];
       if (!page || page.missing !== undefined) throw new Error('page missing');
-
       var extract = page.extract ? page.extract.trim() : '';
-      // Trim to a readable length — end at last sentence within ~800 chars
       if (extract.length > 800) {
         var cut = extract.slice(0, 800);
         var lastDot = cut.lastIndexOf('.');
         extract = lastDot > 200 ? cut.slice(0, lastDot + 1) : cut;
       }
-      var thumb = page.thumbnail && page.thumbnail.source ? page.thumbnail.source : null;
+      var thumb   = page.thumbnail && page.thumbnail.source ? page.thumbnail.source : null;
       var wikiUrl = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(pageTitle);
-
       loading.style.display = 'none';
       content.style.display = 'flex';
-
-      // Also show the other 2 search results as related links
       var related = results.slice(1).map(function(r) {
-        return '<a href="https://en.wikipedia.org/wiki/' + encodeURIComponent(r.title) + '" target="_blank" class="qs-result" style="padding:8px 12px;">' +
-          '<div class="qs-result-source">Wikipedia</div>' +
-          '<div class="qs-result-title">' + escapeHtml(r.title) + '</div>' +
-          '</a>';
+        return '<a href="https://en.wikipedia.org/wiki/'+encodeURIComponent(r.title)+'" target="_blank" class="qs-result" style="padding:8px 12px;">'+
+          '<div class="qs-result-source">Wikipedia</div>'+
+          '<div class="qs-result-title">'+escapeHtml(r.title)+'</div></a>';
       }).join('');
-
-      content.innerHTML =
-        // Main article card
-        '<div style="background:#252525;border:1px solid rgba(26,122,74,0.25);border-radius:10px;padding:14px 16px;">' +
-        '<div style="display:flex;gap:12px;align-items:flex-start;">' +
-        (thumb ? '<img src="' + thumb + '" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.remove()">' : '') +
-        '<div style="flex:1;min-width:0;">' +
-        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#128218; Wikipedia</div>' +
-        '<div style="font-size:14px;font-family:Rajdhani,sans-serif;font-weight:700;color:#e8ede8;margin-bottom:8px;">' + escapeHtml(pageTitle) + '</div>' +
-        '</div></div>' +
-        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;margin-top:10px;">' + escapeHtml(extract) + '</div>' +
-        '<a href="' + wikiUrl + '" target="_blank" style="display:inline-block;margin-top:10px;font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;letter-spacing:0.5px;">Read full article &rarr;</a>' +
-        '</div>' +
-        // Related articles
-        (related ? '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;padding:4px 2px;">Related</div>' + related : '');
-      qsCache['web:' + query] = content.innerHTML;
+      var html =
+        '<div style="background:#252525;border:1px solid rgba(26,122,74,0.25);border-radius:10px;padding:14px 16px;">'+
+        '<div style="display:flex;gap:12px;align-items:flex-start;">'+
+        (thumb?'<img src="'+thumb+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.remove()">':'')+
+        '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#2da866;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">&#128218; Wikipedia</div>'+
+        '<div style="font-size:14px;font-family:Rajdhani,sans-serif;font-weight:700;color:#e8ede8;margin-bottom:8px;">'+escapeHtml(pageTitle)+'</div>'+
+        '</div></div>'+
+        '<div style="font-size:13px;font-family:Rajdhani,sans-serif;color:#c0c8c0;line-height:1.75;margin-top:10px;">'+escapeHtml(extract)+'</div>'+
+        '<a href="'+wikiUrl+'" target="_blank" style="display:inline-block;margin-top:10px;font-size:11px;color:#2da866;font-family:Share Tech Mono,monospace;text-decoration:none;letter-spacing:0.5px;">Read full article &rarr;</a>'+
+        '</div>'+
+        (related?'<div style="font-size:10px;font-family:Share Tech Mono,monospace;color:#484848;text-transform:uppercase;letter-spacing:1px;padding:4px 2px;">Related</div>'+related:'');
+      qsCache[query] = html;
+      content.innerHTML = html;
     });
   })
   .catch(function() {
@@ -1551,9 +1306,9 @@ function qsLoadWeb(query) {
     content.style.display = 'flex';
     var q = encodeURIComponent(query);
     content.innerHTML =
-      '<div class="qs-empty" style="flex-direction:column;gap:10px;">' +
-      '<div>No Wikipedia article found for this term.</div>' +
-      '<a href="https://en.wikipedia.org/w/index.php?search=' + q + '" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:7px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">Search Wikipedia &rarr;</a>' +
+      '<div class="qs-empty" style="flex-direction:column;gap:10px;">'+
+      '<div>No Wikipedia article found for this term.</div>'+
+      '<a href="https://en.wikipedia.org/w/index.php?search='+q+'" target="_blank" style="color:#2da866;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;text-decoration:none;padding:7px 16px;border:1px solid rgba(26,122,74,0.4);border-radius:8px;">Search Wikipedia &rarr;</a>'+
       '</div>';
   });
 }
