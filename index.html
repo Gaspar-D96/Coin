@@ -69,12 +69,12 @@
   .stat-value{font-size:19px;font-weight:600;font-family:'Share Tech Mono',monospace;}
   .stat-value.accent{color:var(--accent);}
   /* ── transcript wrapper: position:relative for jump button; no overflow:hidden so button isn't clipped ── */
-  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;min-height:280px;transition:border-color 0.25s,box-shadow 0.25s;position:relative;}
+  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;height:480px;transition:border-color 0.25s,box-shadow 0.25s;position:relative;}
   .transcript-wrapper:hover{border-color:rgba(26,122,74,0.4);box-shadow:0 0 22px rgba(26,122,74,0.08);}
   .transcript-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .transcript-title{font-size:12px;font-family:'Share Tech Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:8px;}
   .entry-count{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;color:var(--text-muted);}
-  .transcript-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth;min-height:220px;}
+  .transcript-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth;}
   .transcript-body::-webkit-scrollbar{width:5px;}
   .transcript-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text-dim);padding:36px;text-align:center;}
@@ -418,8 +418,7 @@ document.getElementById('sessionDate').textContent = new Date().toLocaleDateStri
   }
 
   function updateBtn() {
-    if (transcriptEntries.length === 0) { btn.classList.remove('visible'); return; }
-    if (body.scrollHeight <= body.clientHeight) { btn.classList.remove('visible'); return; }
+    if (body.scrollHeight <= body.clientHeight + 10) { btn.classList.remove('visible'); return; }
     btn.classList.add('visible');
     positionBtn();
     var nearBottom = (body.scrollHeight - body.scrollTop - body.clientHeight) < 60;
