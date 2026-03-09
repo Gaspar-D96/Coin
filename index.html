@@ -68,8 +68,8 @@
   .stat-label{font-size:11px;color:var(--text-muted);font-family:'Share Tech Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
   .stat-value{font-size:19px;font-weight:600;font-family:'Share Tech Mono',monospace;}
   .stat-value.accent{color:var(--accent);}
-  /* ── transcript wrapper needs position:relative for the jump button ── */
-  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:280px;transition:border-color 0.25s,box-shadow 0.25s;position:relative;}
+  /* ── transcript wrapper: position:relative for jump button; no overflow:hidden so button isn't clipped ── */
+  .transcript-wrapper{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;min-height:280px;transition:border-color 0.25s,box-shadow 0.25s;position:relative;}
   .transcript-wrapper:hover{border-color:rgba(26,122,74,0.4);box-shadow:0 0 22px rgba(26,122,74,0.08);}
   .transcript-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .transcript-title{font-size:12px;font-family:'Share Tech Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:8px;}
@@ -158,29 +158,33 @@
   .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
   footer{text-align:center;font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;padding-bottom:16px;position:relative;z-index:1;}
 
-  /* ── CHANGE 2: Scroll jump button ── */
+  /* ── CHANGE 2: Scroll jump button — sticky inside transcript body ── */
   .scroll-jump-btn {
-    position: absolute;
-    bottom: 14px;
-    right: 14px;
+    position: sticky;
+    bottom: 10px;
+    align-self: flex-end;
+    margin-right: 4px;
+    margin-top: -36px;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    border: 1px solid rgba(26,122,74,0.5);
-    background: rgba(26,122,74,0.15);
+    border: 1px solid rgba(26,122,74,0.6);
+    background: rgba(30,30,30,0.92);
     color: var(--green);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
-    display: none; /* hidden until there are entries */
+    display: none;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.15s, opacity 0.2s;
+    transition: background 0.2s, transform 0.15s;
     z-index: 10;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+    pointer-events: auto;
   }
   .scroll-jump-btn.visible { display: flex; }
-  .scroll-jump-btn:hover { background: rgba(26,122,74,0.35); transform: scale(1.1); }
+  .scroll-jump-btn:hover { background: rgba(26,122,74,0.5); transform: scale(1.1); }
 
   /* ── CHANGE 1: Quick Search panel — Wikipedia only (no tabs needed) ── */
   .qs-panel{position:fixed;top:0;right:-440px;width:420px;height:100vh;background:#1e1e1e;border-left:1px solid #383838;z-index:500;display:flex;flex-direction:column;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 32px rgba(0,0,0,0.5);}
@@ -325,9 +329,9 @@
           <div class="empty-icon">&#127897;</div>
           <p>Your transcript will appear here as people speak.<br><strong style="color:var(--text)">Press Start Transcribing to begin.</strong></p>
         </div>
+        <!-- Jump button lives inside the flex scroll container so position:sticky works -->
+        <button class="scroll-jump-btn" id="scrollJumpBtn" title="Jump to bottom" onclick="scrollJump()">&#8681;</button>
       </div>
-      <!-- CHANGE 2: jump button, sits inside .transcript-wrapper (position:relative) -->
-      <button class="scroll-jump-btn" id="scrollJumpBtn" title="Jump to bottom" onclick="scrollJump()">&#8681;</button>
     </div>
   </div>
 
