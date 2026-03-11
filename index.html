@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
     --bg:#111314; --surface:#181a1b; --surface2:#1f2123; --surface3:#252829;
@@ -264,6 +265,103 @@
   .api-key-warning strong{color:var(--amber);}
   .container{transition:max-width 0.25s ease,padding-right 0.25s ease;}
   .container.panel-open{max-width:calc(100vw - 440px);}
+
+  /* ── Delta Analyze ── */
+  .analyze-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .analyze-header h2{font-size:13px;font-weight:600;letter-spacing:0.2px;display:flex;align-items:center;gap:8px;}
+  .analyze-header-sub{font-size:10px;color:var(--text-muted);font-family:var(--mono);letter-spacing:0.3px;}
+  .analyze-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+
+  .sector-grid{display:flex;flex-direction:column;gap:8px;}
+  .sector-block{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+  .sector-header{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none;}
+  .sector-header:hover{background:var(--surface3);}
+  .sector-chevron{font-size:10px;color:var(--text-muted);transition:transform 0.2s;flex-shrink:0;}
+  .sector-block.collapsed .sector-chevron{transform:rotate(-90deg);}
+  .sector-block.collapsed .sector-companies{display:none;}
+  .sector-name{font-size:11px;font-weight:600;color:var(--text);letter-spacing:0.3px;flex:1;}
+  .sector-badge{font-size:9px;font-family:var(--mono);color:var(--text-muted);background:var(--surface3);border:1px solid var(--border);border-radius:3px;padding:1px 7px;flex-shrink:0;}
+  .sector-fetch-btn{padding:3px 9px;border-radius:3px;border:1px solid rgba(29,185,84,0.3);background:transparent;color:var(--accent);font-size:10px;font-family:var(--sans);cursor:pointer;transition:all 0.15s;white-space:nowrap;font-weight:500;}
+  .sector-fetch-btn:hover{background:rgba(29,185,84,0.07);}
+  .sector-fetch-btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+  .sector-companies{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border);}
+  .company-row{background:var(--surface);padding:9px 14px;display:flex;align-items:center;gap:10px;transition:background 0.1s;}
+  .company-row:hover{background:var(--surface2);}
+  .company-ticker{font-size:10px;font-family:var(--mono);color:var(--accent);min-width:72px;letter-spacing:0.5px;font-weight:600;}
+  .company-name-text{font-size:12px;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .company-transcript-date{font-size:10px;font-family:var(--mono);white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;}
+  .tdate-badge{padding:2px 7px;border-radius:3px;font-size:9px;font-family:var(--mono);letter-spacing:0.3px;}
+  .tdate-badge.found{background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.25);color:var(--accent);}
+  .tdate-badge.notfound{background:rgba(58,63,58,0.3);border:1px solid var(--border);color:var(--text-dim);}
+  .tdate-badge.loading{background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.2);color:var(--amber);animation:tdpulse 1s infinite;}
+  .tdate-badge.error{background:rgba(224,82,82,0.07);border:1px solid rgba(224,82,82,0.2);color:var(--red);}
+  @keyframes tdpulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
+  .company-transcript-link{font-size:10px;color:var(--accent);text-decoration:none;opacity:0;transition:opacity 0.15s;flex-shrink:0;}
+  .company-row:hover .company-transcript-link{opacity:1;}
+  .company-transcript-link:hover{text-decoration:underline;}
+
+  .analyze-summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+  .fetch-all-progress{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 14px;display:flex;align-items:center;gap:12px;display:none;}
+  .fetch-all-progress.show{display:flex;}
+  .fap-bar-bg{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+  .fap-bar{height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s;}
+  .fap-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap;min-width:120px;text-align:right;}
+
+  /* ── Analyze button & result card ── */
+  .az-btn{padding:2px 8px;border-radius:3px;border:1px solid rgba(29,185,84,0.3);background:transparent;color:var(--accent);font-size:10px;font-family:var(--sans);cursor:pointer;transition:all 0.15s;white-space:nowrap;font-weight:500;flex-shrink:0;}
+  .az-btn:hover{background:rgba(29,185,84,0.1);}
+  .az-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .az-btn.loading{color:var(--amber);border-color:rgba(212,160,23,0.3);animation:tdpulse 1s infinite;}
+  .az-result-card{background:var(--surface2);border:1px solid rgba(29,185,84,0.2);border-radius:4px;padding:12px 14px;margin:6px 14px 10px;display:flex;flex-direction:column;gap:9px;animation:fadeIn 0.2s ease;}
+  .az-result-header{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .az-result-title{font-size:11px;font-weight:600;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;}
+  .az-result-date{font-size:10px;color:var(--text-dim);font-family:var(--mono);}
+  .az-theme-grid{display:flex;flex-direction:column;gap:6px;}
+  .az-theme{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:8px 11px;}
+  .az-theme-name{font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .az-theme-body{font-size:12px;color:var(--text);line-height:1.6;}
+  .az-quote{font-size:11px;color:var(--text-muted);font-style:italic;border-left:2px solid var(--accent);padding-left:8px;margin-top:5px;line-height:1.55;}
+  .az-tone{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;font-weight:600;letter-spacing:0.3px;}
+  .az-tone.positive{background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.25);color:var(--accent);}
+  .az-tone.neutral{background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.2);color:var(--amber);}
+  .az-tone.negative{background:rgba(224,82,82,0.07);border:1px solid rgba(224,82,82,0.2);color:var(--red);}
+  .az-clear-btn{background:none;border:none;color:var(--text-dim);font-size:11px;cursor:pointer;padding:2px 5px;border-radius:3px;transition:color 0.1s;}
+  .az-clear-btn:hover{color:var(--red);}
+
+  /* ── Prompt modal overlay ── */
+  .az-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
+  .az-modal-overlay.show{display:flex;}
+  .az-modal{background:var(--surface);border:1px solid var(--border);border-radius:6px;width:100%;max-width:780px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
+  .az-modal-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+  .az-modal-title{font-size:13px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px;}
+  .az-modal-close{width:26px;height:26px;border-radius:3px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .az-modal-close:hover{color:var(--text);}
+  .az-modal-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
+  .az-modal-body::-webkit-scrollbar{width:3px;}
+  .az-modal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .az-steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .az-step-chip{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+  .az-step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#071a0d;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .az-step-arrow{color:var(--border2);font-size:12px;}
+  .az-prompt-box{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:11px;font-family:var(--mono);color:var(--text-muted);line-height:1.7;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+  .az-prompt-box::-webkit-scrollbar{width:3px;}
+  .az-prompt-box::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .az-copy-row{display:flex;gap:8px;align-items:center;}
+  .az-copy-btn{flex:1;padding:9px 0;border-radius:4px;border:none;background:var(--accent);color:#071a0d;font-size:12px;font-weight:700;font-family:var(--sans);cursor:pointer;transition:background 0.15s;letter-spacing:0.3px;}
+  .az-copy-btn:hover{background:#22d460;}
+  .az-open-btn{padding:9px 14px;border-radius:4px;border:1px solid rgba(29,185,84,0.3);background:transparent;color:var(--accent);font-size:12px;font-weight:600;font-family:var(--sans);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+  .az-open-btn:hover{background:rgba(29,185,84,0.07);}
+  .az-paste-section{display:flex;flex-direction:column;gap:8px;}
+  .az-paste-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;}
+  .az-paste-textarea{width:100%;min-height:140px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--sans);font-size:12px;padding:10px 13px;outline:none;resize:vertical;line-height:1.6;transition:border-color 0.15s;}
+  .az-paste-textarea:focus{border-color:rgba(29,185,84,0.4);}
+  .az-paste-textarea::placeholder{color:var(--text-dim);}
+  .az-submit-btn{padding:9px 0;border-radius:4px;border:none;background:var(--surface3);color:var(--text-muted);font-size:12px;font-weight:600;font-family:var(--sans);cursor:pointer;transition:all 0.15s;border:1px solid var(--border);}
+  .az-submit-btn:hover{background:var(--accent);color:#071a0d;border-color:var(--accent);}
+  .az-loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;color:var(--text-muted);font-family:var(--mono);font-size:11px;text-align:center;}
+  .az-pdf-progress{width:200px;height:2px;background:var(--surface3);border-radius:1px;overflow:hidden;}
+  .az-pdf-bar{height:100%;background:var(--accent);border-radius:1px;transition:width 0.3s;}
 </style>
 </head>
 <body>
@@ -295,8 +393,9 @@
 
   <div style="display:flex;align-items:flex-end;justify-content:space-between;">
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPage('record')">Record</button>
-      <button class="nav-tab" onclick="showPage('library')">&#128193; Library <span id="libBadge"></span></button>
+      <button class="nav-tab active" id="navRecord">Record</button>
+      <button class="nav-tab" id="navLibrary">&#128193; Library <span id="libBadge"></span></button>
+      <button class="nav-tab" id="navAnalyze">&#128202; Delta Analyze</button>
     </div>
     <button class="btn btn-secondary" style="padding:4px 10px;font-size:13px;margin-bottom:1px;" onclick="openSettings()" title="Settings">&#9881;</button>
   </div>
@@ -445,6 +544,54 @@
     </div>
     <div id="libraryContainer"></div>
     <div id="notesLibContainer" style="display:none;"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  DELTA ANALYZE PAGE                                      -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-analyze">
+    <div class="analyze-header">
+      <div>
+        <h2>&#128202; Delta Analyze <span style="font-size:10px;font-weight:400;color:var(--text-muted);font-family:var(--mono);background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:3px;padding:1px 7px;letter-spacing:0.5px;">NIFTY 50</span></h2>
+        <div class="analyze-header-sub">Earnings call transcript tracker — sourced from BSE filings (SEBI Reg. 30)</div>
+      </div>
+      <div class="analyze-controls">
+        <button class="btn btn-secondary" style="font-size:11px;" onclick="analyzeExpandAll()">&#9660; Expand All</button>
+        <button class="btn btn-secondary" style="font-size:11px;" onclick="analyzeCollapseAll()">&#9650; Collapse All</button>
+        <button class="btn btn-primary" style="font-size:11px;" id="btnFetchAll" onclick="fetchAllTranscripts()">&#9654; Fetch All Transcripts</button>
+      </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="analyze-summary-bar">
+      <div class="stat"><div class="stat-label">Companies</div><div class="stat-value" id="azTotalCos">50</div></div>
+      <div class="stat"><div class="stat-label">Transcripts Found</div><div class="stat-value accent" id="azFound">0</div></div>
+      <div class="stat"><div class="stat-label">Checked</div><div class="stat-value" id="azChecked">0</div></div>
+      <div class="stat"><div class="stat-label">Last Fetched</div><div class="stat-value" id="azLastFetch" style="font-size:11px;">—</div></div>
+    </div>
+
+    <!-- Fetch progress bar -->
+    <div class="fetch-all-progress" id="fetchAllProgress">
+      <span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);white-space:nowrap;">Fetching BSE filings...</span>
+      <div class="fap-bar-bg"><div class="fap-bar" id="fapBar"></div></div>
+      <span class="fap-label" id="fapLabel">0 / 50</span>
+    </div>
+
+    <!-- Sector grid (populated by JS) -->
+    <div class="sector-grid" id="sectorGrid"></div>
+  </div>
+</div>
+
+<!-- ── Delta Analyze Prompt Modal ── -->
+<div class="az-modal-overlay" id="azModalOverlay">
+  <div class="az-modal">
+    <div class="az-modal-hdr">
+      <div class="az-modal-title">&#128202; Orange Book Prompt — <span id="azModalCoName" style="color:var(--text);font-weight:400;"></span></div>
+      <button class="az-modal-close" onclick="azCloseModal()">&times;</button>
+    </div>
+    <div class="az-modal-body" id="azModalBody">
+      <!-- populated dynamically -->
+    </div>
   </div>
 </div>
 
@@ -741,18 +888,23 @@ function scrollJump() {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
-function showPage(name) {
+function showPage(name, tabEl) {
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
-  document.getElementById('page-'+name).classList.add('active');
-  event.target.classList.add('active');
+  var pg = document.getElementById('page-'+name);
+  if (pg) pg.classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
   if (name==='library') renderLibrary();
+  if (name==='analyze') analyzeRender();
 }
 
 function showBanner(type,msg) {
-  ['errorBanner','warnBanner','successBanner'].forEach(function(id){document.getElementById(id).classList.remove('show');});
+  ['errorBanner','warnBanner','successBanner'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.classList.remove('show');
+  });
   var map={error:'errorBanner',warning:'warnBanner',success:'successBanner'};
   var el=document.getElementById(map[type]);
+  if (!el) return; // banners only exist on Record page
   el.innerHTML=msg; el.classList.add('show');
   if (type!=='error') setTimeout(function(){el.classList.remove('show');},5000);
 }
@@ -2969,6 +3121,19 @@ updateTemplateUI();
 loadNotesDraft();
 updateNotesBadge();
 
+// Wire nav tabs via addEventListener (safe for file:// protocol)
+(function() {
+  var tabs = [
+    { id: 'navRecord',  page: 'record'  },
+    { id: 'navLibrary', page: 'library' },
+    { id: 'navAnalyze', page: 'analyze' }
+  ];
+  tabs.forEach(function(t) {
+    var el = document.getElementById(t.id);
+    if (el) el.addEventListener('click', function() { showPage(t.page, this); });
+  });
+})();
+
 
 // ── Notes System ──────────────────────────────────────────────────────────
 
@@ -3378,6 +3543,700 @@ function qsLoadWeb(query) {
       '</div>';
   });
 }
-</script>
+
+// ══════════════════════════════════════════════════════════════════
+//  DELTA ANALYZE — Nifty 50 BSE Transcript Tracker
+// ══════════════════════════════════════════════════════════════════
+
+var AZ_CACHE_KEY = 'delta_analyze_cache';
+
+// Nifty 50 companies by sector with BSE scrip codes
+var NIFTY50 = [
+  { sector:'Information Technology', color:'#4a9eff', companies:[
+    { ticker:'TCS',       name:'Tata Consultancy Services', bse:'532540' },
+    { ticker:'INFY',      name:'Infosys',                   bse:'500209' },
+    { ticker:'WIPRO',     name:'Wipro',                     bse:'507685' },
+    { ticker:'HCLTECH',   name:'HCL Technologies',          bse:'532281' },
+    { ticker:'TECHM',     name:'Tech Mahindra',             bse:'532755' },
+    { ticker:'LTI',       name:'LTIMindtree',               bse:'540005' },
+  ]},
+  { sector:'Banking & Financial Services', color:'#d4a017', companies:[
+    { ticker:'HDFCBANK',  name:'HDFC Bank',                 bse:'500180' },
+    { ticker:'ICICIBANK', name:'ICICI Bank',                bse:'532174' },
+    { ticker:'KOTAKBANK', name:'Kotak Mahindra Bank',       bse:'500247' },
+    { ticker:'AXISBANK',  name:'Axis Bank',                 bse:'532215' },
+    { ticker:'SBIN',      name:'State Bank of India',       bse:'500112' },
+    { ticker:'INDUSINDBK',name:'IndusInd Bank',             bse:'532187' },
+    { ticker:'BAJFINANCE',name:'Bajaj Finance',             bse:'500034' },
+    { ticker:'BAJAJFINSV',name:'Bajaj Finserv',             bse:'532978' },
+    { ticker:'SBILIFE',   name:'SBI Life Insurance',        bse:'540719' },
+    { ticker:'HDFCLIFE',  name:'HDFC Life Insurance',       bse:'540777' },
+  ]},
+  { sector:'Energy & Oil', color:'#e05252', companies:[
+    { ticker:'RELIANCE',  name:'Reliance Industries',       bse:'500325' },
+    { ticker:'ONGC',      name:'ONGC',                      bse:'500312' },
+    { ticker:'POWERGRID', name:'Power Grid Corp',           bse:'532898' },
+    { ticker:'NTPC',      name:'NTPC',                      bse:'532555' },
+    { ticker:'BPCL',      name:'BPCL',                      bse:'500547' },
+    { ticker:'ADANIPORTS',name:'Adani Ports',               bse:'532921' },
+    { ticker:'ADANITRANS',name:'Adani Enterprises',         bse:'512599' },
+  ]},
+  { sector:'Consumer & FMCG', color:'#1db954', companies:[
+    { ticker:'HINDUNILVR',name:'Hindustan Unilever',        bse:'500696' },
+    { ticker:'ITC',       name:'ITC',                       bse:'500875' },
+    { ticker:'NESTLEIND', name:'Nestlé India',              bse:'500790' },
+    { ticker:'BRITANNIA', name:'Britannia Industries',      bse:'500825' },
+    { ticker:'ASIANPAINT',name:'Asian Paints',              bse:'500820' },
+    { ticker:'TITAN',     name:'Titan Company',             bse:'500114' },
+    { ticker:'TATACONSUM',name:'Tata Consumer Products',    bse:'500800' },
+  ]},
+  { sector:'Automobiles', color:'#9b59b6', companies:[
+    { ticker:'MARUTI',    name:'Maruti Suzuki',             bse:'532500' },
+    { ticker:'TATAMOTORS',name:'Tata Motors',               bse:'500570' },
+    { ticker:'M&M',       name:'Mahindra & Mahindra',       bse:'500520' },
+    { ticker:'EICHERMOT', name:'Eicher Motors',             bse:'505200' },
+    { ticker:'BAJAJ-AUTO',name:'Bajaj Auto',                bse:'532977' },
+    { ticker:'HEROMOTOCO',name:'Hero MotoCorp',             bse:'500182' },
+  ]},
+  { sector:'Pharmaceuticals & Healthcare', color:'#1abc9c', companies:[
+    { ticker:'SUNPHARMA', name:'Sun Pharmaceutical',        bse:'524715' },
+    { ticker:'DRREDDY',   name:'Dr. Reddy\'s Laboratories', bse:'500124' },
+    { ticker:'CIPLA',     name:'Cipla',                     bse:'500087' },
+    { ticker:'DIVISLAB',  name:'Divi\'s Laboratories',      bse:'532488' },
+    { ticker:'APOLLOHOSP',name:'Apollo Hospitals',          bse:'508869' },
+  ]},
+  { sector:'Industrials & Infrastructure', color:'#e67e22', companies:[
+    { ticker:'LT',        name:'Larsen & Toubro',           bse:'500510' },
+    { ticker:'ULTRACEMCO',name:'UltraTech Cement',          bse:'532538' },
+    { ticker:'GRASIM',    name:'Grasim Industries',         bse:'500300' },
+    { ticker:'SHREECEM',  name:'Shree Cement',              bse:'500387' },
+    { ticker:'JSWSTEEL',  name:'JSW Steel',                 bse:'500228' },
+    { ticker:'TATASTEEL', name:'Tata Steel',                bse:'500470' },
+    { ticker:'HINDALCO',  name:'Hindalco Industries',       bse:'500440' },
+  ]},
+  { sector:'Telecom & Media', color:'#3498db', companies:[
+    { ticker:'BHARTIARTL',name:'Bharti Airtel',             bse:'532454' },
+  ]},
+];
+
+// Build flat company list
+var azCompanyMap = {};
+NIFTY50.forEach(function(s){ s.companies.forEach(function(c){ azCompanyMap[c.bse] = c; }); });
+
+function azLoadCache() {
+  try { return JSON.parse(localStorage.getItem(AZ_CACHE_KEY)||'{}'); } catch(e) { return {}; }
+}
+function azSaveCache(cache) {
+  try { localStorage.setItem(AZ_CACHE_KEY, JSON.stringify(cache)); } catch(e) {}
+}
+
+function analyzeRender() {
+  renderSectorGrid();
+  updateAnalyzeSummary();
+}
+
+function analyzeInit() { analyzeRender(); } // alias for compatibility
+
+function renderSectorGrid() {
+  var cache = azLoadCache();
+  var grid = document.getElementById('sectorGrid');
+  if (!grid) return;
+  grid.innerHTML = NIFTY50.map(function(sector, si) {
+    var rows = sector.companies.map(function(co) {
+      var cached = cache[co.bse];
+      var dateBadge = buildDateBadge(cached);
+      var linkHtml = (cached && cached.url)
+        ? '<a class="company-transcript-link" href="'+cached.url+'" target="_blank">&#128196; PDF</a>'
+        : '';
+      var hasTranscript = cached && cached.url;
+      var hasResult = cached && cached.analysis;
+      var analyzeBtnHtml = hasTranscript
+        ? '<button class="az-btn" id="azbtn-'+co.bse+'" onclick="azStartAnalyze(\''+co.bse+'\')">&#128202; '+(hasResult ? 'Re-analyze' : 'Analyze')+'</button>'
+        : '<button class="az-btn" id="azbtn-'+co.bse+'" disabled title="Fetch transcript first">&#128202; Analyze</button>';
+      var resultHtml = hasResult ? buildResultCard(co.bse, cached.analysis) : '<div id="azresult-'+co.bse+'"></div>';
+      return '<div id="azrow-'+co.bse+'">'+
+        '<div class="company-row">'+
+          '<span class="company-ticker" style="color:'+sector.color+'">'+co.ticker+'</span>'+
+          '<span class="company-name-text" title="'+co.name+'">'+co.name+'</span>'+
+          '<span class="company-transcript-date" id="azbadge-'+co.bse+'">'+dateBadge+'</span>'+
+          '<span id="azlink-'+co.bse+'">'+linkHtml+'</span>'+
+          analyzeBtnHtml+
+        '</div>'+
+        resultHtml+
+      '</div>';
+    }).join('');
+
+    var found = sector.companies.filter(function(c){ return cache[c.bse] && cache[c.bse].date; }).length;
+    return '<div class="sector-block" id="sector-'+si+'">'+
+      '<div class="sector-header" onclick="toggleSector('+si+')">'+
+        '<div class="sector-chevron" id="chev-'+si+'">&#9660;</div>'+
+        '<span class="sector-name" style="border-left:2px solid '+sector.color+';padding-left:8px;">'+sector.sector+'</span>'+
+        '<span class="sector-badge">'+sector.companies.length+' companies</span>'+
+        '<span class="sector-badge" id="sbadge-'+si+'" style="'+(found>0?'border-color:rgba(29,185,84,0.3);color:#1db954;background:rgba(29,185,84,0.07);':'')+'">'+found+'/'+sector.companies.length+' transcripts</span>'+
+        '<button class="sector-fetch-btn" id="sfbtn-'+si+'" onclick="event.stopPropagation();fetchSectorTranscripts('+si+')">&#8595; Fetch</button>'+
+      '</div>'+
+      '<div class="sector-companies" id="sco-'+si+'">'+rows+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function buildDateBadge(cached) {
+  if (!cached) return '<span class="tdate-badge notfound">Not checked</span>';
+  if (cached.loading) return '<span class="tdate-badge loading">Fetching...</span>';
+  if (cached.error) return '<span class="tdate-badge error">Error</span>';
+  if (cached.date) return '<span class="tdate-badge found">&#9679; '+cached.date+'</span>';
+  return '<span class="tdate-badge notfound">No transcript</span>';
+}
+
+function toggleSector(si) {
+  var block = document.getElementById('sector-'+si);
+  if (block) block.classList.toggle('collapsed');
+}
+function analyzeExpandAll() {
+  document.querySelectorAll('.sector-block').forEach(function(b){b.classList.remove('collapsed');});
+}
+function analyzeCollapseAll() {
+  document.querySelectorAll('.sector-block').forEach(function(b){b.classList.add('collapsed');});
+}
+
+// ── BSE Fetch Logic ────────────────────────────────────────────
+// BSE's public corporate announcements API endpoint (no auth needed for public filings)
+function fetchTranscriptForCompany(company, callback) {
+  var bseCode = company.bse;
+  // BSE announcement search endpoint — filters by scrip code, last 365 days, "Concall" category
+  var toDate   = new Date();
+  var fromDate = new Date(); fromDate.setFullYear(fromDate.getFullYear()-1);
+  var fmt = function(d){ return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear(); };
+
+  var url = 'https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?'+
+    'strCat=-1&strPrevDate='+fmt(fromDate)+'&strScrip='+bseCode+
+    '&strSearch=P&strToDate='+fmt(toDate)+'&strType=C&subcategory=-1';
+
+  // Use a CORS proxy approach via allorigins
+  var proxyUrl = 'https://api.allorigins.win/get?url='+encodeURIComponent(url);
+
+  fetch(proxyUrl, { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined })
+    .then(function(r){ return r.json(); })
+    .then(function(outer) {
+      var raw = outer.contents;
+      var data = JSON.parse(raw);
+      var items = data.Table || data.table || [];
+      // Filter for transcript-related filings
+      var transcripts = items.filter(function(item){
+        var subcat = (item.SUBCATNAME||item.NEWSSUB||item.categoryname||'').toLowerCase();
+        var head   = (item.HEADLINE||item.newsheadline||'').toLowerCase();
+        return subcat.indexOf('transcript') !== -1 || head.indexOf('transcript') !== -1 ||
+               subcat.indexOf('concall') !== -1    || head.indexOf('concall') !== -1 ||
+               subcat.indexOf('con call') !== -1   || head.indexOf('con call') !== -1 ||
+               subcat.indexOf('earnings call') !== -1;
+      });
+
+      if (transcripts.length > 0) {
+        // Sort newest first
+        transcripts.sort(function(a,b){
+          var da = new Date(a.News_submission_dt||a.NEWSDATE||a.DT_TM||0);
+          var db = new Date(b.News_submission_dt||b.NEWSDATE||b.DT_TM||0);
+          return db - da;
+        });
+        var latest = transcripts[0];
+        var rawDate = latest.News_submission_dt||latest.NEWSDATE||latest.DT_TM||'';
+        var fmtDate = rawDate ? formatBseDate(rawDate) : 'Unknown date';
+        // Build PDF URL
+        var newsId = latest.NEWSID||latest.NewsID||latest.newsid||'';
+        var pdfUrl = newsId
+          ? 'https://www.bseindia.com/xml-data/corpfiling/AttachLive/'+newsId+'.pdf'
+          : 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode;
+        callback(null, { date: fmtDate, url: pdfUrl, raw: rawDate });
+      } else {
+        callback(null, { date: null, url: null });
+      }
+    })
+    .catch(function(err){
+      // Try fallback via corsproxy.io
+      var proxyUrl2 = 'https://corsproxy.io/?'+encodeURIComponent(url);
+      fetch(proxyUrl2)
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          var items = data.Table || data.table || [];
+          var transcripts = items.filter(function(item){
+            var subcat = (item.SUBCATNAME||item.NEWSSUB||'').toLowerCase();
+            var head   = (item.HEADLINE||item.newsheadline||'').toLowerCase();
+            return subcat.indexOf('transcript')!==-1||head.indexOf('transcript')!==-1||
+                   subcat.indexOf('concall')!==-1||head.indexOf('concall')!==-1;
+          });
+          if (transcripts.length > 0) {
+            transcripts.sort(function(a,b){
+              var da=new Date(a.News_submission_dt||a.NEWSDATE||0);
+              var db=new Date(b.News_submission_dt||b.NEWSDATE||0);
+              return db-da;
+            });
+            var latest = transcripts[0];
+            var rawDate = latest.News_submission_dt||latest.NEWSDATE||'';
+            var newsId = latest.NEWSID||latest.NewsID||'';
+            var pdfUrl = newsId
+              ? 'https://www.bseindia.com/xml-data/corpfiling/AttachLive/'+newsId+'.pdf'
+              : 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode;
+            callback(null, { date: formatBseDate(rawDate), url: pdfUrl, raw: rawDate });
+          } else {
+            callback(null, { date: null, url: null });
+          }
+        })
+        .catch(function(){ callback(err, null); });
+    });
+}
+
+function formatBseDate(raw) {
+  if (!raw) return 'Unknown';
+  var d = new Date(raw);
+  if (isNaN(d.getTime())) {
+    // Try DD/MM/YYYY
+    var parts = raw.split(/[\/\-]/);
+    if (parts.length === 3) d = new Date(parts[2]+'-'+parts[1]+'-'+parts[0]);
+  }
+  if (isNaN(d.getTime())) return raw.slice(0,10);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function updateCompanyBadge(bseCode, result) {
+  var cache = azLoadCache();
+  cache[bseCode] = result || { error: true };
+  azSaveCache(cache);
+
+  var badgeEl = document.getElementById('azbadge-'+bseCode);
+  var linkEl  = document.getElementById('azlink-'+bseCode);
+  var btnEl   = document.getElementById('azbtn-'+bseCode);
+  if (badgeEl) badgeEl.innerHTML = buildDateBadge(cache[bseCode]);
+  if (linkEl) {
+    if (result && result.url && result.date) {
+      linkEl.innerHTML = '<a class="company-transcript-link" style="opacity:1;" href="'+result.url+'" target="_blank">&#128196; PDF</a>';
+    } else {
+      linkEl.innerHTML = '';
+    }
+  }
+  if (btnEl) {
+    if (result && result.url) {
+      btnEl.disabled = false;
+      btnEl.textContent = '📊 Analyze';
+    } else {
+      btnEl.disabled = true;
+    }
+  }
+  updateAnalyzeSummary();
+}
+
+function setCompanyLoading(bseCode) {
+  var badgeEl = document.getElementById('azbadge-'+bseCode);
+  if (badgeEl) badgeEl.innerHTML = '<span class="tdate-badge loading">Fetching...</span>';
+}
+
+function updateAnalyzeSummary() {
+  var cache = azLoadCache();
+  var checked = Object.keys(cache).length;
+  var found   = Object.values(cache).filter(function(v){ return v && v.date; }).length;
+  document.getElementById('azFound').textContent   = found;
+  document.getElementById('azChecked').textContent = checked;
+
+  // Refresh sector badges
+  NIFTY50.forEach(function(sector, si) {
+    var sf = sector.companies.filter(function(c){ return cache[c.bse] && cache[c.bse].date; }).length;
+    var el = document.getElementById('sbadge-'+si);
+    if (el) {
+      el.textContent = sf+'/'+sector.companies.length+' transcripts';
+      if (sf > 0) { el.style.borderColor='rgba(29,185,84,0.3)'; el.style.color='#1db954'; el.style.background='rgba(29,185,84,0.07)'; }
+      else        { el.style.borderColor=''; el.style.color=''; el.style.background=''; }
+    }
+  });
+}
+
+async function fetchSectorTranscripts(si) {
+  var sector = NIFTY50[si];
+  var btn = document.getElementById('sfbtn-'+si);
+  if (btn) { btn.disabled = true; btn.textContent = 'Fetching...'; }
+
+  for (var i=0; i<sector.companies.length; i++) {
+    var co = sector.companies[i];
+    setCompanyLoading(co.bse);
+    await new Promise(function(res){
+      fetchTranscriptForCompany(co, function(err, result){
+        updateCompanyBadge(co.bse, err ? null : result);
+        setTimeout(res, 600); // polite delay
+      });
+    });
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '✓ Done'; setTimeout(function(){ btn.textContent='↻ Re-fetch'; },3000); }
+  document.getElementById('azLastFetch').textContent = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function fetchAllTranscripts() {
+  var btn = document.getElementById('btnFetchAll');
+  var prog = document.getElementById('fetchAllProgress');
+  var fapBar = document.getElementById('fapBar');
+  var fapLabel = document.getElementById('fapLabel');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Fetching All...'; }
+  if (prog) prog.classList.add('show');
+
+  var allCompanies = [];
+  NIFTY50.forEach(function(s){ s.companies.forEach(function(c){ allCompanies.push(c); }); });
+
+  for (var i=0; i<allCompanies.length; i++) {
+    var co = allCompanies[i];
+    setCompanyLoading(co.bse);
+    var pct = Math.round(((i)/allCompanies.length)*100);
+    if (fapBar) fapBar.style.width = pct+'%';
+    if (fapLabel) fapLabel.textContent = i+' / '+allCompanies.length;
+
+    await new Promise(function(resolve){
+      var company = co;
+      fetchTranscriptForCompany(company, function(err, result){
+        updateCompanyBadge(company.bse, err ? null : result);
+        setTimeout(resolve, 500);
+      });
+    });
+  }
+
+  if (fapBar) fapBar.style.width = '100%';
+  if (fapLabel) fapLabel.textContent = allCompanies.length+' / '+allCompanies.length+' — Done';
+  if (btn) { btn.disabled=false; btn.textContent='✓ All Fetched'; setTimeout(function(){ btn.textContent='⏳ Re-fetch All'; btn.disabled=false; },4000); }
+  document.getElementById('azLastFetch').textContent = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  setTimeout(function(){ if(prog) prog.classList.remove('show'); }, 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DELTA ANALYZE — PROMPT ENGINE & RESULT RENDERER
+// ══════════════════════════════════════════════════════════════════
+
+// Set pdf.js worker
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+var azCurrentBse = null;
+
+// ── Orange Book system prompt ─────────────────────────────────
+function buildOrangeBookPrompt(companyName, ticker, transcriptDate, transcriptText) {
+  // Truncate to ~12000 chars to stay within safe paste limits
+  var MAX = 12000;
+  var truncated = transcriptText.length > MAX
+    ? transcriptText.slice(0, MAX) + '\n\n[... transcript truncated for length ...]'
+    : transcriptText;
+
+  return [
+    '=== DELTA ANALYZE — ORANGE BOOK PROMPT ===',
+    'Company: ' + companyName + ' (' + ticker + ')',
+    'Transcript Date: ' + transcriptDate,
+    'Source: BSE earnings call transcript (SEBI Reg. 30 filing)',
+    '',
+    '--- INSTRUCTIONS ---',
+    'You are an economist analyzing an Indian corporate earnings call transcript in the style of the Bloomberg Orange Book.',
+    'Your job is to extract structured macroeconomic intelligence from this transcript.',
+    '',
+    'Return your analysis in EXACTLY this format (use these exact section headers):',
+    '',
+    '## TONE',
+    'One word: Positive / Neutral / Cautious / Negative',
+    'One sentence explaining why.',
+    '',
+    '## THEME: DEMAND & REVENUE',
+    'Summary (2-3 sentences) of what management said about demand, volume, revenue growth or decline.',
+    'QUOTE: "exact quote from transcript"',
+    '',
+    '## THEME: COSTS & MARGINS',
+    'Summary of what was said about input costs, margins, pricing power, inflation pass-through.',
+    'QUOTE: "exact quote from transcript"',
+    '',
+    '## THEME: LABOR MARKET',
+    'Summary of hiring, attrition, wages, headcount plans. If not mentioned, write NOT DISCUSSED.',
+    'QUOTE: "exact quote from transcript" (or NONE)',
+    '',
+    '## THEME: INVESTMENT & CAPEX',
+    'Summary of capex plans, expansion, new projects, R&D spending.',
+    'QUOTE: "exact quote from transcript" (or NONE)',
+    '',
+    '## THEME: MACRO & EXTERNAL RISKS',
+    'Summary of tariffs, currency, global slowdown, regulatory changes, geopolitics mentioned.',
+    'QUOTE: "exact quote from transcript" (or NONE)',
+    '',
+    '## EMERGENT SIGNAL',
+    'Any notable theme that stands out as new, unusual or worth flagging that does not fit the above categories. If nothing, write NONE.',
+    '',
+    '## ONE-LINE SUMMARY',
+    'A single sentence capturing the most important macro signal from this transcript.',
+    '',
+    '--- TRANSCRIPT BEGINS ---',
+    truncated,
+    '--- TRANSCRIPT ENDS ---'
+  ].join('\n');
+}
+
+// ── PDF text extraction via pdf.js ────────────────────────────
+async function extractPdfText(pdfUrl, onProgress) {
+  // Route through CORS proxy
+  var proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(pdfUrl);
+  var resp = await fetch(proxied);
+  if (!resp.ok) throw new Error('PDF fetch failed: ' + resp.status);
+  var arrayBuffer = await resp.arrayBuffer();
+
+  if (typeof pdfjsLib === 'undefined') throw new Error('pdf.js not loaded');
+  var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  var totalPages = pdf.numPages;
+  var textParts = [];
+
+  for (var i = 1; i <= totalPages; i++) {
+    var page = await pdf.getPage(i);
+    var content = await page.getTextContent();
+    var pageText = content.items.map(function(item){ return item.str; }).join(' ');
+    textParts.push(pageText);
+    if (onProgress) onProgress(Math.round((i / totalPages) * 100));
+  }
+  return textParts.join('\n\n');
+}
+
+// ── Main entry point: Analyze button clicked ──────────────────
+async function azStartAnalyze(bseCode) {
+  var cache = azLoadCache();
+  var co = azCompanyMap[bseCode];
+  if (!co || !cache[bseCode] || !cache[bseCode].url) return;
+
+  azCurrentBse = bseCode;
+  var pdfUrl = cache[bseCode].url;
+  var transcriptDate = cache[bseCode].date || 'Unknown';
+
+  // Show modal in loading state
+  document.getElementById('azModalCoName').textContent = co.name + ' (' + co.ticker + ')';
+  document.getElementById('azModalBody').innerHTML = azLoadingHTML('Fetching PDF from BSE...', 0);
+  document.getElementById('azModalOverlay').classList.add('show');
+
+  try {
+    // Extract text from PDF
+    var text = await extractPdfText(pdfUrl, function(pct) {
+      var bar = document.getElementById('azPdfBar');
+      var lbl = document.getElementById('azPdfLabel');
+      if (bar) bar.style.width = pct + '%';
+      if (lbl) lbl.textContent = 'Extracting text... ' + pct + '%';
+    });
+
+    if (!text || text.trim().length < 100) {
+      throw new Error('Could not extract readable text from PDF. It may be scanned/image-based.');
+    }
+
+    // Build prompt
+    var prompt = buildOrangeBookPrompt(co.name, co.ticker, transcriptDate, text);
+
+    // Show prompt modal with copy + paste-back
+    document.getElementById('azModalBody').innerHTML = azPromptReadyHTML(prompt, co.name);
+
+  } catch(err) {
+    document.getElementById('azModalBody').innerHTML = azErrorHTML(err.message, pdfUrl);
+  }
+}
+
+function azLoadingHTML(msg, pct) {
+  return '<div class="az-loading-state">'+
+    '<div class="qs-spinner"></div>'+
+    '<div id="azPdfLabel">'+escapeHtml(msg)+'</div>'+
+    '<div class="az-pdf-progress"><div class="az-pdf-bar" id="azPdfBar" style="width:'+pct+'%"></div></div>'+
+    '<div style="font-size:10px;color:var(--text-dim);margin-top:4px;">This may take 10–20 seconds depending on PDF size</div>'+
+  '</div>';
+}
+
+function azErrorHTML(msg, pdfUrl) {
+  return '<div class="az-loading-state" style="gap:12px;">'+
+    '<div style="font-size:20px;">⚠️</div>'+
+    '<div style="color:var(--red);font-size:12px;">'+escapeHtml(msg)+'</div>'+
+    '<div style="font-size:11px;color:var(--text-muted);line-height:1.6;">'+
+      'You can still analyze this transcript manually:<br>'+
+      '<a href="'+escapeHtml(pdfUrl)+'" target="_blank" style="color:var(--accent);">Open PDF on BSE ↗</a> '+
+      '— copy the text, then use the paste box below.'+
+    '</div>'+
+    '<div class="az-paste-section" style="width:100%;text-align:left;">'+
+      '<div class="az-paste-label">Paste transcript text manually</div>'+
+      '<textarea class="az-paste-textarea" id="azManualText" placeholder="Paste the full transcript text here..."></textarea>'+
+      '<button class="az-submit-btn" onclick="azBuildFromManual()">Build Prompt from Pasted Text →</button>'+
+    '</div>'+
+  '</div>';
+}
+
+function azBuildFromManual() {
+  var ta = document.getElementById('azManualText');
+  if (!ta || !ta.value.trim()) return;
+  var cache = azLoadCache();
+  var co = azCompanyMap[azCurrentBse];
+  if (!co) return;
+  var transcriptDate = (cache[azCurrentBse] && cache[azCurrentBse].date) || 'Unknown';
+  var prompt = buildOrangeBookPrompt(co.name, co.ticker, transcriptDate, ta.value.trim());
+  document.getElementById('azModalBody').innerHTML = azPromptReadyHTML(prompt, co.name);
+}
+
+function azPromptReadyHTML(prompt, coName) {
+  var escaped = escapeHtml(prompt);
+  return '<div class="az-steps">'+
+      '<div class="az-step-chip"><div class="az-step-num">1</div><span>Copy the prompt</span></div>'+
+      '<div class="az-step-arrow">→</div>'+
+      '<div class="az-step-chip"><div class="az-step-num">2</div><span>Paste into Claude (claude.ai)</span></div>'+
+      '<div class="az-step-arrow">→</div>'+
+      '<div class="az-step-chip"><div class="az-step-num">3</div><span>Paste Claude\'s response below</span></div>'+
+    '</div>'+
+
+    '<div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'+
+        '<span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Orange Book Prompt</span>'+
+        '<span style="font-size:10px;font-family:var(--mono);color:var(--text-dim);">'+prompt.length.toLocaleString()+' chars</span>'+
+      '</div>'+
+      '<div class="az-prompt-box" id="azPromptBox">'+escaped+'</div>'+
+    '</div>'+
+
+    '<div class="az-copy-row">'+
+      '<button class="az-copy-btn" id="azCopyBtn" onclick="azCopyPrompt()">📋 Copy Prompt to Clipboard</button>'+
+      '<button class="az-open-btn" onclick="window.open(\'https://claude.ai\',\'_blank\')">Open Claude ↗</button>'+
+    '</div>'+
+
+    '<div class="az-paste-section">'+
+      '<div class="az-paste-label">Paste Claude\'s response here</div>'+
+      '<textarea class="az-paste-textarea" id="azResponseInput" placeholder="Paste the full response from Claude here, then click Save Analysis..."></textarea>'+
+      '<button class="az-submit-btn" onclick="azSaveAnalysis()">✓ Save Analysis</button>'+
+    '</div>';
+}
+
+function azCopyPrompt() {
+  var box = document.getElementById('azPromptBox');
+  if (!box) return;
+  var text = box.innerText || box.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('azCopyBtn');
+    if (btn) { btn.textContent = '✓ Copied!'; btn.style.background = '#157a38'; }
+    setTimeout(function() {
+      if (btn) { btn.textContent = '📋 Copy Prompt to Clipboard'; btn.style.background = ''; }
+    }, 2500);
+  }).catch(function() {
+    // Fallback for file:// protocol
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    var btn = document.getElementById('azCopyBtn');
+    if (btn) { btn.textContent = '✓ Copied!'; }
+    setTimeout(function() { if (btn) btn.textContent = '📋 Copy Prompt to Clipboard'; }, 2500);
+  });
+}
+
+// ── Parse Claude's response and save ─────────────────────────
+function azSaveAnalysis() {
+  var ta = document.getElementById('azResponseInput');
+  if (!ta || !ta.value.trim()) return;
+  var raw = ta.value.trim();
+  var parsed = parseClaudeResponse(raw);
+  parsed.rawResponse = raw;
+  parsed.savedAt = new Date().toISOString();
+
+  // Save into cache
+  var cache = azLoadCache();
+  if (cache[azCurrentBse]) {
+    cache[azCurrentBse].analysis = parsed;
+    azSaveCache(cache);
+  }
+
+  // Render result card
+  var resultEl = document.getElementById('azresult-'+azCurrentBse);
+  if (resultEl) resultEl.outerHTML = buildResultCard(azCurrentBse, parsed);
+
+  // Update analyze button
+  var btn = document.getElementById('azbtn-'+azCurrentBse);
+  if (btn) btn.textContent = '📊 Re-analyze';
+
+  azCloseModal();
+}
+
+function parseClaudeResponse(text) {
+  var result = { tone: '', themes: [], emergent: '', summary: '' };
+
+  // Extract TONE
+  var toneM = text.match(/##\s*TONE\s*\n([^\n]+)/i);
+  if (toneM) result.tone = toneM[1].trim();
+
+  // Extract themes
+  var themeNames = ['DEMAND & REVENUE','COSTS & MARGINS','LABOR MARKET','INVESTMENT & CAPEX','MACRO & EXTERNAL RISKS'];
+  themeNames.forEach(function(name) {
+    var re = new RegExp('##\\s*THEME:\\s*' + name.replace(/[&]/g,'\\&') + '\\s*\\n([\\s\\S]*?)(?=##|$)', 'i');
+    var m = text.match(re);
+    if (m) {
+      var block = m[1].trim();
+      var quoteM = block.match(/QUOTE:\s*"([^"]+)"/i);
+      var bodyText = block.replace(/QUOTE:\s*"[^"]*"/i,'').trim();
+      result.themes.push({ name: name, body: bodyText, quote: quoteM ? quoteM[1] : '' });
+    }
+  });
+
+  // Emergent
+  var emM = text.match(/##\s*EMERGENT SIGNAL\s*\n([^\n#]+)/i);
+  if (emM) result.emergent = emM[1].trim();
+
+  // One-liner
+  var sumM = text.match(/##\s*ONE-LINE SUMMARY\s*\n([^\n#]+)/i);
+  if (sumM) result.summary = sumM[1].trim();
+
+  return result;
+}
+
+function toneClass(tone) {
+  if (!tone) return 'neutral';
+  var t = tone.toLowerCase();
+  if (t.includes('positive')) return 'positive';
+  if (t.includes('cautious') || t.includes('neutral') || t.includes('mixed')) return 'neutral';
+  if (t.includes('negative') || t.includes('weak')) return 'negative';
+  return 'neutral';
+}
+
+function buildResultCard(bseCode, analysis) {
+  if (!analysis) return '<div id="azresult-'+bseCode+'"></div>';
+  var tc = toneClass(analysis.tone);
+  var toneWord = analysis.tone ? analysis.tone.split('.')[0].split('\n')[0].trim() : 'Unknown';
+
+  var themesHtml = (analysis.themes || []).filter(function(t){ return t.body && t.body !== 'NOT DISCUSSED'; }).map(function(t) {
+    return '<div class="az-theme">'+
+      '<div class="az-theme-name">'+escapeHtml(t.name)+'</div>'+
+      '<div class="az-theme-body">'+escapeHtml(t.body)+'</div>'+
+      (t.quote && t.quote !== 'NONE' ? '<div class="az-quote">"'+escapeHtml(t.quote)+'"</div>' : '')+
+    '</div>';
+  }).join('');
+
+  var emergentHtml = (analysis.emergent && analysis.emergent !== 'NONE')
+    ? '<div class="az-theme" style="border-color:rgba(212,160,23,0.3);background:rgba(212,160,23,0.04);">'+
+        '<div class="az-theme-name" style="color:var(--amber);">⚡ EMERGENT SIGNAL</div>'+
+        '<div class="az-theme-body">'+escapeHtml(analysis.emergent)+'</div>'+
+      '</div>'
+    : '';
+
+  return '<div class="az-result-card" id="azresult-'+bseCode+'">'+
+    '<div class="az-result-header">'+
+      '<div style="display:flex;flex-direction:column;gap:4px;flex:1;">'+
+        (analysis.summary ? '<div style="font-size:12px;color:var(--text);line-height:1.5;font-weight:500;">'+escapeHtml(analysis.summary)+'</div>' : '')+
+        '<div style="font-size:10px;color:var(--text-dim);font-family:var(--mono);">Analyzed '+new Date(analysis.savedAt||Date.now()).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+'</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">'+
+        '<span class="az-tone '+tc+'">'+escapeHtml(toneWord)+'</span>'+
+        '<button class="az-clear-btn" onclick="azClearAnalysis(\''+bseCode+'\')" title="Clear analysis">✕</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="az-theme-grid">'+themesHtml+emergentHtml+'</div>'+
+  '</div>';
+}
+
+function azClearAnalysis(bseCode) {
+  var cache = azLoadCache();
+  if (cache[bseCode]) { delete cache[bseCode].analysis; azSaveCache(cache); }
+  var el = document.getElementById('azresult-'+bseCode);
+  if (el) el.outerHTML = '<div id="azresult-'+bseCode+'"></div>';
+  var btn = document.getElementById('azbtn-'+bseCode);
+  if (btn) btn.textContent = '📊 Analyze';
+}
+
+function azCloseModal() {
+  document.getElementById('azModalOverlay').classList.remove('show');
+  azCurrentBse = null;
+}
 </body>
 </html>
