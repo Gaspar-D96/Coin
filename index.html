@@ -362,6 +362,44 @@
   .az-loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;color:var(--text-muted);font-family:var(--mono);font-size:11px;text-align:center;}
   .az-pdf-progress{width:200px;height:2px;background:var(--surface3);border-radius:1px;overflow:hidden;}
   .az-pdf-bar{height:100%;background:var(--accent);border-radius:1px;transition:width 0.3s;}
+
+  /* ── Wizard overlay ── */
+  .wiz-overlay{position:fixed;inset:0;background:var(--bg);z-index:400;display:none;flex-direction:column;}
+  .wiz-overlay.show{display:flex;}
+  .wiz-top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+  .wiz-top-left{display:flex;align-items:center;gap:16px;}
+  .wiz-title{font-size:13px;font-weight:700;color:var(--accent);font-family:var(--mono);letter-spacing:0.5px;}
+  .wiz-progress-track{width:200px;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+  .wiz-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s;}
+  .wiz-progress-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);}
+  .wiz-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:0;}
+  .wiz-card{width:100%;max-width:680px;display:flex;flex-direction:column;gap:20px;}
+  .wiz-company-header{display:flex;align-items:baseline;gap:12px;}
+  .wiz-ticker{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent);}
+  .wiz-coname{font-size:14px;color:var(--text-muted);}
+  .wiz-date{font-size:11px;font-family:var(--mono);color:var(--text-dim);margin-left:auto;}
+  .wiz-status{font-size:11px;font-family:var(--mono);color:var(--text-muted);min-height:18px;}
+  .wiz-action-row{display:flex;gap:10px;align-items:stretch;}
+  .wiz-big-btn{flex:1;padding:14px 0;border-radius:4px;border:none;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;letter-spacing:0.3px;transition:all 0.15s;}
+  .wiz-big-btn.primary{background:var(--accent);color:#071a0d;}
+  .wiz-big-btn.primary:hover{background:#22d460;}
+  .wiz-big-btn.secondary{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+  .wiz-big-btn.secondary:hover{color:var(--text);border-color:var(--border2);}
+  .wiz-big-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .wiz-response-area{width:100%;min-height:130px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--sans);font-size:12px;padding:12px 14px;outline:none;resize:vertical;line-height:1.6;transition:border-color 0.15s;}
+  .wiz-response-area:focus{border-color:rgba(29,185,84,0.4);}
+  .wiz-response-area::placeholder{color:var(--text-dim);}
+  .wiz-done-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .wiz-chip{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;}
+  .wiz-chip.ok{background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.2);color:var(--accent);}
+  .wiz-chip.skip{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);}
+  .wiz-chip.fail{background:rgba(224,82,82,0.07);border:1px solid rgba(224,82,82,0.2);color:var(--red);}
+  .wiz-setup{width:100%;max-width:680px;display:flex;flex-direction:column;gap:16px;}
+  .wiz-label{font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+  .wiz-prompt-input{width:100%;min-height:110px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--sans);font-size:13px;padding:12px 14px;outline:none;resize:vertical;line-height:1.6;transition:border-color 0.15s;}
+  .wiz-prompt-input:focus{border-color:rgba(29,185,84,0.5);}
+  .wiz-prompt-input::placeholder{color:var(--text-dim);}
+  .wiz-final{width:100%;max-width:680px;display:flex;flex-direction:column;gap:16px;text-align:center;}
 </style>
 </head>
 <body>
@@ -553,12 +591,56 @@
     <div class="analyze-header">
       <div>
         <h2>&#128202; Delta Analyze <span style="font-size:10px;font-weight:400;color:var(--text-muted);font-family:var(--mono);background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:3px;padding:1px 7px;letter-spacing:0.5px;">NIFTY 50</span></h2>
-        <div class="analyze-header-sub">Earnings call transcript tracker — sourced from BSE filings (SEBI Reg. 30)</div>
+        <div class="analyze-header-sub">Q3 FY26 earnings call tracker &mdash; dates verified from BSE filings &amp; financial news &mdash; bundled 11 Mar 2026</div>
       </div>
       <div class="analyze-controls">
         <button class="btn btn-secondary" style="font-size:11px;" onclick="analyzeExpandAll()">&#9660; Expand All</button>
         <button class="btn btn-secondary" style="font-size:11px;" onclick="analyzeCollapseAll()">&#9650; Collapse All</button>
-        <button class="btn btn-primary" style="font-size:11px;" id="btnFetchAll" onclick="fetchAllTranscripts()">&#9654; Fetch All Transcripts</button>
+        <button class="btn btn-secondary" style="font-size:11px;" id="azSelectAllBtn" onclick="azSelectAll()">&#9744; Select All</button>
+        <button class="btn btn-secondary" style="font-size:11px;" id="btnFetchAll" onclick="azOpenAllBSE()">&#128279; Open All on BSE</button>
+      </div>
+    </div>
+
+    <!-- Selection action bar — shown when companies are selected -->
+    <div id="azSelectionBar" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(29,185,84,0.06);border:1px solid rgba(29,185,84,0.25);border-radius:4px;padding:10px 16px;">
+      <span style="font-size:11px;font-family:var(--mono);color:var(--accent);font-weight:600;" id="azSelLabel">0 companies selected</span>
+      <div style="flex:1;min-width:1px;"></div>
+      <span style="font-size:10px;color:var(--text-muted);font-family:var(--mono);">Build prompt:</span>
+      <button class="btn btn-primary" style="font-size:11px;padding:5px 16px;" onclick="wizOpen()">&#9889; Analyze with Claude</button>
+      <button class="btn btn-secondary" style="font-size:11px;" onclick="azClearSelection()">&#10005; Clear</button>
+    </div>
+
+    <!-- API Key bar -->
+    <div id="azApiBar" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 14px;flex-wrap:wrap;">
+      <span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;">&#128273; Anthropic API Key</span>
+      <input id="azApiKeyInput" type="password" placeholder="sk-ant-..." autocomplete="off"
+        style="flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;font-family:var(--mono);padding:6px 10px;outline:none;"
+        oninput="azSaveApiKey(this.value)">
+      <span id="azApiKeyStatus" style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">Not set</span>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <button class="btn btn-primary" style="font-size:11px;padding:5px 14px;display:flex;align-items:center;gap:6px;" id="btnAnalyzeAll" onclick="azAnalyzeAll()">
+          &#9889; Analyze All 50
+        </button>
+        <button class="btn btn-secondary" style="font-size:11px;padding:5px 14px;" id="btnSynthesize" onclick="azSynthesizeAll()" disabled>
+          &#128202; Orange Book Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Batch progress bar (hidden until running) -->
+    <div id="azBatchProgress" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px 16px;gap:10px;flex-direction:column;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;" id="azBatchLabel">Analyzing...</span>
+        <button onclick="azAbortBatch()" style="font-size:10px;font-family:var(--mono);color:var(--red);background:none;border:1px solid rgba(224,82,82,0.3);border-radius:3px;padding:2px 8px;cursor:pointer;">&#9632; Stop</button>
+      </div>
+      <div style="background:var(--surface3);border-radius:2px;height:4px;overflow:hidden;">
+        <div id="azBatchBar" style="height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s;"></div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;" id="azBatchStats">
+        <span style="font-size:10px;font-family:var(--mono);color:var(--accent);">&#10003; Done: <b id="azBatchDone">0</b></span>
+        <span style="font-size:10px;font-family:var(--mono);color:var(--amber);">&#9654; Running: <b id="azBatchRunning">0</b></span>
+        <span style="font-size:10px;font-family:var(--mono);color:var(--red);">&#10007; Failed: <b id="azBatchFailed">0</b></span>
+        <span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">Total: <b id="azBatchTotal">0</b></span>
       </div>
     </div>
 
@@ -592,6 +674,21 @@
     <div class="az-modal-body" id="azModalBody">
       <!-- populated dynamically -->
     </div>
+  </div>
+</div>
+
+<!-- ── Semi-auto Wizard Overlay ── -->
+<div class="wiz-overlay" id="wizOverlay">
+  <div class="wiz-top">
+    <div class="wiz-top-left">
+      <span class="wiz-title">&#9889; DELTA ANALYZE — WIZARD</span>
+      <div class="wiz-progress-track"><div class="wiz-progress-fill" id="wizProgressFill"></div></div>
+      <span class="wiz-progress-label" id="wizProgressLabel">0 / 0</span>
+    </div>
+    <button onclick="wizClose()" style="font-size:10px;font-family:var(--mono);color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:4px 12px;cursor:pointer;">✕ Exit</button>
+  </div>
+  <div class="wiz-body" id="wizBody">
+    <!-- populated by JS -->
   </div>
 </div>
 
@@ -3549,6 +3646,69 @@ function qsLoadWeb(query) {
 // ══════════════════════════════════════════════════════════════════
 
 var AZ_CACHE_KEY = 'delta_analyze_cache';
+var AZ_BUNDLE_VERSION = '2026-03-11';
+
+// Verified Q3 FY26 transcript/results dates sourced from BSE filings & financial news
+// Coverage: 11 Dec 2025 – 11 Mar 2026 (90-day window from today)
+var AZ_BUNDLED = {
+  // IT — results kicked off Jan 12 week
+  "532540":{"ticker":"TCS",        "date":"12 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532540&dur=Q&anntyp=Concall%20Transcript"},
+  "500209":{"ticker":"INFY",       "date":"14 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500209&dur=Q&anntyp=Concall%20Transcript"},
+  "507685":{"ticker":"WIPRO",      "date":"16 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=507685&dur=Q&anntyp=Concall%20Transcript"},
+  "532281":{"ticker":"HCLTECH",    "date":"12 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532281&dur=Q&anntyp=Concall%20Transcript"},
+  "532755":{"ticker":"TECHM",      "date":"16 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532755&dur=Q&anntyp=Concall%20Transcript"},
+  "540005":{"ticker":"LTI",        "date":"16 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=540005&dur=Q&anntyp=Concall%20Transcript"},
+  // Banking & Financial
+  "500180":{"ticker":"HDFCBANK",   "date":"17 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500180&dur=Q&anntyp=Concall%20Transcript"},
+  "532174":{"ticker":"ICICIBANK",  "date":"17 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532174&dur=Q&anntyp=Concall%20Transcript"},
+  "500247":{"ticker":"KOTAKBANK",  "date":"18 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500247&dur=Q&anntyp=Concall%20Transcript"},
+  "532215":{"ticker":"AXISBANK",   "date":"14 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532215&dur=Q&anntyp=Concall%20Transcript"},
+  "500112":{"ticker":"SBIN",       "date":"07 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500112&dur=Q&anntyp=Concall%20Transcript"},
+  "532187":{"ticker":"INDUSINDBK", "date":"23 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532187&dur=Q&anntyp=Concall%20Transcript"},
+  "500034":{"ticker":"BAJFINANCE", "date":"03 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500034&dur=Q&anntyp=Concall%20Transcript"},
+  "532978":{"ticker":"BAJAJFINSV", "date":"29 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532978&dur=Q&anntyp=Concall%20Transcript"},
+  "540719":{"ticker":"SBILIFE",    "date":"22 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=540719&dur=Q&anntyp=Concall%20Transcript"},
+  "540777":{"ticker":"HDFCLIFE",   "date":"18 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=540777&dur=Q&anntyp=Concall%20Transcript"},
+  // Energy & Oil
+  "500325":{"ticker":"RELIANCE",   "date":"16 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500325&dur=Q&anntyp=Concall%20Transcript"},
+  "500312":{"ticker":"ONGC",       "date":"11 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500312&dur=Q&anntyp=Concall%20Transcript"},
+  "532898":{"ticker":"POWERGRID",  "date":"05 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532898&dur=Q&anntyp=Concall%20Transcript"},
+  "532555":{"ticker":"NTPC",       "date":"12 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532555&dur=Q&anntyp=Concall%20Transcript"},
+  "500547":{"ticker":"BPCL",       "date":"14 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500547&dur=Q&anntyp=Concall%20Transcript"},
+  "532921":{"ticker":"ADANIPORTS", "date":"13 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532921&dur=Q&anntyp=Concall%20Transcript"},
+  "512599":{"ticker":"ADANITRANS", "date":"06 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=512599&dur=Q&anntyp=Concall%20Transcript"},
+  // Consumer & FMCG
+  "500696":{"ticker":"HINDUNILVR", "date":"23 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500696&dur=Q&anntyp=Concall%20Transcript"},
+  "500875":{"ticker":"ITC",        "date":"31 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500875&dur=Q&anntyp=Concall%20Transcript"},
+  "500790":{"ticker":"NESTLEIND",  "date":"24 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500790&dur=Q&anntyp=Concall%20Transcript"},
+  "500825":{"ticker":"BRITANNIA",  "date":"07 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500825&dur=Q&anntyp=Concall%20Transcript"},
+  "500820":{"ticker":"ASIANPAINT", "date":"22 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500820&dur=Q&anntyp=Concall%20Transcript"},
+  "500114":{"ticker":"TITAN",      "date":"08 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500114&dur=Q&anntyp=Concall%20Transcript"},
+  "500800":{"ticker":"TATACONSUM", "date":"05 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500800&dur=Q&anntyp=Concall%20Transcript"},
+  // Automobiles
+  "532500":{"ticker":"MARUTI",     "date":"28 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532500&dur=Q&anntyp=Concall%20Transcript"},
+  "500570":{"ticker":"TATAMOTORS", "date":"29 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500570&dur=Q&anntyp=Concall%20Transcript"},
+  "500520":{"ticker":"M&M",        "date":"13 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500520&dur=Q&anntyp=Concall%20Transcript"},
+  "505200":{"ticker":"EICHERMOT",  "date":"14 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=505200&dur=Q&anntyp=Concall%20Transcript"},
+  "532977":{"ticker":"BAJAJ-AUTO", "date":"29 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532977&dur=Q&anntyp=Concall%20Transcript"},
+  "500182":{"ticker":"HEROMOTOCO", "date":"14 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500182&dur=Q&anntyp=Concall%20Transcript"},
+  // Pharma
+  "524715":{"ticker":"SUNPHARMA",  "date":"06 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=524715&dur=Q&anntyp=Concall%20Transcript"},
+  "500124":{"ticker":"DRREDDY",    "date":"30 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500124&dur=Q&anntyp=Concall%20Transcript"},
+  "500087":{"ticker":"CIPLA",      "date":"30 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500087&dur=Q&anntyp=Concall%20Transcript"},
+  "532488":{"ticker":"DIVISLAB",   "date":"31 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532488&dur=Q&anntyp=Concall%20Transcript"},
+  "508869":{"ticker":"APOLLOHOSP", "date":"14 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=508869&dur=Q&anntyp=Concall%20Transcript"},
+  // Industrials & Materials
+  "500510":{"ticker":"LT",         "date":"30 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500510&dur=Q&anntyp=Concall%20Transcript"},
+  "532538":{"ticker":"ULTRACEMCO", "date":"22 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532538&dur=Q&anntyp=Concall%20Transcript"},
+  "500300":{"ticker":"GRASIM",     "date":"14 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500300&dur=Q&anntyp=Concall%20Transcript"},
+  "500387":{"ticker":"SHREECEM",   "date":"05 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500387&dur=Q&anntyp=Concall%20Transcript"},
+  "500228":{"ticker":"JSWSTEEL",   "date":"30 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500228&dur=Q&anntyp=Concall%20Transcript"},
+  "500470":{"ticker":"TATASTEEL",  "date":"31 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500470&dur=Q&anntyp=Concall%20Transcript"},
+  "500440":{"ticker":"HINDALCO",   "date":"12 Feb 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=500440&dur=Q&anntyp=Concall%20Transcript"},
+  // Telecom
+  "532454":{"ticker":"BHARTIARTL", "date":"29 Jan 2026","url":"https://www.bseindia.com/corporates/ann.html?scrip=532454&dur=Q&anntyp=Concall%20Transcript"}
+};
 
 // Nifty 50 companies by sector with BSE scrip codes
 var NIFTY50 = [
@@ -3624,7 +3784,20 @@ var azCompanyMap = {};
 NIFTY50.forEach(function(s){ s.companies.forEach(function(c){ azCompanyMap[c.bse] = c; }); });
 
 function azLoadCache() {
-  try { return JSON.parse(localStorage.getItem(AZ_CACHE_KEY)||'{}'); } catch(e) { return {}; }
+  try {
+    var stored = JSON.parse(localStorage.getItem(AZ_CACHE_KEY) || '{}');
+    if (stored._bundleVersion !== AZ_BUNDLE_VERSION) {
+      // Seed bundle data — preserve any existing analysis the user saved
+      Object.keys(AZ_BUNDLED).forEach(function(bse) {
+        if (!stored[bse] || !stored[bse].date) {
+          stored[bse] = Object.assign({}, AZ_BUNDLED[bse]);
+        }
+      });
+      stored._bundleVersion = AZ_BUNDLE_VERSION;
+      try { localStorage.setItem(AZ_CACHE_KEY, JSON.stringify(stored)); } catch(e) {}
+    }
+    return stored;
+  } catch(e) { return Object.assign({}, AZ_BUNDLED); }
 }
 function azSaveCache(cache) {
   try { localStorage.setItem(AZ_CACHE_KEY, JSON.stringify(cache)); } catch(e) {}
@@ -3633,9 +3806,85 @@ function azSaveCache(cache) {
 function analyzeRender() {
   renderSectorGrid();
   updateAnalyzeSummary();
+  azInitApiBar();
+  azRefreshSelectionUI();
+}
+
+function azOpenAllBSE() {
+  window.open('https://www.bseindia.com/corporates/ann.html?dur=Q&anntyp=Concall%20Transcript','_blank');
 }
 
 function analyzeInit() { analyzeRender(); } // alias for compatibility
+
+// ── Selection State ────────────────────────────────────────────
+var azSelected = {}; // bseCode → true/false
+
+function azToggleSector(si, btn) {
+  var sector = NIFTY50[si];
+  if (!sector) return;
+  var cache = azLoadCache();
+  // Check if all currently selected → deselect all; otherwise select all with transcripts
+  var allSel = sector.companies.every(function(co){ return azSelected[co.bse]; });
+  sector.companies.forEach(function(co) {
+    if (cache[co.bse] && cache[co.bse].url) {
+      azSelected[co.bse] = !allSel;
+    }
+  });
+  azRefreshSelectionUI();
+}
+
+function azSelectAll() {
+  var cache = azLoadCache();
+  var allSel = NIFTY50.every(function(s){
+    return s.companies.every(function(co){ return !cache[co.bse] || !cache[co.bse].url || azSelected[co.bse]; });
+  });
+  NIFTY50.forEach(function(s){
+    s.companies.forEach(function(co){
+      if (cache[co.bse] && cache[co.bse].url) azSelected[co.bse] = !allSel;
+    });
+  });
+  azRefreshSelectionUI();
+}
+
+function azRefreshSelectionUI() {
+  var count = Object.keys(azSelected).filter(function(k){ return azSelected[k]; }).length;
+  // Update sector buttons
+  NIFTY50.forEach(function(sector, si) {
+    var btn = document.getElementById('sselect-'+si);
+    if (!btn) return;
+    var cache = azLoadCache();
+    var eligible = sector.companies.filter(function(co){ return cache[co.bse] && cache[co.bse].url; });
+    var selCount = eligible.filter(function(co){ return azSelected[co.bse]; }).length;
+    var allSel = eligible.length > 0 && selCount === eligible.length;
+    btn.textContent = allSel ? '✓ Sector' : (selCount > 0 ? '~ ' + selCount + ' sel' : '+ Select');
+    btn.style.color = allSel ? 'var(--accent)' : selCount > 0 ? 'var(--amber)' : '';
+    btn.style.borderColor = allSel ? 'rgba(29,185,84,0.4)' : selCount > 0 ? 'rgba(212,160,23,0.4)' : '';
+    // Highlight company rows
+    sector.companies.forEach(function(co) {
+      var row = document.getElementById('azrow-'+co.bse);
+      if (row) {
+        var inner = row.querySelector('.company-row');
+        if (inner) inner.style.background = azSelected[co.bse] ? 'rgba(29,185,84,0.06)' : '';
+      }
+    });
+  });
+  // Update select-all button
+  var saBtn = document.getElementById('azSelectAllBtn');
+  var cache = azLoadCache();
+  var totalEligible = 0;
+  NIFTY50.forEach(function(s){ s.companies.forEach(function(co){ if(cache[co.bse]&&cache[co.bse].url) totalEligible++; }); });
+  var allSel = count === totalEligible && totalEligible > 0;
+  if (saBtn) {
+    saBtn.textContent = allSel ? '✓ All Selected' : '☐ Select All';
+    saBtn.style.color = count > 0 ? 'var(--accent)' : '';
+    saBtn.style.borderColor = count > 0 ? 'rgba(29,185,84,0.4)' : '';
+  }
+  // Update selection bar
+  var bar = document.getElementById('azSelectionBar');
+  var label = document.getElementById('azSelLabel');
+  if (bar) bar.style.display = count > 0 ? 'flex' : 'none';
+  if (label) label.textContent = count + ' compan' + (count === 1 ? 'y' : 'ies') + ' selected';
+}
 
 function renderSectorGrid() {
   var cache = azLoadCache();
@@ -3652,7 +3901,7 @@ function renderSectorGrid() {
       var hasResult = cached && cached.analysis;
       var analyzeBtnHtml = hasTranscript
         ? '<button class="az-btn" id="azbtn-'+co.bse+'" onclick="azStartAnalyze(\''+co.bse+'\')">&#128202; '+(hasResult ? 'Re-analyze' : 'Analyze')+'</button>'
-        : '<button class="az-btn" id="azbtn-'+co.bse+'" disabled title="Fetch transcript first">&#128202; Analyze</button>';
+        : '<button class="az-btn" id="azbtn-'+co.bse+'" disabled title="No transcript">&#128202; Analyze</button>';
       var resultHtml = hasResult ? buildResultCard(co.bse, cached.analysis) : '<div id="azresult-'+co.bse+'"></div>';
       return '<div id="azrow-'+co.bse+'">'+
         '<div class="company-row">'+
@@ -3673,7 +3922,8 @@ function renderSectorGrid() {
         '<span class="sector-name" style="border-left:2px solid '+sector.color+';padding-left:8px;">'+sector.sector+'</span>'+
         '<span class="sector-badge">'+sector.companies.length+' companies</span>'+
         '<span class="sector-badge" id="sbadge-'+si+'" style="'+(found>0?'border-color:rgba(29,185,84,0.3);color:#1db954;background:rgba(29,185,84,0.07);':'')+'">'+found+'/'+sector.companies.length+' transcripts</span>'+
-        '<button class="sector-fetch-btn" id="sfbtn-'+si+'" onclick="event.stopPropagation();fetchSectorTranscripts('+si+')">&#8595; Fetch</button>'+
+        '<button class="sector-fetch-btn" id="sselect-'+si+'" onclick="event.stopPropagation();azToggleSector('+si+',this)" style="min-width:72px;">+ Select</button>'+
+        '<button class="sector-fetch-btn" onclick="event.stopPropagation();window.open(\'https://www.bseindia.com/corporates/ann.html?index=EQ&scrip='+sector.companies.map(function(c){return c.bse;}).join(',')+'&dur=Q&anntyp=Concall%20Transcript\',\'_blank\')">&#128279; BSE</button>'+
       '</div>'+
       '<div class="sector-companies" id="sco-'+si+'">'+rows+'</div>'+
     '</div>';
@@ -3683,6 +3933,7 @@ function renderSectorGrid() {
 function buildDateBadge(cached) {
   if (!cached) return '<span class="tdate-badge notfound">Not checked</span>';
   if (cached.loading) return '<span class="tdate-badge loading">Fetching...</span>';
+  if (cached.proxyFailed) return '<span class="tdate-badge error" title="CORS blocked — use BSE link to check manually">&#128279; Manual</span>';
   if (cached.error) return '<span class="tdate-badge error">Error</span>';
   if (cached.date) return '<span class="tdate-badge found">&#9679; '+cached.date+'</span>';
   return '<span class="tdate-badge notfound">No transcript</span>';
@@ -3700,89 +3951,113 @@ function analyzeCollapseAll() {
 }
 
 // ── BSE Fetch Logic ────────────────────────────────────────────
-// BSE's public corporate announcements API endpoint (no auth needed for public filings)
-function fetchTranscriptForCompany(company, callback) {
-  var bseCode = company.bse;
-  // BSE announcement search endpoint — filters by scrip code, last 365 days, "Concall" category
-  var toDate   = new Date();
-  var fromDate = new Date(); fromDate.setFullYear(fromDate.getFullYear()-1);
-  var fmt = function(d){ return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear(); };
 
-  var url = 'https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?'+
+// Build BSE API URL for a given scrip code
+function buildBseUrl(bseCode) {
+  var toDate   = new Date();
+  var fromDate = new Date(); fromDate.setFullYear(fromDate.getFullYear()-2);
+  var fmt = function(d){
+    return d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
+  };
+  return 'https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?'+
     'strCat=-1&strPrevDate='+fmt(fromDate)+'&strScrip='+bseCode+
     '&strSearch=P&strToDate='+fmt(toDate)+'&strType=C&subcategory=-1';
+}
 
-  // Use a CORS proxy approach via allorigins
-  var proxyUrl = 'https://api.allorigins.win/get?url='+encodeURIComponent(url);
+// Parse raw BSE JSON into transcript items
+function parseBseItems(data) {
+  var items = [];
+  if (Array.isArray(data)) items = data;
+  else if (data && Array.isArray(data.Table))  items = data.Table;
+  else if (data && Array.isArray(data.table))  items = data.table;
+  else if (data && Array.isArray(data.Data))   items = data.Data;
 
-  fetch(proxyUrl, { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined })
-    .then(function(r){ return r.json(); })
-    .then(function(outer) {
-      var raw = outer.contents;
-      var data = JSON.parse(raw);
-      var items = data.Table || data.table || [];
-      // Filter for transcript-related filings
-      var transcripts = items.filter(function(item){
-        var subcat = (item.SUBCATNAME||item.NEWSSUB||item.categoryname||'').toLowerCase();
-        var head   = (item.HEADLINE||item.newsheadline||'').toLowerCase();
-        return subcat.indexOf('transcript') !== -1 || head.indexOf('transcript') !== -1 ||
-               subcat.indexOf('concall') !== -1    || head.indexOf('concall') !== -1 ||
-               subcat.indexOf('con call') !== -1   || head.indexOf('con call') !== -1 ||
-               subcat.indexOf('earnings call') !== -1;
-      });
+  return items.filter(function(item){
+    var subcat = (item.SUBCATNAME||item.NEWSSUB||item.subcategory||item.categoryname||'').toLowerCase();
+    var head   = (item.HEADLINE||item.newsheadline||item.headline||item.NEWSSUB||'').toLowerCase();
+    var combined = subcat + ' ' + head;
+    return combined.indexOf('transcript')  !== -1 ||
+           combined.indexOf('concall')     !== -1 ||
+           combined.indexOf('con call')    !== -1 ||
+           combined.indexOf('conference call') !== -1 ||
+           combined.indexOf('earnings call')   !== -1;
+  });
+}
 
-      if (transcripts.length > 0) {
-        // Sort newest first
-        transcripts.sort(function(a,b){
-          var da = new Date(a.News_submission_dt||a.NEWSDATE||a.DT_TM||0);
-          var db = new Date(b.News_submission_dt||b.NEWSDATE||b.DT_TM||0);
-          return db - da;
-        });
-        var latest = transcripts[0];
-        var rawDate = latest.News_submission_dt||latest.NEWSDATE||latest.DT_TM||'';
-        var fmtDate = rawDate ? formatBseDate(rawDate) : 'Unknown date';
-        // Build PDF URL
-        var newsId = latest.NEWSID||latest.NewsID||latest.newsid||'';
-        var pdfUrl = newsId
-          ? 'https://www.bseindia.com/xml-data/corpfiling/AttachLive/'+newsId+'.pdf'
-          : 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode;
-        callback(null, { date: fmtDate, url: pdfUrl, raw: rawDate });
-      } else {
-        callback(null, { date: null, url: null });
-      }
+// Turn filtered items into { date, url } result
+function extractLatestTranscript(transcripts, bseCode) {
+  if (!transcripts.length) return null;
+  transcripts.sort(function(a,b){
+    var da = new Date(a.News_submission_dt||a.NEWSDATE||a.DT_TM||a.date||0);
+    var db = new Date(b.News_submission_dt||b.NEWSDATE||b.DT_TM||b.date||0);
+    return db - da;
+  });
+  var latest  = transcripts[0];
+  var rawDate = latest.News_submission_dt||latest.NEWSDATE||latest.DT_TM||latest.date||'';
+  var newsId  = latest.NEWSID||latest.NewsID||latest.newsid||latest.news_id||'';
+  var pdfUrl  = newsId
+    ? 'https://www.bseindia.com/xml-data/corpfiling/AttachLive/'+newsId+'.pdf'
+    : 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode+'&dur=Q&anntyp=Concall%20Transcript';
+  return { date: formatBseDate(rawDate), url: pdfUrl, raw: rawDate };
+}
+
+// Try fetching through a proxy; resolves with parsed data or rejects
+function tryProxy(proxyUrl, isWrapped) {
+  return fetch(proxyUrl)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
     })
-    .catch(function(err){
-      // Try fallback via corsproxy.io
-      var proxyUrl2 = 'https://corsproxy.io/?'+encodeURIComponent(url);
-      fetch(proxyUrl2)
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          var items = data.Table || data.table || [];
-          var transcripts = items.filter(function(item){
-            var subcat = (item.SUBCATNAME||item.NEWSSUB||'').toLowerCase();
-            var head   = (item.HEADLINE||item.newsheadline||'').toLowerCase();
-            return subcat.indexOf('transcript')!==-1||head.indexOf('transcript')!==-1||
-                   subcat.indexOf('concall')!==-1||head.indexOf('concall')!==-1;
-          });
-          if (transcripts.length > 0) {
-            transcripts.sort(function(a,b){
-              var da=new Date(a.News_submission_dt||a.NEWSDATE||0);
-              var db=new Date(b.News_submission_dt||b.NEWSDATE||0);
-              return db-da;
-            });
-            var latest = transcripts[0];
-            var rawDate = latest.News_submission_dt||latest.NEWSDATE||'';
-            var newsId = latest.NEWSID||latest.NewsID||'';
-            var pdfUrl = newsId
-              ? 'https://www.bseindia.com/xml-data/corpfiling/AttachLive/'+newsId+'.pdf'
-              : 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode;
-            callback(null, { date: formatBseDate(rawDate), url: pdfUrl, raw: rawDate });
-          } else {
-            callback(null, { date: null, url: null });
-          }
-        })
-        .catch(function(){ callback(err, null); });
+    .then(function(text) {
+      var data;
+      if (isWrapped) {
+        var outer = JSON.parse(text);
+        data = JSON.parse(outer.contents);
+      } else {
+        data = JSON.parse(text);
+      }
+      return data;
     });
+}
+
+// Main fetch with proxy waterfall + manual fallback
+function fetchTranscriptForCompany(company, callback) {
+  var bseCode = company.bse;
+  var bseUrl  = buildBseUrl(bseCode);
+  var encoded = encodeURIComponent(bseUrl);
+
+  // Proxies tried in order — broadest compatibility first
+  var proxies = [
+    { url: 'https://corsproxy.io/?'                          + encoded,   wrapped: false },
+    { url: 'https://api.allorigins.win/get?url='             + encoded,   wrapped: true  },
+    { url: 'https://api.allorigins.win/raw?url='             + encoded,   wrapped: false },
+    { url: 'https://proxy.cors.sh/'                          + bseUrl,    wrapped: false },
+    { url: 'https://yacdn.org/proxy/'                        + bseUrl,    wrapped: false },
+    { url: 'https://api.codetabs.com/v1/proxy?quest='        + encoded,   wrapped: false },
+  ];
+
+  var attempt = 0;
+
+  function tryNext() {
+    if (attempt >= proxies.length) {
+      // All proxies failed — return a special "manual" result so user can enter date themselves
+      callback(null, { date: null, url: null, proxyFailed: true, bseUrl: bseUrl });
+      return;
+    }
+    var proxy = proxies[attempt++];
+    tryProxy(proxy.url, proxy.wrapped)
+      .then(function(data) {
+        var transcripts = parseBseItems(data);
+        var result = extractLatestTranscript(transcripts, bseCode);
+        callback(null, result || { date: null, url: null });
+      })
+      .catch(function(err) {
+        console.warn('Proxy ' + attempt + ' failed for ' + company.ticker + ':', err.message);
+        tryNext();
+      });
+  }
+
+  tryNext();
 }
 
 function formatBseDate(raw) {
@@ -3799,7 +4074,7 @@ function formatBseDate(raw) {
 
 function updateCompanyBadge(bseCode, result) {
   var cache = azLoadCache();
-  cache[bseCode] = result || { error: true };
+  cache[bseCode] = (result && result.proxyFailed) ? { proxyFailed: true, bseUrl: result.bseUrl } : (result || { error: true });
   azSaveCache(cache);
 
   var badgeEl = document.getElementById('azbadge-'+bseCode);
@@ -3809,6 +4084,8 @@ function updateCompanyBadge(bseCode, result) {
   if (linkEl) {
     if (result && result.url && result.date) {
       linkEl.innerHTML = '<a class="company-transcript-link" style="opacity:1;" href="'+result.url+'" target="_blank">&#128196; PDF</a>';
+    } else if (result && result.proxyFailed && result.bseUrl) {
+      linkEl.innerHTML = '<button class="az-btn" style="font-size:9px;padding:2px 6px;color:var(--amber);border-color:rgba(212,160,23,0.3);" onclick="azManualEntry(\''+bseCode+'\')">&#9998; Enter manually</button>';
     } else {
       linkEl.innerHTML = '';
     }
@@ -3915,6 +4192,916 @@ if (typeof pdfjsLib !== 'undefined') {
 var azCurrentBse = null;
 
 // ── Orange Book system prompt ─────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+//  ANTHROPIC API ENGINE
+// ══════════════════════════════════════════════════════════════════
+
+var AZ_API_KEY_STORAGE = 'delta_az_api_key';
+var azBatchAborted = false;
+
+function azLoadApiKey() {
+  return localStorage.getItem(AZ_API_KEY_STORAGE) || '';
+}
+function azSaveApiKey(val) {
+  localStorage.setItem(AZ_API_KEY_STORAGE, val.trim());
+  azRefreshApiKeyStatus();
+}
+function azRefreshApiKeyStatus() {
+  var key = azLoadApiKey();
+  var statusEl = document.getElementById('azApiKeyStatus');
+  var input = document.getElementById('azApiKeyInput');
+  if (!statusEl) return;
+  if (key && key.startsWith('sk-ant-') && key.length > 20) {
+    statusEl.textContent = '✓ Set';
+    statusEl.style.color = 'var(--accent)';
+    if (input && !input.value) input.value = key;
+  } else if (key) {
+    statusEl.textContent = '⚠ Invalid format';
+    statusEl.style.color = 'var(--amber)';
+  } else {
+    statusEl.textContent = 'Not set';
+    statusEl.style.color = 'var(--text-muted)';
+  }
+}
+
+// Call Anthropic API with a prompt, return text response
+async function azCallClaude(prompt, model) {
+  var key = azLoadApiKey();
+  if (!key) throw new Error('No API key set');
+  model = model || 'claude-haiku-4-5-20251001';
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: model,
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    var err = await resp.json().catch(function(){ return {}; });
+    throw new Error((err.error && err.error.message) || ('API error ' + resp.status));
+  }
+  var data = await resp.json();
+  return data.content.map(function(b){ return b.text || ''; }).join('');
+}
+
+// Analyze a single company via API — fetch PDF, extract text, call Claude
+async function azAnalyzeCompany(bseCode) {
+  var cache = azLoadCache();
+  var co = azCompanyMap[bseCode];
+  if (!co || !cache[bseCode]) throw new Error('No data for ' + bseCode);
+
+  var pdfUrl = cache[bseCode].url;
+  var transcriptDate = cache[bseCode].date || 'Unknown';
+
+  // Mark as loading in UI
+  azSetCompanyState(bseCode, 'loading');
+
+  try {
+    var text = await extractPdfText(pdfUrl, null);
+    if (!text || text.trim().length < 100) throw new Error('Empty or image-based PDF');
+
+    var prompt = buildOrangeBookPrompt(co.name, co.ticker, transcriptDate, text);
+    var raw = await azCallClaude(prompt, 'claude-haiku-4-5-20251001');
+    var parsed = parseClaudeResponse(raw);
+    parsed.raw = raw;
+    parsed.analyzedAt = new Date().toISOString();
+    parsed.model = 'claude-haiku-4-5';
+
+    // Save to cache
+    var c2 = azLoadCache();
+    c2[bseCode].analysis = parsed;
+    azSaveCache(c2);
+
+    // Update UI
+    azSetCompanyState(bseCode, 'done');
+    var row = document.getElementById('azrow-' + bseCode);
+    if (row) {
+      var existing = row.querySelector('.az-result-card');
+      if (existing) existing.remove();
+      row.insertAdjacentHTML('beforeend', buildResultCard(bseCode, parsed));
+    }
+
+    return { bseCode: bseCode, ok: true };
+  } catch(err) {
+    azSetCompanyState(bseCode, 'error', err.message);
+    return { bseCode: bseCode, ok: false, error: err.message };
+  }
+}
+
+function azSetCompanyState(bseCode, state, errMsg) {
+  var btn = document.getElementById('azbtn-' + bseCode);
+  if (!btn) return;
+  if (state === 'loading') {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="tdate-badge loading" style="padding:2px 8px;">&#9654; Running...</span>';
+  } else if (state === 'done') {
+    btn.disabled = false;
+    btn.innerHTML = '&#128202; Re-analyze';
+  } else if (state === 'error') {
+    btn.disabled = false;
+    btn.innerHTML = '&#9888; Retry';
+    btn.title = errMsg || 'Failed';
+  }
+}
+
+// Run analysis on all companies with concurrency limit of 5
+async function azAnalyzeAll() {
+  var key = azLoadApiKey();
+  if (!key || !key.startsWith('sk-ant-')) {
+    alert('Please enter a valid Anthropic API key (starts with sk-ant-) before running Analyze All.');
+    document.getElementById('azApiKeyInput').focus();
+    return;
+  }
+
+  azBatchAborted = false;
+  var cache = azLoadCache();
+
+  // Build list of companies that have a transcript URL
+  var companies = [];
+  NIFTY50.forEach(function(sector) {
+    sector.companies.forEach(function(co) {
+      if (cache[co.bse] && cache[co.bse].url) companies.push(co.bse);
+    });
+  });
+
+  var total = companies.length;
+  var done = 0, failed = 0, running = 0;
+
+  // Show batch progress UI
+  var progEl = document.getElementById('azBatchProgress');
+  progEl.style.display = 'flex';
+  document.getElementById('azBatchTotal').textContent = total;
+  document.getElementById('azBatchDone').textContent = 0;
+  document.getElementById('azBatchFailed').textContent = 0;
+  document.getElementById('azBatchRunning').textContent = 0;
+  document.getElementById('azBatchBar').style.width = '0%';
+  document.getElementById('azBatchLabel').textContent = 'Analyzing ' + total + ' companies...';
+  document.getElementById('btnAnalyzeAll').disabled = true;
+
+  function updateProgress() {
+    document.getElementById('azBatchDone').textContent = done;
+    document.getElementById('azBatchFailed').textContent = failed;
+    document.getElementById('azBatchRunning').textContent = running;
+    document.getElementById('azBatchBar').style.width = Math.round(((done + failed) / total) * 100) + '%';
+    // Enable synthesize button once we have at least 5 done
+    if (done >= 5) document.getElementById('btnSynthesize').disabled = false;
+  }
+
+  // Run in batches of 5 concurrent
+  var CONCURRENCY = 5;
+  var idx = 0;
+
+  async function runNext() {
+    if (azBatchAborted) return;
+    if (idx >= companies.length) return;
+    var bseCode = companies[idx++];
+    running++;
+    updateProgress();
+    var result = await azAnalyzeCompany(bseCode);
+    running--;
+    if (result.ok) done++; else failed++;
+    updateProgress();
+    await runNext(); // chain next
+  }
+
+  // Kick off CONCURRENCY parallel chains
+  var chains = [];
+  for (var i = 0; i < Math.min(CONCURRENCY, companies.length); i++) {
+    chains.push(runNext());
+  }
+  await Promise.all(chains);
+
+  document.getElementById('azBatchLabel').textContent =
+    azBatchAborted
+      ? 'Stopped. ' + done + ' analyzed, ' + failed + ' failed.'
+      : '✓ Complete — ' + done + ' analyzed' + (failed ? ', ' + failed + ' failed' : '') + '. Click Orange Book Report →';
+  document.getElementById('btnAnalyzeAll').disabled = false;
+  if (done > 0) document.getElementById('btnSynthesize').disabled = false;
+}
+
+function azAbortBatch() {
+  azBatchAborted = true;
+  document.getElementById('azBatchLabel').textContent = 'Stopping after current batch...';
+}
+
+// Build and show the macro Orange Book synthesis report
+async function azSynthesizeAll() {
+  var cache = azLoadCache();
+  var analyses = [];
+
+  NIFTY50.forEach(function(sector) {
+    sector.companies.forEach(function(co) {
+      var entry = cache[co.bse];
+      if (entry && entry.analysis && entry.analysis.oneLine) {
+        analyses.push({
+          ticker: co.ticker,
+          name: co.name,
+          sector: sector.sector,
+          tone: entry.analysis.tone || '',
+          oneLine: entry.analysis.oneLine || '',
+          demand: (entry.analysis.themes && entry.analysis.themes['DEMAND & REVENUE']) || '',
+          costs: (entry.analysis.themes && entry.analysis.themes['COSTS & MARGINS']) || '',
+          macro: (entry.analysis.themes && entry.analysis.themes['MACRO & EXTERNAL RISKS']) || '',
+          signal: entry.analysis.emergent || ''
+        });
+      }
+    });
+  });
+
+  if (analyses.length < 3) {
+    alert('Need at least 3 analyzed companies to generate a report. Run "Analyze All" first.');
+    return;
+  }
+
+  // Show synthesis modal
+  document.getElementById('azModalCoName').textContent = 'Nifty 50 — Macro Orange Book Report';
+  document.getElementById('azModalBody').innerHTML = azLoadingHTML('Building macro synthesis across ' + analyses.length + ' companies...', 50);
+  document.getElementById('azModalOverlay').classList.add('show');
+
+  // Build synthesis prompt
+  var summaryLines = analyses.map(function(a) {
+    return '[' + a.ticker + ' / ' + a.sector + '] ' +
+      'TONE: ' + a.tone + ' | ' + a.oneLine +
+      (a.signal && a.signal !== 'NONE' ? ' | SIGNAL: ' + a.signal : '');
+  }).join('\n');
+
+  var synthesisPrompt = [
+    'You are a macroeconomist writing the Nifty 50 edition of the Bloomberg Orange Book.',
+    'Below are structured summaries from ' + analyses.length + ' Indian corporate earnings calls (Q3 FY26).',
+    'Write a macro intelligence report with the following sections:',
+    '',
+    '## OVERALL SENTIMENT',
+    'One paragraph. What is the aggregate tone across Nifty 50? Positive/Mixed/Cautious/Negative and why.',
+    '',
+    '## TOP 5 MACRO THEMES',
+    'The 5 most frequently cited themes across all transcripts. For each: theme name, which sectors/companies mentioned it, and what it signals for the Indian economy.',
+    '',
+    '## SECTOR DIVERGENCES',
+    'Where are sectors telling different stories? e.g. IT cautious while Auto is bullish. List 2-3 notable divergences.',
+    '',
+    '## EMERGENT SIGNALS',
+    'Any unusual or new themes appearing across multiple companies that were not present last quarter. If none, say NONE.',
+    '',
+    '## MACRO WATCHLIST',
+    '3 indicators or events to watch in the next quarter based on what managements flagged.',
+    '',
+    '## ONE-LINE VERDICT',
+    'A single sentence capturing the macro state of corporate India this quarter.',
+    '',
+    '--- COMPANY SUMMARIES ---',
+    summaryLines,
+    '--- END ---'
+  ].join('\n');
+
+  try {
+    var report = await azCallClaude(synthesisPrompt, 'claude-sonnet-4-6');
+    document.getElementById('azModalBody').innerHTML = azSynthesisReportHTML(report, analyses.length);
+  } catch(err) {
+    document.getElementById('azModalBody').innerHTML = azErrorHTML(err.message, '');
+  }
+}
+
+function azSynthesisReportHTML(report, count) {
+  // Parse sections from report
+  var sections = report.split(/^## /m).filter(Boolean);
+  var html = '<div style="display:flex;flex-direction:column;gap:16px;">';
+
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--border);">' +
+    '<div><div style="font-size:13px;font-weight:600;color:var(--text);">&#127381; Nifty 50 — Macro Orange Book</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-top:2px;">Q3 FY26 · Based on ' + count + ' earnings call transcripts · Powered by Claude Sonnet</div></div>' +
+    '<button onclick="azCopySynthesis()" style="font-size:10px;font-family:var(--mono);color:var(--accent);background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);border-radius:3px;padding:4px 10px;cursor:pointer;">&#128203; Copy Report</button>' +
+    '</div>';
+
+  sections.forEach(function(sec) {
+    var lines = sec.trim().split('\n');
+    var title = lines[0].trim();
+    var body = lines.slice(1).join('\n').trim();
+    var isVerdict = title.includes('VERDICT') || title.includes('SENTIMENT');
+    html += '<div style="border-left:2px solid ' + (isVerdict ? 'var(--accent)' : 'var(--border2)') + ';padding-left:14px;">' +
+      '<div style="font-size:10px;font-family:var(--mono);color:' + (isVerdict ? 'var(--accent)' : 'var(--text-muted)') + ';text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">' + escapeHtml(title) + '</div>' +
+      '<div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;">' + escapeHtml(body) + '</div>' +
+      '</div>';
+  });
+
+  html += '</div>';
+  html += '<input type="hidden" id="azSynthesisRaw" value="' + report.replace(/"/g,'&quot;') + '">';
+  return html;
+}
+
+function azCopySynthesis() {
+  var el = document.getElementById('azSynthesisRaw');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value.replace(/&quot;/g,'"'))
+    .then(function(){ alert('Report copied to clipboard!'); })
+    .catch(function(){ alert('Copy failed — please select and copy manually.'); });
+}
+
+function azInitApiBar() {
+  var key = azLoadApiKey();
+  var input = document.getElementById('azApiKeyInput');
+  if (input && key) input.value = key;
+  azRefreshApiKeyStatus();
+  // Enable synthesize if we already have analyses
+  var cache = azLoadCache();
+  var hasAnalyses = Object.values(cache).filter(function(v){ return v && v.analysis; }).length;
+  if (hasAnalyses >= 5) {
+    var btn = document.getElementById('btnSynthesize');
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  MULTI-TRANSCRIPT PROMPT BUILDER
+// ══════════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════════
+//  SEMI-AUTO WIZARD ENGINE
+// ══════════════════════════════════════════════════════════════════
+
+var wiz = {
+  companies: [],   // [{bseCode, ticker, name, date, url}]
+  userPrompt: '',  // the question the user typed
+  idx: 0,         // current company index
+  results: [],    // [{ticker, name, response, skipped}]
+  extractCache: {}, // bseCode → extracted text (so we don't re-fetch)
+  state: 'idle'   // idle | setup | extracting | step | final
+};
+
+function wizOpen() {
+  var codes = Object.keys(azSelected).filter(function(k){ return azSelected[k]; });
+  if (!codes.length) { alert('Select at least one company first.'); return; }
+  var cache = azLoadCache();
+  wiz.companies = codes.map(function(bse) {
+    var co = azCompanyMap[bse] || {};
+    var entry = cache[bse] || {};
+    return { bseCode: bse, ticker: co.ticker||bse, name: co.name||bse, date: entry.date||'Q3 FY26', url: entry.url||'' };
+  });
+  wiz.idx = 0;
+  wiz.results = [];
+  wiz.extractCache = {};
+  wiz.userPrompt = '';
+  wiz.state = 'setup';
+  document.getElementById('wizOverlay').classList.add('show');
+  wizRenderSetup();
+}
+
+function wizClose() {
+  wiz.state = 'idle';
+  document.getElementById('wizOverlay').classList.remove('show');
+}
+
+function wizSetProgress(done, total) {
+  var pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('wizProgressFill').style.width = pct + '%';
+  document.getElementById('wizProgressLabel').textContent = done + ' / ' + total;
+}
+
+// ── STEP 0: Setup — user types their prompt ──
+function wizRenderSetup() {
+  wizSetProgress(0, wiz.companies.length);
+  var tickers = wiz.companies.map(function(c){ return c.ticker; }).join(', ');
+  document.getElementById('wizBody').innerHTML =
+    '<div class="wiz-setup">'+
+      '<div>'+
+        '<div class="wiz-label">Your question or prompt</div>'+
+        '<textarea class="wiz-prompt-input" id="wizPromptInput" placeholder="e.g. What did management say about demand outlook and margin guidance for next quarter?\n\nOr: Summarise key macro risks mentioned.\n\nOr: Extract any guidance on hiring or headcount." rows="5">'+escapeHtml(wiz.userPrompt)+'</textarea>'+
+      '</div>'+
+      '<div style="font-size:11px;color:var(--text-muted);line-height:1.7;">'+
+        '&#9679; <b style="color:var(--text);">'+wiz.companies.length+' companies</b> selected: <span style="color:var(--text-dim);font-family:var(--mono);font-size:10px;">'+escapeHtml(tickers)+'</span><br>'+
+        '&#9679; The app will open Claude for each company one by one<br>'+
+        '&#9679; You paste → get answer → paste answer back → Next<br>'+
+        '&#9679; At the end you get one aggregated prompt to paste into Claude'+
+      '</div>'+
+      '<button class="wiz-big-btn primary" onclick="wizStartExtraction()">Start &#8594;</button>'+
+    '</div>';
+  setTimeout(function(){ var el = document.getElementById('wizPromptInput'); if(el) el.focus(); }, 50);
+}
+
+// ── PRE-FETCH: Extract all PDFs before stepping through ──
+async function wizStartExtraction() {
+  var promptEl = document.getElementById('wizPromptInput');
+  wiz.userPrompt = (promptEl ? promptEl.value.trim() : '') || 'Summarise the key macro themes, demand outlook, margin guidance, and any risks mentioned.';
+  wiz.state = 'extracting';
+
+  // Show extraction progress inline
+  document.getElementById('wizBody').innerHTML =
+    '<div class="wiz-setup" style="align-items:center;text-align:center;">'+
+      '<div style="font-size:28px;">&#128196;</div>'+
+      '<div style="font-size:14px;font-weight:600;color:var(--text);">Extracting transcripts</div>'+
+      '<div style="font-size:11px;color:var(--text-muted);" id="wizExtractMsg">Loading PDFs...</div>'+
+      '<div style="width:100%;background:var(--surface3);border-radius:2px;height:4px;overflow:hidden;">'+
+        '<div id="wizExtractBar" style="height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s;"></div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text-dim);">Fetching PDFs locally — nothing sent to Claude yet</div>'+
+    '</div>';
+
+  var total = wiz.companies.length;
+  var failed = [];
+
+  for (var i = 0; i < total; i++) {
+    var co = wiz.companies[i];
+    var bar = document.getElementById('wizExtractBar');
+    var msg = document.getElementById('wizExtractMsg');
+    if (bar) bar.style.width = Math.round((i/total)*100)+'%';
+    if (msg) msg.textContent = 'Extracting ' + co.ticker + '... (' + (i+1) + ' of ' + total + ')';
+    wizSetProgress(i, total);
+
+    if (!co.url) { wiz.extractCache[co.bseCode] = null; continue; }
+    try {
+      var text = await extractPdfText(co.url, null);
+      wiz.extractCache[co.bseCode] = (text && text.trim().length > 100) ? text : null;
+      if (!wiz.extractCache[co.bseCode]) failed.push(co.ticker + ' (empty)');
+    } catch(e) {
+      wiz.extractCache[co.bseCode] = null;
+      failed.push(co.ticker + ' (failed)');
+    }
+  }
+
+  wiz.state = 'step';
+  wiz.idx = 0;
+  wizRenderStep();
+}
+
+// ── STEP N: Show one company, prompt copied, await response ──
+function wizRenderStep() {
+  var co = wiz.companies[wiz.idx];
+  var total = wiz.companies.length;
+  wizSetProgress(wiz.idx, total);
+
+  var text = wiz.extractCache[co.bseCode];
+  var prompt = wizBuildCompanyPrompt(co, text, wiz.userPrompt);
+  var canExtract = !!text;
+
+  // Auto-copy prompt to clipboard
+  if (canExtract) {
+    navigator.clipboard.writeText(prompt).catch(function(){});
+  }
+
+  var doneChips = wiz.results.map(function(r) {
+    return '<span class="wiz-chip '+(r.skipped?'skip':r.response?'ok':'fail')+'">'+
+      escapeHtml(r.ticker)+(r.skipped?' ↷':'')+'</span>';
+  }).join('');
+
+  document.getElementById('wizBody').innerHTML =
+    '<div class="wiz-card">'+
+
+      // Done chips
+      (wiz.results.length ? '<div class="wiz-done-chips">'+doneChips+'</div>' : '')+
+
+      // Company header
+      '<div class="wiz-company-header">'+
+        '<span class="wiz-ticker">'+escapeHtml(co.ticker)+'</span>'+
+        '<span class="wiz-coname">'+escapeHtml(co.name)+'</span>'+
+        '<span class="wiz-date">'+escapeHtml(co.date)+'</span>'+
+      '</div>'+
+
+      // Status
+      '<div class="wiz-status" id="wizStepStatus">'+
+        (canExtract
+          ? '&#10003; Transcript extracted &nbsp;·&nbsp; Prompt copied to clipboard &nbsp;·&nbsp; <a href="https://claude.ai" target="_blank" style="color:var(--accent);text-decoration:none;" onclick="wizHandleClaudeOpen()">Open Claude ↗</a>'
+          : '&#9888; PDF could not be extracted — skip this company or paste transcript manually below'
+        )+
+      '</div>'+
+
+      // Response input
+      '<div>'+
+        '<div class="wiz-label">'+(wiz.idx+1)+' / '+total+' &nbsp;—&nbsp; Paste Claude\'s response</div>'+
+        '<textarea class="wiz-response-area" id="wizResponseInput" placeholder="Paste Claude\'s response here, then click Next →"></textarea>'+
+      '</div>'+
+
+      // Actions
+      '<div class="wiz-action-row">'+
+        (canExtract
+          ? '<button class="wiz-big-btn secondary" style="flex:0;padding:14px 18px;font-size:12px;" onclick="wizCopyPrompt()" title="Copy prompt again">&#128203;</button>'
+          : '')+
+        '<button class="wiz-big-btn secondary" onclick="wizSkip()">Skip</button>'+
+        '<button class="wiz-big-btn primary" id="wizNextBtn" onclick="wizNext()">'+
+          (wiz.idx === total-1 ? 'Finish &#10003;' : 'Next &#8594;')+
+        '</button>'+
+      '</div>'+
+
+    '</div>';
+
+  // Focus response input
+  setTimeout(function(){ var el = document.getElementById('wizResponseInput'); if(el) el.focus(); }, 50);
+}
+
+function wizBuildCompanyPrompt(co, transcriptText, userPrompt) {
+  var MAX = 14000;
+  var body = transcriptText
+    ? (transcriptText.length > MAX ? transcriptText.slice(0, MAX) + '\n\n[transcript truncated]' : transcriptText)
+    : '[Transcript not available]';
+
+  return [
+    '=== DELTA ANALYZE — ' + co.ticker + ' / ' + co.name + ' ===',
+    'Transcript date: ' + co.date,
+    '',
+    'QUESTION:',
+    userPrompt,
+    '',
+    '--- TRANSCRIPT ---',
+    body,
+    '--- END ---',
+    '',
+    'Please answer the question above based only on this transcript. Be concise and specific. Use direct quotes where relevant.'
+  ].join('\n');
+}
+
+function wizCopyPrompt() {
+  var co = wiz.companies[wiz.idx];
+  var text = wiz.extractCache[co.bseCode];
+  var prompt = wizBuildCompanyPrompt(co, text, wiz.userPrompt);
+  navigator.clipboard.writeText(prompt).then(function(){
+    var s = document.getElementById('wizStepStatus');
+    if (s) { var old = s.innerHTML; s.innerHTML = '&#10003; Copied again!'; setTimeout(function(){ s.innerHTML = old; }, 1500); }
+  });
+}
+
+function wizHandleClaudeOpen() {
+  // Re-copy on claude.ai open in case clipboard was cleared
+  wizCopyPrompt();
+}
+
+function wizNext() {
+  var responseEl = document.getElementById('wizResponseInput');
+  var response = responseEl ? responseEl.value.trim() : '';
+  var co = wiz.companies[wiz.idx];
+  wiz.results.push({ ticker: co.ticker, name: co.name, response: response, skipped: false });
+  wizAdvance();
+}
+
+function wizSkip() {
+  var co = wiz.companies[wiz.idx];
+  wiz.results.push({ ticker: co.ticker, name: co.name, response: '', skipped: true });
+  wizAdvance();
+}
+
+function wizAdvance() {
+  wiz.idx++;
+  wizSetProgress(wiz.idx, wiz.companies.length);
+  if (wiz.idx >= wiz.companies.length) {
+    wizRenderFinal();
+  } else {
+    wizRenderStep();
+  }
+}
+
+// ── FINAL: Build aggregation prompt ──
+function wizRenderFinal() {
+  wiz.state = 'final';
+  wizSetProgress(wiz.companies.length, wiz.companies.length);
+
+  var answered = wiz.results.filter(function(r){ return !r.skipped && r.response; });
+  var skipped  = wiz.results.filter(function(r){ return r.skipped || !r.response; });
+
+  var combinedPrompt = wizBuildAggregationPrompt(answered);
+  var chars = combinedPrompt.length;
+  var words = Math.round(chars/5);
+
+  // Auto-copy
+  navigator.clipboard.writeText(combinedPrompt).catch(function(){});
+
+  document.getElementById('wizBody').innerHTML =
+    '<div class="wiz-final">'+
+
+      '<div style="font-size:32px;">&#127381;</div>'+
+      '<div style="font-size:16px;font-weight:700;color:var(--text);">All done — aggregation prompt ready</div>'+
+      '<div style="font-size:11px;color:var(--text-muted);">'+
+        answered.length+' companies answered' +
+        (skipped.length ? ' · '+skipped.length+' skipped' : '') +
+        ' · ~'+words.toLocaleString()+' words'+
+      '</div>'+
+
+      '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'+
+        answered.map(function(r){ return '<span class="wiz-chip ok">'+escapeHtml(r.ticker)+'</span>'; }).join('')+
+        skipped.map(function(r){ return '<span class="wiz-chip skip">'+escapeHtml(r.ticker)+'</span>'; }).join('')+
+      '</div>'+
+
+      '<div style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:10px;font-family:var(--mono);color:var(--text-muted);max-height:180px;overflow-y:auto;text-align:left;white-space:pre-wrap;line-height:1.6;" id="wizFinalPreview">'+
+        escapeHtml(combinedPrompt.slice(0, 1200)) + (combinedPrompt.length > 1200 ? '\n\n[... +' + (combinedPrompt.length-1200).toLocaleString() + ' more chars ...]' : '')+
+      '</div>'+
+
+      '<div style="display:flex;gap:10px;">'+
+        '<button class="wiz-big-btn primary" style="flex:1;" id="wizCopyFinalBtn" onclick="wizCopyFinal()">&#128203; Copy Aggregation Prompt</button>'+
+        '<button class="wiz-big-btn secondary" style="flex:0;padding:14px 18px;" onclick="window.open(\'https://claude.ai\',\'_blank\')">Open Claude ↗</button>'+
+      '</div>'+
+
+      '<div style="display:flex;gap:10px;">'+
+        '<button class="wiz-big-btn secondary" onclick="wizRestart()" style="flex:1;font-size:11px;">&#8635; Run again with same companies</button>'+
+        '<button class="wiz-big-btn secondary" onclick="wizClose()" style="flex:1;font-size:11px;">&#10003; Done</button>'+
+      '</div>'+
+
+    '</div>';
+}
+
+function wizBuildAggregationPrompt(answered) {
+  var companyBlock = answered.map(function(r, i) {
+    return '### ' + (i+1) + '. ' + r.ticker + ' — ' + r.name + '\n' + r.response;
+  }).join('\n\n---\n\n');
+
+  return [
+    '=== DELTA ANALYZE — AGGREGATION PROMPT ===',
+    'Companies: ' + answered.map(function(r){ return r.ticker; }).join(', '),
+    'Original question asked per company: "' + wiz.userPrompt + '"',
+    '',
+    'Below are individual answers for each company based on their Q3 FY26 earnings call transcript.',
+    'Please synthesize these into a single coherent answer to the question:',
+    '"' + wiz.userPrompt + '"',
+    '',
+    'Structure your response as:',
+    '## OVERALL ANSWER',
+    'A direct 2-3 paragraph answer to the question based on the aggregate picture.',
+    '',
+    '## BY COMPANY',
+    'A 1-line summary per company — key number, quote, or signal.',
+    '',
+    '## DIVERGENCES & STANDOUTS',
+    'Any companies telling a clearly different story from the rest. Worth flagging.',
+    '',
+    '--- INDIVIDUAL COMPANY RESPONSES ---',
+    '',
+    companyBlock,
+    '',
+    '--- END ---'
+  ].join('\n');
+}
+
+function wizCopyFinal() {
+  var answered = wiz.results.filter(function(r){ return !r.skipped && r.response; });
+  var prompt = wizBuildAggregationPrompt(answered);
+  navigator.clipboard.writeText(prompt).then(function(){
+    var btn = document.getElementById('wizCopyFinalBtn');
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy Aggregation Prompt'; }, 2000); }
+  });
+}
+
+function wizRestart() {
+  wiz.idx = 0;
+  wiz.results = [];
+  wiz.state = 'step';
+  wizRenderStep();
+}
+
+function azClearSelection() {
+  azSelected = {};
+  azRefreshSelectionUI();
+}
+
+// Condense raw transcript text to ~600 word structured extract (no AI needed)
+// Extracts: revenue mentions, margin mentions, guidance, management quotes
+function azCondenseTranscript(ticker, name, date, rawText) {
+  var MAX_CHARS = 4000; // ~600-700 words per company
+  var text = rawText.replace(/\s+/g, ' ').trim();
+
+  // Try to extract high-signal sentences
+  var sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+  var highSignal = sentences.filter(function(s) {
+    var sl = s.toLowerCase();
+    return /revenue|growth|margin|profit|guidance|outlook|demand|volume|cost|capex|hiring|attrition|risk|challenge|opportunit|quarter|crore|billion|percent|%/.test(sl);
+  });
+
+  // Take first 2000 chars (management opening) + top signal sentences up to limit
+  var opening = text.slice(0, 1500);
+  var signals = highSignal.slice(0, 40).join(' ');
+  var combined = opening + '\n\n[KEY SIGNALS]\n' + signals;
+  if (combined.length > MAX_CHARS) combined = combined.slice(0, MAX_CHARS) + '...';
+
+  return '### ' + ticker + ' — ' + name + ' | ' + date + '\n' + combined;
+}
+
+// Extract text from a PDF URL, condense it, return the condensed string
+async function azExtractAndCondense(bseCode, onStatus) {
+  var cache = azLoadCache();
+  var co = azCompanyMap[bseCode];
+  var entry = cache[bseCode];
+  if (!entry || !entry.url) throw new Error('No URL for ' + bseCode);
+
+  if (onStatus) onStatus(co.ticker + ': fetching PDF...');
+  var text;
+  try {
+    text = await extractPdfText(entry.url, null);
+  } catch(e) {
+    throw new Error(co.ticker + ': PDF failed — ' + e.message);
+  }
+  if (!text || text.trim().length < 100) throw new Error(co.ticker + ': empty or image PDF');
+  if (onStatus) onStatus(co.ticker + ': condensing...');
+  return azCondenseTranscript(co.ticker, co.name, entry.date || 'Q3 FY26', text);
+}
+
+// Show the multi-prompt modal
+function azShowPromptModal(title, tabs) {
+  // tabs: [{label, prompt}]
+  document.getElementById('azModalCoName').textContent = title;
+  var tabBar = tabs.map(function(t, i) {
+    return '<button id="azptab-'+i+'" onclick="azSwitchPromptTab('+i+','+tabs.length+')" style="'+
+      'font-size:10px;font-family:var(--mono);padding:4px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--border);'+
+      (i===0?'background:var(--accent);color:#071a0d;border-color:var(--accent);':'background:var(--surface2);color:var(--text-muted);')+
+      '">'+escapeHtml(t.label)+'</button>';
+  }).join('');
+
+  var contentPanes = tabs.map(function(t, i) {
+    var chars = t.prompt.length;
+    var words = Math.round(chars / 5);
+    var fits = chars < 90000; // ~free tier context limit
+    return '<div id="azpane-'+i+'" style="display:'+(i===0?'flex':'none')+';flex-direction:column;gap:12px;">'+
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'+
+        '<span style="font-size:10px;font-family:var(--mono);color:var(--text-muted);">~'+words.toLocaleString()+' words &nbsp;·&nbsp; '+chars.toLocaleString()+' chars</span>'+
+        '<span style="font-size:10px;font-family:var(--mono);color:'+(fits?'var(--accent)':'var(--amber)')+';">'+
+          (fits ? '✓ Fits free tier' : '⚠ Large — use Claude Pro or split by sector') + '</span>'+
+        '<button onclick="azCopyTab('+i+')" style="margin-left:auto;font-size:10px;font-family:var(--mono);padding:4px 10px;border-radius:3px;background:rgba(29,185,84,0.1);border:1px solid rgba(29,185,84,0.25);color:var(--accent);cursor:pointer;">&#128203; Copy</button>'+
+        '<button onclick="window.open(\'https://claude.ai\',\'_blank\')" style="font-size:10px;font-family:var(--mono);padding:4px 10px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;">Open Claude ↗</button>'+
+      '</div>'+
+      '<textarea id="azprompt-'+i+'" readonly style="width:100%;height:340px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:10px;font-family:var(--mono);padding:12px;resize:vertical;line-height:1.5;">'+escapeHtml(t.prompt)+'</textarea>'+
+    '</div>';
+  }).join('');
+
+  document.getElementById('azModalBody').innerHTML =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">'+tabBar+'</div>'+
+    contentPanes;
+  document.getElementById('azModalOverlay').classList.add('show');
+}
+
+function azSwitchPromptTab(idx, total) {
+  for (var i = 0; i < total; i++) {
+    var tab = document.getElementById('azptab-'+i);
+    var pane = document.getElementById('azpane-'+i);
+    if (tab) { tab.style.background = i===idx?'var(--accent)':'var(--surface2)'; tab.style.color = i===idx?'#071a0d':'var(--text-muted)'; tab.style.borderColor = i===idx?'var(--accent)':'var(--border)'; }
+    if (pane) pane.style.display = i===idx?'flex':'none';
+  }
+}
+
+function azCopyTab(idx) {
+  var ta = document.getElementById('azprompt-'+idx);
+  if (!ta) return;
+  navigator.clipboard.writeText(ta.value).then(function(){
+    var btn = ta.parentElement.querySelector('button');
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy'; }, 2000); }
+  });
+}
+
+// Build the Orange Book instruction header for multi-transcript prompts
+function azMultiPromptHeader(scope, companyList) {
+  return [
+    '=== DELTA ANALYZE — ORANGE BOOK MULTI-TRANSCRIPT PROMPT ===',
+    'Scope: ' + scope,
+    'Companies: ' + companyList,
+    'Source: BSE earnings call transcripts (SEBI Reg. 30 filings), Q3 FY26',
+    '',
+    'You are a macroeconomist analyzing Indian corporate earnings call transcripts',
+    'in the style of the Bloomberg Orange Book.',
+    '',
+    'For the transcripts provided, produce:',
+    '',
+    '## OVERALL TONE',
+    'Aggregate sentiment across these companies. Positive / Mixed / Cautious / Negative. One paragraph.',
+    '',
+    '## TOP THEMES',
+    'The 3-5 most cited macro themes across all transcripts. For each:',
+    '  - Theme name',
+    '  - Which companies mentioned it',
+    '  - What it signals for the broader economy',
+    '',
+    '## SECTOR PULSE',
+    'If multiple sectors present: where are they aligned? Where diverging?',
+    'If single sector: what is the sector-wide narrative this quarter?',
+    '',
+    '## STANDOUT SIGNALS',
+    'Any unusual, new, or contrarian signals from individual companies worth flagging.',
+    '',
+    '## MACRO WATCHLIST',
+    '2-3 things to watch next quarter based on what managements flagged.',
+    '',
+    '## ONE-LINE VERDICT',
+    'Single sentence. The most important macro signal from this batch.',
+    '',
+    '--- TRANSCRIPT EXTRACTS BEGIN ---',
+    ''
+  ].join('\n');
+}
+
+// Show loading state in modal while extracting PDFs
+function azShowExtractionProgress(title, total) {
+  document.getElementById('azModalCoName').textContent = title;
+  document.getElementById('azModalBody').innerHTML =
+    '<div class="az-loading-state">'+
+      '<div class="qs-spinner"></div>'+
+      '<div id="azExtractLabel" style="font-size:12px;color:var(--text);">Preparing...</div>'+
+      '<div style="background:var(--surface3);border-radius:2px;height:3px;width:100%;margin-top:8px;">'+
+        '<div id="azExtractBar" style="height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width 0.3s;"></div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">Extracting text from PDFs locally — no data sent anywhere yet</div>'+
+    '</div>';
+  document.getElementById('azModalOverlay').classList.add('show');
+}
+
+function azUpdateExtractProgress(done, total, msg) {
+  var bar = document.getElementById('azExtractBar');
+  var lbl = document.getElementById('azExtractLabel');
+  if (bar) bar.style.width = Math.round((done/total)*100) + '%';
+  if (lbl) lbl.textContent = msg || (done + ' / ' + total + ' extracted');
+}
+
+// COMBINED PROMPT — all selected companies in one prompt
+async function azBuildCombinedPrompt() {
+  var bseCodes = Object.keys(azSelected).filter(function(k){ return azSelected[k]; });
+  if (!bseCodes.length) return;
+
+  azShowExtractionProgress('Building Combined Prompt', bseCodes.length);
+
+  var extracts = [];
+  var failed = [];
+
+  for (var i = 0; i < bseCodes.length; i++) {
+    var bse = bseCodes[i];
+    azUpdateExtractProgress(i, bseCodes.length, 'Extracting ' + (azCompanyMap[bse]||{}).ticker + '... (' + (i+1) + '/' + bseCodes.length + ')');
+    try {
+      var extract = await azExtractAndCondense(bse, null);
+      extracts.push(extract);
+    } catch(e) {
+      var co = azCompanyMap[bse] || {};
+      failed.push(co.ticker || bse);
+      extracts.push('### ' + (co.ticker||bse) + ' — PDF extraction failed: ' + e.message);
+    }
+  }
+
+  azUpdateExtractProgress(bseCodes.length, bseCodes.length, 'Building prompt...');
+
+  var tickers = bseCodes.map(function(b){ return (azCompanyMap[b]||{}).ticker||b; }).join(', ');
+  var prompt = azMultiPromptHeader('All Selected (' + bseCodes.length + ' companies)', tickers) +
+    extracts.join('\n\n---\n\n') +
+    '\n\n--- TRANSCRIPT EXTRACTS END ---';
+
+  var failNote = failed.length
+    ? '\n\n⚠ Note: ' + failed.length + ' PDF(s) failed to extract (' + failed.join(', ') + '). Results exclude these companies.'
+    : '';
+
+  azShowPromptModal('Combined Prompt — ' + bseCodes.length + ' Companies', [
+    { label: '📄 Combined Prompt', prompt: prompt + failNote }
+  ]);
+}
+
+// SECTOR PROMPTS — one tab per sector
+async function azBuildSectorPrompts() {
+  var bseCodes = Object.keys(azSelected).filter(function(k){ return azSelected[k]; });
+  if (!bseCodes.length) return;
+
+  // Group selected by sector
+  var bseSet = {};
+  bseCodes.forEach(function(b){ bseSet[b] = true; });
+  var sectors = [];
+  NIFTY50.forEach(function(sector) {
+    var cos = sector.companies.filter(function(co){ return bseSet[co.bse]; });
+    if (cos.length > 0) sectors.push({ sector: sector, cos: cos });
+  });
+
+  var total = bseCodes.length;
+  azShowExtractionProgress('Building Sector Prompts', total);
+
+  // Extract all PDFs
+  var extractMap = {};
+  var done = 0;
+  for (var si = 0; si < sectors.length; si++) {
+    for (var ci = 0; ci < sectors[si].cos.length; ci++) {
+      var co = sectors[si].cos[ci];
+      azUpdateExtractProgress(done, total, 'Extracting ' + co.ticker + '... (' + (done+1) + '/' + total + ')');
+      try {
+        extractMap[co.bse] = await azExtractAndCondense(co.bse, null);
+      } catch(e) {
+        extractMap[co.bse] = '### ' + co.ticker + ' — PDF extraction failed: ' + e.message;
+      }
+      done++;
+    }
+  }
+
+  azUpdateExtractProgress(total, total, 'Building prompts...');
+
+  var tabs = sectors.map(function(s) {
+    var tickers = s.cos.map(function(c){ return c.ticker; }).join(', ');
+    var extracts = s.cos.map(function(c){ return extractMap[c.bse]; }).join('\n\n---\n\n');
+    var prompt = azMultiPromptHeader(s.sector.sector + ' sector', tickers) +
+      extracts + '\n\n--- TRANSCRIPT EXTRACTS END ---';
+    return { label: s.sector.sector.split(' ')[0] + ' (' + s.cos.length + ')', prompt: prompt };
+  });
+
+  // Also add a combined roll-up tab if more than one sector
+  if (sectors.length > 1) {
+    var allExtracts = bseCodes.map(function(b){ return extractMap[b]||''; }).join('\n\n---\n\n');
+    var allTickers = bseCodes.map(function(b){ return (azCompanyMap[b]||{}).ticker||b; }).join(', ');
+    var rollup = azMultiPromptHeader('All Sectors Combined', allTickers) +
+      allExtracts + '\n\n--- TRANSCRIPT EXTRACTS END ---';
+    tabs.unshift({ label: '🌐 All Sectors', prompt: rollup });
+  }
+
+  azShowPromptModal('Sector Prompts — ' + bseCodes.length + ' Companies', tabs);
+}
+
 function buildOrangeBookPrompt(companyName, ticker, transcriptDate, transcriptText) {
   // Truncate to ~12000 chars to stay within safe paste limits
   var MAX = 12000;
@@ -3995,6 +5182,17 @@ async function extractPdfText(pdfUrl, onProgress) {
 
 // ── Main entry point: Analyze button clicked ──────────────────
 async function azStartAnalyze(bseCode) {
+  var key = azLoadApiKey();
+  if (key && key.startsWith('sk-ant-') && key.length > 20) {
+    // API mode — fully automated
+    await azAnalyzeCompany(bseCode);
+  } else {
+    // Manual mode — show copy-paste prompt modal
+    azStartAnalyzeManual(bseCode);
+  }
+}
+
+async function azStartAnalyzeManual(bseCode) {
   var cache = azLoadCache();
   var co = azCompanyMap[bseCode];
   if (!co || !cache[bseCode] || !cache[bseCode].url) return;
@@ -4190,6 +5388,51 @@ function toneClass(tone) {
   return 'neutral';
 }
 
+function azManualEntry(bseCode) {
+  var co = azCompanyMap[bseCode];
+  if (!co) return;
+  var cache = azLoadCache();
+  var bseUrl = (cache[bseCode] && cache[bseCode].bseUrl) || buildBseUrl(bseCode);
+  var bsePageUrl = 'https://www.bseindia.com/corporates/ann.html?scrip='+bseCode+'&dur=Q&anntyp=Concall%20Transcript';
+
+  var existing = document.getElementById('azmanual-'+bseCode);
+  if (existing) { existing.remove(); return; } // toggle off
+
+  var div = document.createElement('div');
+  div.id = 'azmanual-'+bseCode;
+  div.style.cssText = 'background:rgba(212,160,23,0.05);border:1px solid rgba(212,160,23,0.2);border-radius:4px;padding:10px 14px;margin:2px 14px 8px;display:flex;flex-direction:column;gap:8px;';
+  div.innerHTML =
+    '<div style="font-size:10px;font-family:var(--mono);color:var(--amber);text-transform:uppercase;letter-spacing:0.8px;">&#9888; CORS blocked — enter transcript details manually</div>'+
+    '<div style="font-size:11px;color:var(--text-muted);line-height:1.6;">'+
+      '1. <a href="'+bsePageUrl+'" target="_blank" style="color:var(--accent);">Open BSE filings for '+escapeHtml(co.name)+' ↗</a><br>'+
+      '2. Find the latest earnings call transcript, copy the PDF link<br>'+
+      '3. Paste the PDF URL and date below'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      '<input id="azm-date-'+bseCode+'" type="text" placeholder="Date e.g. 15 Jan 2025" style="flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;font-family:var(--mono);padding:5px 8px;outline:none;">'+
+      '<input id="azm-url-'+bseCode+'"  type="text" placeholder="PDF URL (paste from BSE)" style="flex:3;min-width:200px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:11px;font-family:var(--mono);padding:5px 8px;outline:none;">'+
+      '<button onclick="azSaveManual(\''+bseCode+'\')" style="padding:5px 12px;border-radius:3px;border:none;background:var(--accent);color:#071a0d;font-size:11px;font-weight:700;cursor:pointer;">Save</button>'+
+    '</div>';
+
+  var row = document.getElementById('azrow-'+bseCode);
+  if (row) row.appendChild(div);
+}
+
+function azSaveManual(bseCode) {
+  var dateEl = document.getElementById('azm-date-'+bseCode);
+  var urlEl  = document.getElementById('azm-url-'+bseCode);
+  if (!dateEl || !urlEl) return;
+  var date = dateEl.value.trim();
+  var url  = urlEl.value.trim();
+  if (!date) { dateEl.style.borderColor='var(--red)'; return; }
+
+  var result = { date: date, url: url || ('https://www.bseindia.com/corporates/ann.html?scrip='+bseCode), raw: date };
+  updateCompanyBadge(bseCode, result);
+
+  var manual = document.getElementById('azmanual-'+bseCode);
+  if (manual) manual.remove();
+}
+
 function buildResultCard(bseCode, analysis) {
   if (!analysis) return '<div id="azresult-'+bseCode+'"></div>';
   var tc = toneClass(analysis.tone);
@@ -4238,5 +5481,6 @@ function azCloseModal() {
   document.getElementById('azModalOverlay').classList.remove('show');
   azCurrentBse = null;
 }
+</script>
 </body>
 </html>
