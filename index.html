@@ -792,18 +792,26 @@ async function startTranscription() {
   ['errorBanner','warnBanner','successBanner'].forEach(function(id){document.getElementById(id).classList.remove('show');});
   try {
     screenStream = await navigator.mediaDevices.getDisplayMedia({
-      video:true,
-      audio:{echoCancellation:false,noiseSuppression:false,sampleRate:16000},
-      preferCurrentTab:false,selfBrowserSurface:'exclude',
-      surfaceSwitching:'exclude',systemAudio:'exclude',displaySurface:'browser'
+      video: true,
+      audio: true
     });
   } catch(e) {
-    showBanner('warning','\u26a0\ufe0f Tab sharing was cancelled. Please try again and select your meeting tab.');
+    // Only show banner if user didn't just close/cancel the dialog
+    if (e.name !== 'AbortError' && e.name !== 'NotAllowedError') {
+      showBanner('warning', '\u26a0\ufe0f Could not start sharing. Please try again.');
+    }
+    return;
+  }
+  // Reject if user picked a Window or Screen instead of a tab
+  var vt = screenStream.getVideoTracks()[0];
+  if (vt && vt.getSettings().displaySurface !== 'browser') {
+    screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null;
+    showBanner('warning','\u26a0\ufe0f Please select a <strong>Chrome Tab</strong> only \u2014 Window and Screen are not supported.');
     return;
   }
   var audioTracks=screenStream.getAudioTracks();
   if (audioTracks.length===0) {
-    showBanner('warning','\u26a0\ufe0f <strong>No audio captured.</strong> Make sure you: (1) picked a <strong>Chrome Tab</strong> (not Window or Screen), (2) ticked <strong>"Share tab audio"</strong> &#9989;. If using Zoom, you must use the <strong>web client</strong> (zoom.us/wc/) — the desktop app cannot be captured.');
+    showBanner('warning','\u26a0\ufe0f <strong>No audio captured.</strong> Make sure you picked a <strong>Chrome Tab</strong> and ticked <strong>"Share tab audio"</strong> &#9989;.');
     screenStream.getTracks().forEach(function(t){t.stop();}); screenStream=null; return;
   }
   screenStream.getVideoTracks().forEach(function(t){t.stop();});
